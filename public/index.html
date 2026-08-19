@@ -1,13 +1,283 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EmadNet</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmadNet | فروشگاه اشتراک اختصاصی</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+  <style>
+    body { font-family: 'Vazirmatn', sans-serif; }
+  </style>
 </head>
-<body>
-  <h1>EmadNet</h1>
-  <p>سرور با موفقیت اجرا شد.</p>
-  <p>برای اتصال رابط کاربری اصلی، فایل‌های Frontend پروژه خودت را داخل پوشه <code>public</code> قرار بده.</p>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+
+  <!-- Navbar -->
+  <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3 space-x-reverse">
+        <span class="text-2xl font-black tracking-wider text-indigo-500">EmadNet</span>
+      </div>
+      <div id="nav-auth-buttons" class="flex gap-3">
+        <button onclick="openAuthModal('login')" class="text-sm px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition">ورود</button>
+        <button onclick="openAuthModal('register')" class="text-sm px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition">ثبت‌نام</button>
+      </div>
+      <div id="nav-user-info" class="hidden flex items-center gap-4">
+        <span id="user-display" class="text-sm text-slate-300 font-medium"></span>
+        <button onclick="openDashboard()" class="text-sm px-3 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/30 transition">داشبورد من</button>
+        <button onclick="logout()" class="text-sm px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition">خروج</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="max-w-4xl mx-auto text-center px-4 py-12">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">انترنت آزاد و باکیفیت با <span class="text-indigo-500">EmadNet</span></h1>
+    <p class="text-slate-400 text-lg max-w-xl mx-auto">خرید سریع و آنی سرویس‌های اختصاصی با بالاترین سرعت و پایداری.</p>
+  </header>
+
+  <!-- Plans Section -->
+  <main class="max-w-6xl mx-auto px-4 mb-16 flex-grow w-full">
+    <h2 class="text-2xl font-bold mb-8 text-center text-slate-200">پلن‌های اشتراک</h2>
+    <div id="plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="text-center text-slate-500 col-span-3 py-8">در حال دریافت پلن‌ها...</div>
+    </div>
+  </main>
+
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative">
+      <button onclick="closeAuthModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
+      
+      <div class="flex border-b border-slate-800 mb-6">
+        <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400">ورود</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 font-bold text-center text-slate-400">ثبت‌نام</button>
+      </div>
+
+      <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">نام کاربری</label>
+          <input type="text" id="auth-username" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm text-slate-400 mb-1">رمز عبور</label>
+          <input type="password" id="auth-password" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div id="auth-error" class="text-rose-500 text-sm hidden"></div>
+        <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">ورود به حساب</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Modal -->
+  <div id="dashboard-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeDashboard()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
+      <h3 class="text-xl font-bold mb-4 text-white">داشبورد سفارش‌های من</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-sm">
+          <thead class="bg-slate-950 text-slate-400">
+            <tr>
+              <th class="p-3">نام پلن</th>
+              <th class="p-3">حجم / روز</th>
+              <th class="p-3">مبلغ پرداختی</th>
+              <th class="p-3">وضعیت</th>
+            </tr>
+          </thead>
+          <tbody id="orders-list-body" class="divide-y divide-slate-800">
+            <tr><td colspan="4" class="p-4 text-center text-slate-500">در حال دریافت اطلاعات...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-600">
+    &copy; تمامی حقوق برای EmadNet محفوظ است.
+  </footer>
+
+  <script>
+    let currentAuthMode = 'login';
+    let selectedPlanId = null;
+
+    async function init() {
+      checkUserStatus();
+      loadPlans();
+    }
+
+    async function checkUserStatus() {
+      try {
+        const res = await fetch('/api/me');
+        const data = await res.json();
+        if (data.loggedIn) {
+          document.getElementById('nav-auth-buttons').classList.add('hidden');
+          document.getElementById('nav-user-info').classList.remove('hidden');
+          document.getElementById('user-display').innerText = data.user.username;
+        } else {
+          document.getElementById('nav-auth-buttons').classList.remove('hidden');
+          document.getElementById('nav-user-info').classList.add('hidden');
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadPlans() {
+      try {
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        const container = document.getElementById('plans-container');
+        
+        container.innerHTML = plans.map(p => `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
+            <div>
+              <h3 class="text-xl font-bold text-white mb-2">${p.name}</h3>
+              <div class="text-3xl font-extrabold text-indigo-400 mb-4">${p.price.toLocaleString()} <span class="text-xs text-slate-400">تومان</span></div>
+              <ul class="text-sm text-slate-400 space-y-2 mb-6">
+                <li>✔ حجم: ${p.gb} گیگابایت</li>
+                <li>✔ مدت زمان: ${p.days} روز</li>
+                <li>✔ اتصال پرسرعت و بدون قطعی</li>
+              </ul>
+            </div>
+            <button onclick="buyPlan(${p.id})" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">خرید آنلاین</button>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('plans-container').innerHTML = '<div class="col-span-3 text-center text-rose-500">خطا در دریافت لیست پلن‌ها</div>';
+      }
+    }
+
+    function openAuthModal(mode) {
+      switchAuthTab(mode);
+      document.getElementById('auth-modal').classList.remove('hidden');
+      document.getElementById('auth-modal').classList.add('flex');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('auth-modal').classList.add('hidden');
+      document.getElementById('auth-modal').classList.remove('flex');
+    }
+
+    function switchAuthTab(mode) {
+      currentAuthMode = mode;
+      const loginTab = document.getElementById('tab-login');
+      const regTab = document.getElementById('tab-register');
+      const submitBtn = document.getElementById('auth-submit-btn');
+
+      if (mode === 'login') {
+        loginTab.className = "flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400";
+        regTab.className = "flex-1 py-2 font-bold text-center text-slate-400";
+        submitBtn.innerText = "ورود به حساب";
+      } else {
+        regTab.className = "flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400";
+        loginTab.className = "flex-1 py-2 font-bold text-center text-slate-400";
+        submitBtn.innerText = "ایجاد حساب کاربری";
+      }
+    }
+
+    async function handleAuth(e) {
+      e.preventDefault();
+      const errDiv = document.getElementById('auth-error');
+      errDiv.classList.add('hidden');
+
+      const username = document.getElementById('auth-username').value;
+      const password = document.getElementById('auth-password').value;
+      const endpoint = currentAuthMode === 'login' ? '/api/login' : '/api/register';
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {'content-type': 'application/json'},
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'خطایی رخ داد');
+
+        closeAuthModal();
+        checkUserStatus();
+        if (selectedPlanId) {
+          processOrder(selectedPlanId);
+          selectedPlanId = null;
+        }
+      } catch (err) {
+        errDiv.innerText = err.message;
+        errDiv.classList.remove('hidden');
+      }
+    }
+
+    async function logout() {
+      await fetch('/api/logout', { method: 'POST' });
+      checkUserStatus();
+    }
+
+    async function buyPlan(planId) {
+      const res = await fetch('/api/me');
+      const data = await res.json();
+
+      if (!data.loggedIn) {
+        selectedPlanId = planId;
+        openAuthModal('login');
+      } else {
+        processOrder(planId);
+      }
+    }
+
+    async function processOrder(planId) {
+      const coupon = prompt('اگر کد تخفیف دارید وارد کنید (در غیر این صورت خالی بگذارید):') || '';
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: {'content-type': 'application/json'},
+          body: JSON.stringify({ planId, coupon })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
+
+        alert(`سفارش شما با موفقیت ثبت شد!\nمبلغ: ${data.order.finalPrice.toLocaleString()} تومان`);
+        openDashboard();
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    async function openDashboard() {
+      document.getElementById('dashboard-modal').classList.remove('hidden');
+      document.getElementById('dashboard-modal').classList.add('flex');
+      
+      const tbody = document.getElementById('orders-list-body');
+      tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">در حال دریافت اطلاعات...</td></tr>';
+
+      try {
+        const res = await fetch('/api/dashboard');
+        const data = await res.json();
+
+        if (!data.orders || data.orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">هنوز هیچ سفارشی ثبت نکرده‌اید.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = data.orders.map(o => `
+          <tr class="hover:bg-slate-800/50">
+            <td class="p-3 font-bold text-white">${o.planName}</td>
+            <td class="p-3 text-slate-400">${o.gb}GB / ${o.days} روز</td>
+            <td class="p-3 text-indigo-400 font-bold">${o.finalPrice.toLocaleString()} تومان</td>
+            <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-amber-500/10 text-amber-400">${o.status}</span></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">خطا در دریافت لیست سفارش‌ها</td></tr>';
+      }
+    }
+
+    function closeDashboard() {
+      document.getElementById('dashboard-modal').classList.add('hidden');
+      document.getElementById('dashboard-modal').classList.remove('flex');
+    }
+
+    init();
+  </script>
 </body>
 </html>
