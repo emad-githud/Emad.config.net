@@ -3,6 +3,10 @@ const session = require('express-session');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
+const rateLimit = require('express-rate-limit');
+
+const scryptAsync = util.promisify(crypto.scrypt);
 
 const app = express();
 
@@ -49,23 +53,32 @@ app.use(session({
   }
 }));
 
-function hashPassword(password) {
+// Rate Limiter برای جلوگیری از هک و فشار CPU روی لاگین و ثبت نام
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 دقیقه
+  max: 15, // حداکثر ۱۵ درخواست
+  message: { error: 'تعداد درخواست‌های شما زیاد بوده است. لطفاً ۱۵ دقیقه دیگر دوباره تلاش کنید.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// هش کردن پسورد به‌صورت Non-blocking (Async) برای جلوگیری از قفل شدن CPU
+async function hashPassword(password) {
   const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
-  return `${salt}:${hash}`;
+  const hashBuf = await scryptAsync(password, salt, 64);
+  return `${salt}:${hashBuf.toString('hex')}`;
 }
 
-function verifyPassword(password, stored) {
+async function verifyPassword(password, stored) {
   try {
     if (!stored) return false;
     const [salt, original] = String(stored).split(':');
     if (!salt || !original) return false;
 
-    const hash = crypto.scryptSync(password, salt, 64);
+    const hashBuf = await scryptAsync(password, salt, 64);
     const buf = Buffer.from(original, 'hex');
 
-    return hash.length === buf.length &&
-      crypto.timingSafeEqual(hash, buf);
+    return hashBuf.length === buf.length && crypto.timingSafeEqual(hashBuf, buf);
   } catch {
     return false;
   }
@@ -93,11 +106,13 @@ function defaultDatabase() {
   };
 }
 
-function readDB() {
+// خواندن دیتابیس به‌صورت غیرهمگام (Async)
+async function readDB() {
   try {
     if (!fs.existsSync(DB_FILE)) return defaultDatabase();
 
-    const db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    const raw = await fs.promises.readFile(DB_FILE, 'utf8');
+    const db = JSON.parse(raw);
 
     return {
       users: Array.isArray(db.users) ? db.users : [],
@@ -112,40 +127,45 @@ function readDB() {
   }
 }
 
-function writeDB(db) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// جلوگیری از Race Condition با صف نوشتن ساده (Mutex)
+let writeQueue = Promise.resolve();
 
-  const tempFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tempFile, JSON.stringify(db, null, 2), 'utf8');
-  fs.renameSync(tempFile, DB_FILE);
+function writeDB(db) {
+  writeQueue = writeQueue.then(async () => {
+    await fs.promises.mkdir(DATA_DIR, { recursive: true });
+    const tempFile = `${DB_FILE}.tmp`;
+    await fs.promises.writeFile(tempFile, JSON.stringify(db, null, 2), 'utf8');
+    await fs.promises.rename(tempFile, DB_FILE);
+  }).catch(err => {
+    console.error('DATABASE WRITE ERROR:', err);
+  });
+  return writeQueue;
 }
 
-function ensureDB() {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+async function ensureDB() {
+  await fs.promises.mkdir(DATA_DIR, { recursive: true });
 
   if (!fs.existsSync(DB_FILE)) {
     const db = defaultDatabase();
-
     const initialPassword = ADMIN_PASSWORD || crypto.randomBytes(24).toString('hex');
 
     if (!ADMIN_PASSWORD) {
       console.warn('WARNING: ADMIN_PASSWORD is not set. A random admin password was generated for this first database.');
-      console.warn('Set ADMIN_PASSWORD in Railway Variables before production use.');
     }
 
     db.users.push({
       id: 'admin',
       username: ADMIN_USER,
-      password: hashPassword(initialPassword),
+      password: await hashPassword(initialPassword),
       role: 'admin',
       createdAt: new Date().toISOString()
     });
 
-    writeDB(db);
+    await writeDB(db);
     return;
   }
 
-  const db = readDB();
+  const db = await readDB();
 
   if (!db.users.some(user => user.username === ADMIN_USER)) {
     const initialPassword = ADMIN_PASSWORD || crypto.randomBytes(24).toString('hex');
@@ -153,12 +173,12 @@ function ensureDB() {
     db.users.push({
       id: 'admin',
       username: ADMIN_USER,
-      password: hashPassword(initialPassword),
+      password: await hashPassword(initialPassword),
       role: 'admin',
       createdAt: new Date().toISOString()
     });
 
-    writeDB(db);
+    await writeDB(db);
   }
 }
 
@@ -237,7 +257,7 @@ async function supplierCreateOrder(order) {
   }
 }
 
-/* Health check for Railway */
+/* Health check */
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -247,8 +267,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-/* Backup endpoint for Cloudflare Worker -> R2 */
-app.get('/internal/backup/export', (req, res) => {
+/* Backup endpoint */
+app.get('/internal/backup/export', async (req, res) => {
   try {
     const auth = req.get('authorization') || '';
 
@@ -260,7 +280,7 @@ app.get('/internal/backup/export', (req, res) => {
       return res.status(404).json({ error: 'Database file not found' });
     }
 
-    const raw = fs.readFileSync(DB_FILE, 'utf8');
+    const raw = await fs.promises.readFile(DB_FILE, 'utf8');
     const data = JSON.parse(raw);
 
     res.set('Cache-Control', 'no-store');
@@ -277,13 +297,14 @@ app.get('/internal/backup/export', (req, res) => {
   }
 });
 
-app.get('/api/plans', (req, res) => {
-  res.json(readDB().plans.filter(p => p.active !== false));
+app.get('/api/plans', async (req, res) => {
+  const db = await readDB();
+  res.json(db.plans.filter(p => p.active !== false));
 });
 
-app.post('/api/register', (req, res, next) => {
+app.post('/api/register', authLimiter, async (req, res, next) => {
   try {
-    const db = readDB();
+    const db = await readDB();
     const username = String(req.body.username || '').trim().toLowerCase();
     const password = String(req.body.password || '');
 
@@ -302,13 +323,13 @@ app.post('/api/register', (req, res, next) => {
     const user = {
       id: crypto.randomUUID(),
       username,
-      password: hashPassword(password),
+      password: await hashPassword(password),
       role: 'customer',
       createdAt: new Date().toISOString()
     };
 
     db.users.push(user);
-    writeDB(db);
+    await writeDB(db);
 
     req.session.regenerate(err => {
       if (err) return next(err);
@@ -327,14 +348,16 @@ app.post('/api/register', (req, res, next) => {
   }
 });
 
-app.post('/api/login', (req, res, next) => {
+app.post('/api/login', authLimiter, async (req, res, next) => {
   try {
-    const db = readDB();
+    const db = await readDB();
     const username = String(req.body.username || '').trim().toLowerCase();
     const password = String(req.body.password || '');
     const user = db.users.find(u => u.username === username);
 
-    if (!user || !verifyPassword(password, user.password)) {
+    const isMatch = user ? await verifyPassword(password, user.password) : false;
+
+    if (!user || !isMatch) {
       return res.status(401).json({ error: 'نام کاربری یا رمز عبور اشتباه است.' });
     }
 
@@ -368,13 +391,15 @@ app.get('/api/me', (req, res) => {
   res.json({ loggedIn: true, user: req.session.user });
 });
 
-app.post('/api/change-password', requireLogin, (req, res) => {
-  const db = readDB();
+app.post('/api/change-password', requireLogin, async (req, res) => {
+  const db = await readDB();
   const user = db.users.find(u => u.id === req.session.user.id);
   const oldPassword = String(req.body.oldPassword || '');
   const newPassword = String(req.body.newPassword || '');
 
-  if (!user || !verifyPassword(oldPassword, user.password)) {
+  const isMatch = user ? await verifyPassword(oldPassword, user.password) : false;
+
+  if (!user || !isMatch) {
     return res.status(401).json({ error: 'رمز فعلی اشتباه است.' });
   }
 
@@ -382,14 +407,14 @@ app.post('/api/change-password', requireLogin, (req, res) => {
     return res.status(400).json({ error: 'رمز جدید حداقل ۶ کاراکتر باشد.' });
   }
 
-  user.password = hashPassword(newPassword);
-  writeDB(db);
+  user.password = await hashPassword(newPassword);
+  await writeDB(db);
 
   res.json({ ok: true, message: 'رمز عبور با موفقیت تغییر کرد.' });
 });
 
-app.post('/api/recovery', (req, res) => {
-  const db = readDB();
+app.post('/api/recovery', authLimiter, async (req, res) => {
+  const db = await readDB();
   const username = String(req.body.username || '').trim().toLowerCase();
 
   if (!username) {
@@ -404,7 +429,7 @@ app.post('/api/recovery', (req, res) => {
   };
 
   db.recoveryRequests.push(item);
-  writeDB(db);
+  await writeDB(db);
 
   sendTelegram(`🔐 درخواست بازیابی رمز\nکاربر: ${username}\nوضعیت: pending`).catch(() => {});
 
@@ -415,8 +440,8 @@ app.post('/api/recovery', (req, res) => {
   });
 });
 
-app.get('/api/recovery-status', requireLogin, (req, res) => {
-  const db = readDB();
+app.get('/api/recovery-status', requireLogin, async (req, res) => {
+  const db = await readDB();
 
   const rows = db.recoveryRequests
     .filter(r => r.username === req.session.user.username)
@@ -428,7 +453,7 @@ app.get('/api/recovery-status', requireLogin, (req, res) => {
 
 app.post('/api/orders', requireLogin, async (req, res, next) => {
   try {
-    const db = readDB();
+    const db = await readDB();
     const plan = db.plans.find(
       p => p.id === Number(req.body.planId) && p.active !== false
     );
@@ -480,7 +505,7 @@ app.post('/api/orders', requireLogin, async (req, res, next) => {
     };
 
     db.orders.push(order);
-    writeDB(db);
+    await writeDB(db);
 
     sendTelegram(
       `🛒 سفارش جدید\nکاربر: ${order.username}\nپلن: ${order.planName}\nمبلغ: ${order.finalPrice.toLocaleString()} تومان\nوضعیت: pending`
@@ -488,7 +513,7 @@ app.post('/api/orders', requireLogin, async (req, res, next) => {
 
     const supplier = await supplierCreateOrder(order);
 
-    const fresh = readDB();
+    const fresh = await readDB();
     const saved = fresh.orders.find(o => o.id === order.id);
 
     if (saved && supplier.configured) {
@@ -497,7 +522,7 @@ app.post('/api/orders', requireLogin, async (req, res, next) => {
         ? supplier.data
         : (supplier.error || supplier.data);
 
-      writeDB(fresh);
+      await writeDB(fresh);
     }
 
     res.json({
@@ -510,8 +535,8 @@ app.post('/api/orders', requireLogin, async (req, res, next) => {
   }
 });
 
-app.get('/api/dashboard', requireLogin, (req, res) => {
-  const db = readDB();
+app.get('/api/dashboard', requireLogin, async (req, res) => {
+  const db = await readDB();
 
   res.json({
     user: req.session.user,
@@ -519,8 +544,8 @@ app.get('/api/dashboard', requireLogin, (req, res) => {
   });
 });
 
-app.get('/api/admin/summary', requireAdmin, (req, res) => {
-  const db = readDB();
+app.get('/api/admin/summary', requireAdmin, async (req, res) => {
+  const db = await readDB();
 
   res.json({
     users: db.users.filter(u => u.role === 'customer').length,
@@ -530,20 +555,23 @@ app.get('/api/admin/summary', requireAdmin, (req, res) => {
   });
 });
 
-app.get('/api/admin/users', requireAdmin, (req, res) => {
-  res.json(readDB().users.filter(u => u.role === 'customer').map(safeUser));
+app.get('/api/admin/users', requireAdmin, async (req, res) => {
+  const db = await readDB();
+  res.json(db.users.filter(u => u.role === 'customer').map(safeUser));
 });
 
-app.get('/api/admin/orders', requireAdmin, (req, res) => {
-  res.json(readDB().orders);
+app.get('/api/admin/orders', requireAdmin, async (req, res) => {
+  const db = await readDB();
+  res.json(db.orders);
 });
 
-app.get('/api/admin/recovery', requireAdmin, (req, res) => {
-  res.json(readDB().recoveryRequests);
+app.get('/api/admin/recovery', requireAdmin, async (req, res) => {
+  const db = await readDB();
+  res.json(db.recoveryRequests);
 });
 
-app.post('/api/admin/reset-password', requireAdmin, (req, res) => {
-  const db = readDB();
+app.post('/api/admin/reset-password', requireAdmin, async (req, res) => {
+  const db = await readDB();
   const username = String(req.body.username || '').trim().toLowerCase();
   const newPassword = String(req.body.newPassword || '');
   const user = db.users.find(u => u.username === username);
@@ -556,7 +584,7 @@ app.post('/api/admin/reset-password', requireAdmin, (req, res) => {
     return res.status(400).json({ error: 'رمز جدید حداقل ۶ کاراکتر باشد.' });
   }
 
-  user.password = hashPassword(newPassword);
+  user.password = await hashPassword(newPassword);
 
   const r = db.recoveryRequests.find(
     x => x.username === username && x.status === 'pending'
@@ -567,7 +595,7 @@ app.post('/api/admin/reset-password', requireAdmin, (req, res) => {
     r.completedAt = new Date().toISOString();
   }
 
-  writeDB(db);
+  await writeDB(db);
 
   sendTelegram(`✅ رمز کاربر ریست شد\nکاربر: ${username}`).catch(() => {});
 
@@ -577,8 +605,8 @@ app.post('/api/admin/reset-password', requireAdmin, (req, res) => {
   });
 });
 
-app.post('/api/admin/recovery/:id/status', requireAdmin, (req, res) => {
-  const db = readDB();
+app.post('/api/admin/recovery/:id/status', requireAdmin, async (req, res) => {
+  const db = await readDB();
   const r = db.recoveryRequests.find(x => x.id === req.params.id);
 
   if (!r) {
@@ -586,13 +614,13 @@ app.post('/api/admin/recovery/:id/status', requireAdmin, (req, res) => {
   }
 
   r.status = String(req.body.status || 'reviewing');
-  writeDB(db);
+  await writeDB(db);
 
   res.json({ ok: true, request: r });
 });
 
-app.post('/api/admin/coupons', requireAdmin, (req, res) => {
-  const db = readDB();
+app.post('/api/admin/coupons', requireAdmin, async (req, res) => {
+  const db = await readDB();
 
   const code = String(req.body.code || '').trim().toUpperCase();
   const type = req.body.type === 'percent' ? 'percent' : 'fixed';
@@ -624,12 +652,12 @@ app.post('/api/admin/coupons', requireAdmin, (req, res) => {
     expiresAt: req.body.expiresAt || null
   });
 
-  writeDB(db);
+  await writeDB(db);
   res.json({ ok: true });
 });
 
-app.get('/api/coupons/:code', (req, res) => {
-  const db = readDB();
+app.get('/api/coupons/:code', async (req, res) => {
+  const db = await readDB();
   const code = String(req.params.code).toUpperCase();
 
   const c = db.coupons.find(
@@ -657,10 +685,6 @@ if (fs.existsSync(PUBLIC_DIR)) {
   app.use(express.static(PUBLIC_DIR));
 }
 
-/*
- * SPA fallback for frontend routes.
- * API and backup routes are excluded so their JSON errors remain intact.
- */
 app.get('*', (req, res, next) => {
   if (
     req.path.startsWith('/api/') ||
@@ -692,11 +716,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-ensureDB();
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`EmadNet started on port ${PORT}`);
-  console.log(`PORT=${PORT}`);
-  console.log(`PUBLIC_DIR=${PUBLIC_DIR}`);
-  console.log(`DB_FILE=${DB_FILE}`);
+ensureDB().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`EmadNet started on port ${PORT}`);
+  });
 });
