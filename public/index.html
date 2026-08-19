@@ -22,8 +22,9 @@
         <button onclick="openAuthModal('login')" class="text-sm px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition">ورود</button>
         <button onclick="openAuthModal('register')" class="text-sm px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition">ثبت‌نام</button>
       </div>
-      <div id="nav-user-info" class="hidden flex items-center gap-4">
+      <div id="nav-user-info" class="hidden flex items-center gap-3">
         <span id="user-display" class="text-sm text-slate-300 font-medium"></span>
+        <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden text-sm px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition">👑 پنل ادمین</button>
         <button onclick="openDashboard()" class="text-sm px-3 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/30 transition">داشبورد من</button>
         <button onclick="logout()" class="text-sm px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition">خروج</button>
       </div>
@@ -32,7 +33,7 @@
 
   <!-- Hero Section -->
   <header class="max-w-4xl mx-auto text-center px-4 py-12">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">انترنت آزاد و باکیفیت با <span class="text-indigo-500">EmadNet</span></h1>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">اینترنت آزاد و باکیفیت با <span class="text-indigo-500">EmadNet</span></h1>
     <p class="text-slate-400 text-lg max-w-xl mx-auto">خرید سریع و آنی سرویس‌های اختصاصی با بالاترین سرعت و پایداری.</p>
   </header>
 
@@ -69,7 +70,7 @@
     </div>
   </div>
 
-  <!-- Dashboard Modal -->
+  <!-- User Dashboard Modal -->
   <div id="dashboard-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeDashboard()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
@@ -87,6 +88,69 @@
           </thead>
           <tbody id="orders-list-body" class="divide-y divide-slate-800">
             <tr><td colspan="4" class="p-4 text-center text-slate-500">در حال دریافت اطلاعات...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Modal -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-4xl rounded-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeAdminModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
+      <h3 class="text-xl font-bold mb-6 text-white border-b border-slate-800 pb-3">👑 پنل مدیریت EmadNet</h3>
+      
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+          <span class="text-xs text-slate-500 block mb-1">تعداد کاربران</span>
+          <span id="admin-summary-users" class="text-2xl font-bold text-indigo-400">-</span>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+          <span class="text-xs text-slate-500 block mb-1">کل سفارشات</span>
+          <span id="admin-summary-orders" class="text-2xl font-bold text-emerald-400">-</span>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+          <span class="text-xs text-slate-500 block mb-1">بازیابی‌های معلق</span>
+          <span id="admin-summary-recovery" class="text-2xl font-bold text-amber-400">-</span>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+          <span class="text-xs text-slate-500 block mb-1">کوپن‌های فعال</span>
+          <span id="admin-summary-coupons" class="text-2xl font-bold text-purple-400">-</span>
+        </div>
+      </div>
+
+      <!-- Orders Section -->
+      <h4 class="text-lg font-bold mb-3 text-slate-200">آخرین سفارش‌ها</h4>
+      <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-2 mb-8">
+        <table class="w-full text-right text-sm">
+          <thead class="text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-3">کاربر</th>
+              <th class="p-3">پلن</th>
+              <th class="p-3">مبلغ</th>
+              <th class="p-3">وضعیت تامین‌کننده</th>
+            </tr>
+          </thead>
+          <tbody id="admin-orders-body" class="divide-y divide-slate-800 text-slate-300">
+            <tr><td colspan="4" class="p-4 text-center">در حال دریافت...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Users Section -->
+      <h4 class="text-lg font-bold mb-3 text-slate-200">لیست کاربران</h4>
+      <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-2">
+        <table class="w-full text-right text-sm">
+          <thead class="text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-3">ID</th>
+              <th class="p-3">نام کاربری</th>
+              <th class="p-3">نقش</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-body" class="divide-y divide-slate-800 text-slate-300">
+            <tr><td colspan="3" class="p-4 text-center">در حال دریافت...</td></tr>
           </tbody>
         </table>
       </div>
@@ -115,9 +179,16 @@
           document.getElementById('nav-auth-buttons').classList.add('hidden');
           document.getElementById('nav-user-info').classList.remove('hidden');
           document.getElementById('user-display').innerText = data.user.username;
+
+          if (data.user.role === 'admin') {
+            document.getElementById('admin-panel-btn').classList.remove('hidden');
+          } else {
+            document.getElementById('admin-panel-btn').classList.add('hidden');
+          }
         } else {
           document.getElementById('nav-auth-buttons').classList.remove('hidden');
           document.getElementById('nav-user-info').classList.add('hidden');
+          document.getElementById('admin-panel-btn').classList.add('hidden');
         }
       } catch (e) {
         console.error(e);
@@ -275,6 +346,52 @@
     function closeDashboard() {
       document.getElementById('dashboard-modal').classList.add('hidden');
       document.getElementById('dashboard-modal').classList.remove('flex');
+    }
+
+    async function openAdminModal() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      document.getElementById('admin-modal').classList.add('flex');
+
+      try {
+        // دریافت آمار خلاصه
+        const sumRes = await fetch('/api/admin/summary');
+        const sumData = await sumRes.json();
+        document.getElementById('admin-summary-users').innerText = sumData.users;
+        document.getElementById('admin-summary-orders').innerText = sumData.orders;
+        document.getElementById('admin-summary-recovery').innerText = sumData.recovery;
+        document.getElementById('admin-summary-coupons').innerText = sumData.coupons;
+
+        // دریافت لیست سفارشات
+        const ordersRes = await fetch('/api/admin/orders');
+        const orders = await ordersRes.json();
+        document.getElementById('admin-orders-body').innerHTML = orders.length ? orders.map(o => `
+          <tr>
+            <td class="p-3">${o.username}</td>
+            <td class="p-3">${o.planName}</td>
+            <td class="p-3 font-bold text-indigo-400">${o.finalPrice.toLocaleString()} تومان</td>
+            <td class="p-3">${o.supplierStatus}</td>
+          </tr>
+        `).join('') : '<tr><td colspan="4" class="p-4 text-center text-slate-500">سفارشی وجود ندارد.</td></tr>';
+
+        // دریافت لیست کاربران
+        const usersRes = await fetch('/api/admin/users');
+        const users = await usersRes.json();
+        document.getElementById('admin-users-body').innerHTML = users.length ? users.map(u => `
+          <tr>
+            <td class="p-3 text-xs text-slate-500">${u.id}</td>
+            <td class="p-3 font-bold">${u.username}</td>
+            <td class="p-3"><span class="px-2 py-0.5 rounded text-xs bg-indigo-500/10 text-indigo-400">${u.role}</span></td>
+          </tr>
+        `).join('') : '<tr><td colspan="3" class="p-4 text-center text-slate-500">کاربری وجود ندارد.</td></tr>';
+
+      } catch (e) {
+        alert('خطا در دریافت اطلاعات ادمین');
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+      document.getElementById('admin-modal').classList.remove('flex');
     }
 
     init();
