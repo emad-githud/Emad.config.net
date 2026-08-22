@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>شاهراه تاپ | سامانه فروش اشتراک</title>
+  <title>EmadNet | عمادنت</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style>
@@ -13,13 +13,13 @@
       color: #f3f4f6;
     }
     .glass-bottom-nav {
-      background: rgba(17, 24, 39, 0.75);
+      background: rgba(17, 24, 39, 0.80);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
     .glass-card {
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -30,8 +30,8 @@
   <!-- Header -->
   <header class="py-8 text-center border-b border-slate-800/60 bg-slate-900/40">
     <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">نسخه VIP</span>
-    <h1 class="text-3xl font-extrabold text-white mt-2">شاهراه <span class="text-indigo-500">تاپ</span></h1>
-    <p class="text-xs text-slate-400 mt-1">سامانه هوشمند و پرسرعت خرید اشتراک و حجم اختصاصی</p>
+    <h1 class="text-3xl font-extrabold text-white mt-2">Emad<span class="text-indigo-500">Net</span></h1>
+    <p class="text-xs text-slate-400 mt-1">سامانه هوشمند و پرسرعت ارائه سرویس‌های اختصاصی عمادنت</p>
   </header>
 
   <!-- Main Content Container -->
@@ -81,7 +81,7 @@
       
       <!-- فرم لاگین ادمین -->
       <div id="admin-login-sec" class="glass-card p-6 rounded-2xl max-w-sm mx-auto space-y-4">
-        <h3 class="text-base font-bold text-center text-amber-400">👑 ورود به مدیریت شاهراه</h3>
+        <h3 class="text-base font-bold text-center text-amber-400">👑 ورود به مدیریت عمادنت</h3>
         <div>
           <label class="block text-xs text-slate-400 mb-1">نام کاربری</label>
           <input type="text" id="adm-user-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
@@ -157,12 +157,10 @@
     let isAdminLoggedIn = false;
     let localOrders = [];
 
-    // مقداردهی اولیه
     document.addEventListener("DOMContentLoaded", () => {
       fetchPlans();
     });
 
-    // سوییچ بین تب‌های نوار پایین
     function switchTab(tabName, element) {
       activeTab = tabName;
       document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -177,7 +175,6 @@
       if (tabName === 'admin' && isAdminLoggedIn) fetchAdminData();
     }
 
-    // دریافت پلن‌ها از بک‌اند
     async function fetchPlans() {
       try {
         const res = await fetch('/api/plans');
@@ -204,7 +201,6 @@
       }
     }
 
-    // پردازش خرید پلن
     async function checkoutPlan(planId) {
       const coupon = prompt("اگر کد تخفیف دارید وارد کنید (در غیر این صورت خالی بگذارید):") || "";
       try {
@@ -225,7 +221,6 @@
       }
     }
 
-    // خرید حجم اضافه
     function buyExtraVolume(gb) {
       const key = document.getElementById('vol-sub-key').value;
       if (!key) {
@@ -235,7 +230,6 @@
       alert(`درخواست افزایش ${gb} گیگابایت برای اشتراک ثبت شد. انتقال به درگاه پرداخت...`);
     }
 
-    // رندر لیست سفارشات
     function renderOrders() {
       const container = document.getElementById('user-orders-list');
       if (localOrders.length === 0) {
@@ -249,12 +243,11 @@
             <span class="font-bold text-indigo-400">${o.planName}</span>
             <span class="text-slate-500">${o.gb}GB / ${o.days} روز</span>
           </div>
-          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">${o.vpnLink || 'vless://shahrah-vip-server'}</div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">${o.vpnLink || 'vless://emadnet-vip-server'}</div>
         </div>
       `).join('');
     }
 
-    // لاگین ادمین
     async function loginAdmin() {
       const username = document.getElementById('adm-user-input').value;
       const password = document.getElementById('adm-pass-input').value;
@@ -278,7 +271,6 @@
       }
     }
 
-    // دریافت اطلاعات مدیریت
     async function fetchAdminData() {
       try {
         const res = await fetch('/api/plans');
@@ -295,7 +287,6 @@
       }
     }
 
-    // افزودن پلن جدید توسط ادمین
     async function handleCreatePlan(e) {
       e.preventDefault();
       const body = {
@@ -316,7 +307,6 @@
       alert('پلن با موفقیت ساخته شد.');
     }
 
-    // حذف پلن
     async function deletePlan(id) {
       if (confirm('آیا از حذف این پلن اطمینان دارید؟')) {
         await fetch(`/api/admin/plans/${id}`, { method: 'DELETE' });
@@ -325,7 +315,6 @@
       }
     }
 
-    // ساخت کد تخفیف
     async function handleCreateCoupon(e) {
       e.preventDefault();
       const body = {
