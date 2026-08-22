@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EmadNet | عمادنت</title>
+  <title>EtemadNet | اعتمادنت</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style>
@@ -13,7 +13,7 @@
       color: #f3f4f6;
     }
     .glass-bottom-nav {
-      background: rgba(17, 24, 39, 0.80);
+      background: rgba(17, 24, 39, 0.85);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -28,10 +28,18 @@
 <body class="min-h-screen pb-32 flex flex-col justify-between">
 
   <!-- Header -->
-  <header class="py-8 text-center border-b border-slate-800/60 bg-slate-900/40">
-    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">نسخه VIP</span>
-    <h1 class="text-3xl font-extrabold text-white mt-2">Emad<span class="text-indigo-500">Net</span></h1>
-    <p class="text-xs text-slate-400 mt-1">سامانه هوشمند و پرسرعت ارائه سرویس‌های اختصاصی عمادنت</p>
+  <header class="py-6 px-4 text-center border-b border-slate-800/60 bg-slate-900/40 relative">
+    <div class="max-w-2xl mx-auto flex justify-between items-center">
+      <div class="text-right">
+        <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">سامانه هوشمند</span>
+        <h1 class="text-2xl font-black text-white mt-1">Etemad<span class="text-indigo-500">Net</span></h1>
+      </div>
+      <!-- دکمه ویژه ادمین در بالای سایت -->
+      <button onclick="openAdminModal()" class="px-3.5 py-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 text-xs font-bold flex items-center gap-1.5 transition">
+        <span>👑</span>
+        <span>پنل ادمین</span>
+      </button>
+    </div>
   </header>
 
   <!-- Main Content Container -->
@@ -49,18 +57,19 @@
     <section id="tab-volume" class="tab-content hidden space-y-4">
       <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">⚡ خرید حجم و ترافیک اضافه</h2>
       <div class="glass-card p-6 rounded-2xl space-y-4">
-        <p class="text-xs text-slate-400">لینک یا UUID اشتراک فعلی خود را وارد کنید تا حجم مستقیم اضافه شود:</p>
-        <input type="text" id="vol-sub-key" placeholder="vless:// یا کلید اشتراک..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+        <p class="text-xs text-slate-400">لینک یا UUID اشتراک فعلی خود در اعتمادنت را وارد کنید:</p>
+        <input type="text" id="vol-sub-key" placeholder="vless:// یا شناسه اشتراک..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+        
         <div class="grid grid-cols-3 gap-3">
-          <button onclick="buyExtraVolume(10)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+          <button onclick="buyExtraVolume(10, 25000)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
             <div class="font-bold text-sm text-white">+۱۰ گیگ</div>
             <div class="text-[10px] text-slate-400 mt-1">۲۵,۰۰۰ تومان</div>
           </button>
-          <button onclick="buyExtraVolume(25)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+          <button onclick="buyExtraVolume(25, 55000)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
             <div class="font-bold text-sm text-white">+۲۵ گیگ</div>
             <div class="text-[10px] text-slate-400 mt-1">۵۵,۰۰۰ تومان</div>
           </button>
-          <button onclick="buyExtraVolume(50)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+          <button onclick="buyExtraVolume(50, 95000)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
             <div class="font-bold text-sm text-white">+۵۰ گیگ</div>
             <div class="text-[10px] text-slate-400 mt-1">۹۵,۰۰۰ تومان</div>
           </button>
@@ -70,88 +79,103 @@
 
     <!-- TAB 3: اشتراک‌ها و سفارشات من -->
     <section id="tab-orders" class="tab-content hidden space-y-4">
-      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">📦 اشتراک‌ها و تحویل فوری</h2>
+      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">📦 پیگیری سفارشات و دریافت کانفیگ</h2>
       <div id="user-orders-list" class="space-y-3">
         <div class="text-center text-slate-500 py-8">سفارشی ثبت نشده است.</div>
       </div>
     </section>
 
-    <!-- TAB 4: پنل ادمین -->
-    <section id="tab-admin" class="tab-content hidden space-y-6">
-      
-      <!-- فرم لاگین ادمین -->
-      <div id="admin-login-sec" class="glass-card p-6 rounded-2xl max-w-sm mx-auto space-y-4">
-        <h3 class="text-base font-bold text-center text-amber-400">👑 ورود به مدیریت عمادنت</h3>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">نام کاربری</label>
-          <input type="text" id="adm-user-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+  </main>
+
+  <!-- MODAL: پنل مدیریت فوق حرفه‌ای ادمین -->
+  <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl p-6 relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeAdminModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white font-bold text-lg">✕</button>
+
+      <!-- فرم ورود ادمین -->
+      <div id="admin-login-sec" class="space-y-4 py-4">
+        <h3 class="text-lg font-bold text-center text-amber-400">👑 ورود به پنل مدیریت اعتمادنت</h3>
+        <p class="text-xs text-center text-slate-400">نام کاربری و رمز عبور ادمین را وارد کنید</p>
+        <div class="space-y-3 max-w-sm mx-auto">
+          <input type="text" id="adm-user-input" placeholder="نام کاربری (admin)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+          <input type="password" id="adm-pass-input" placeholder="رمز عبور (admin)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+          <button onclick="loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">ورود مدیریت</button>
         </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">رمز عبور</label>
-          <input type="password" id="adm-pass-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
-        </div>
-        <button onclick="loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">ورود ادمین</button>
       </div>
 
-      <!-- پنل مدیریتی اصلی (پس از لاگین) -->
+      <!-- محتوای کامل پنل ادمین -->
       <div id="admin-panel-sec" class="hidden space-y-6">
-        
-        <!-- افزودن پلن -->
-        <div class="glass-card p-5 rounded-2xl space-y-4">
-          <h4 class="text-sm font-bold text-indigo-400">➕ ساخت پلن جدید</h4>
-          <form onsubmit="handleCreatePlan(event)" class="grid grid-cols-2 gap-3">
-            <input type="text" id="adm-p-name" placeholder="نام پلن" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <input type="number" id="adm-p-price" placeholder="قیمت (تومان)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <input type="number" id="adm-p-gb" placeholder="حجم (GB)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <input type="number" id="adm-p-days" placeholder="مدت (روز)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <button type="submit" class="col-span-2 bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">ایجاد پلن</button>
+        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+          <h3 class="text-base font-bold text-amber-400">📊 مدیریت پیشرفته EtemadNet</h3>
+          <span class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">سیستم آنلاین</span>
+        </div>
+
+        <!-- کارت‌های آمار و گزارشات -->
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] text-slate-500 block">کل سفارشات</span>
+            <span id="adm-stat-orders" class="text-base font-bold text-indigo-400">۰</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] text-slate-500 block">فروش کل (تومان)</span>
+            <span id="adm-stat-income" class="text-base font-bold text-emerald-400">۰</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-center">
+            <span class="text-[10px] text-slate-500 block">تعداد پلن‌ها</span>
+            <span id="adm-stat-plans" class="text-base font-bold text-amber-400">۰</span>
+          </div>
+        </div>
+
+        <!-- مدیریت پلن‌ها -->
+        <div class="glass-card p-4 rounded-2xl space-y-3">
+          <h4 class="text-xs font-bold text-indigo-400">➕ ساخت پلن جدید</h4>
+          <form onsubmit="handleCreatePlan(event)" class="grid grid-cols-2 gap-2.5">
+            <input type="text" id="adm-p-name" placeholder="نام پلن" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="adm-p-price" placeholder="قیمت (تومان)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="adm-p-gb" placeholder="حجم (GB)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="adm-p-days" placeholder="مدت (روز)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <button type="submit" class="col-span-2 bg-indigo-600 hover:bg-indigo-500 font-bold py-2 rounded-xl text-xs transition">افزودن پلن</button>
           </form>
         </div>
 
         <!-- مدیریت کدهای تخفیف -->
-        <div class="glass-card p-5 rounded-2xl space-y-4">
-          <h4 class="text-sm font-bold text-purple-400">🎟️ ساخت کد تخفیف</h4>
+        <div class="glass-card p-4 rounded-2xl space-y-3">
+          <h4 class="text-xs font-bold text-purple-400">🎟️ ایجاد کد تخفیف</h4>
           <form onsubmit="handleCreateCoupon(event)" class="flex gap-2">
-            <input type="text" id="adm-c-code" placeholder="کد (مثال: OFF20)" required class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <input type="number" id="adm-c-pct" placeholder="درصد (%)" required class="w-24 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
-            <button type="submit" class="bg-purple-600 hover:bg-purple-500 font-bold px-4 rounded-lg text-xs transition">ثبت</button>
+            <input type="text" id="adm-c-code" placeholder="کد تخفیف (مثال: ETEMAD)" required class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <input type="number" id="adm-c-pct" placeholder="درصد (%)" required class="w-20 bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-white">
+            <button type="submit" class="bg-purple-600 hover:bg-purple-500 font-bold px-3 rounded-lg text-xs transition">ثبت</button>
           </form>
         </div>
 
         <!-- لیست پلن‌های فعال -->
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <h4 class="text-sm font-bold text-slate-300">📋 پلن‌های موجود</h4>
-          <div id="adm-plans-list" class="space-y-2 text-xs"></div>
+        <div class="glass-card p-4 rounded-2xl space-y-2">
+          <h4 class="text-xs font-bold text-slate-300">📋 لیست پلن‌ها</h4>
+          <div id="adm-plans-list" class="space-y-1.5 text-xs"></div>
         </div>
-
       </div>
-    </section>
-
-  </main>
+    </div>
+  </div>
 
   <!-- Glass Floating Bottom Navigation Bar -->
-  <div class="fixed bottom-4 inset-x-0 mx-auto max-w-md px-4 z-50">
+  <div class="fixed bottom-4 inset-x-0 mx-auto max-w-md px-4 z-40">
     <nav class="glass-bottom-nav rounded-3xl p-2 flex justify-around items-center shadow-2xl">
-      <button onclick="switchTab('plans', this)" class="nav-item active flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20">
+      <button onclick="switchTab('plans', this)" class="nav-item active flex flex-col items-center gap-1 px-5 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20">
         <span class="text-lg">🛒</span>
         <span class="text-[10px] font-medium">اشتراک‌ها</span>
       </button>
-      <button onclick="switchTab('volume', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
+      <button onclick="switchTab('volume', this)" class="nav-item flex flex-col items-center gap-1 px-5 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
         <span class="text-lg">⚡</span>
         <span class="text-[10px] font-medium">خرید حجم</span>
       </button>
-      <button onclick="switchTab('orders', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
+      <button onclick="switchTab('orders', this)" class="nav-item flex flex-col items-center gap-1 px-5 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
         <span class="text-lg">📦</span>
         <span class="text-[10px] font-medium">سفارشات</span>
-      </button>
-      <button onclick="switchTab('admin', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
-        <span class="text-lg">👑</span>
-        <span class="text-[10px] font-medium">پنل ادمین</span>
       </button>
     </nav>
   </div>
 
-  <!-- Complete Full JavaScript Logic -->
+  <!-- JavaScript Logic -->
   <script>
     let activeTab = 'plans';
     let isAdminLoggedIn = false;
@@ -167,12 +191,21 @@
       document.getElementById(`tab-${tabName}`).classList.remove('hidden');
 
       document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.className = "nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200";
+        btn.className = "nav-item flex flex-col items-center gap-1 px-5 py-2 rounded-2xl text-slate-400 hover:text-slate-200";
       });
-      element.className = "nav-item active flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20";
+      element.className = "nav-item active flex flex-col items-center gap-1 px-5 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20";
 
       if (tabName === 'orders') renderOrders();
-      if (tabName === 'admin' && isAdminLoggedIn) fetchAdminData();
+    }
+
+    function openAdminModal() {
+      document.getElementById('admin-modal').classList.remove('hidden');
+      document.getElementById('admin-modal').classList.add('flex');
+    }
+
+    function closeAdminModal() {
+      document.getElementById('admin-modal').classList.add('hidden');
+      document.getElementById('admin-modal').classList.remove('flex');
     }
 
     async function fetchPlans() {
@@ -182,7 +215,7 @@
         const container = document.getElementById('plans-container');
 
         if (!plans || plans.length === 0) {
-          container.innerHTML = `<div class="text-center text-slate-500 py-8">هیچ پلنی یافت نشد.</div>`;
+          container.innerHTML = `<div class="text-center text-slate-500 py-8">هیچ پلنی موجود نیست.</div>`;
           return;
         }
 
@@ -221,13 +254,13 @@
       }
     }
 
-    function buyExtraVolume(gb) {
+    function buyExtraVolume(gb, price) {
       const key = document.getElementById('vol-sub-key').value;
       if (!key) {
-        alert('لطفاً ابتدا لینک یا کلید اشتراک خود را وارد کنید.');
+        alert('لطفاً ابتدا لینک یا شناسه اشتراک خود را وارد کنید.');
         return;
       }
-      alert(`درخواست افزایش ${gb} گیگابایت برای اشتراک ثبت شد. انتقال به درگاه پرداخت...`);
+      alert(`درخواست افزایش ${gb} گیگابایت برای اشتراک ثبت شد. مبلغ: ${price.toLocaleString()} تومان`);
     }
 
     function renderOrders() {
@@ -243,7 +276,7 @@
             <span class="font-bold text-indigo-400">${o.planName}</span>
             <span class="text-slate-500">${o.gb}GB / ${o.days} روز</span>
           </div>
-          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">${o.vpnLink || 'vless://emadnet-vip-server'}</div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">${o.vpnLink || 'vless://etemadnet-vip-server'}</div>
         </div>
       `).join('');
     }
@@ -276,8 +309,14 @@
         const res = await fetch('/api/plans');
         const plans = await res.json();
         
+        document.getElementById('adm-stat-plans').innerText = plans.length;
+        document.getElementById('adm-stat-orders').innerText = localOrders.length;
+        
+        const totalIncome = localOrders.reduce((sum, o) => sum + (o.finalPrice || 0), 0);
+        document.getElementById('adm-stat-income').innerText = totalIncome.toLocaleString();
+
         document.getElementById('adm-plans-list').innerHTML = plans.map(p => `
-          <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded-xl border border-slate-800">
             <span>${p.name} (${p.gb}GB - ${Number(p.price).toLocaleString()} تومان)</span>
             <button onclick="deletePlan(${p.id})" class="text-rose-400 hover:underline">حذف</button>
           </div>
@@ -304,7 +343,7 @@
 
       fetchAdminData();
       fetchPlans();
-      alert('پلن با موفقیت ساخته شد.');
+      alert('پلن جدید با موفقیت اضافه شد.');
     }
 
     async function deletePlan(id) {
@@ -328,7 +367,7 @@
         body: JSON.stringify(body)
       });
 
-      alert('کد تخفیف ایجاد شد.');
+      alert('کد تخفیف ساخته شد.');
     }
   </script>
 </body>
