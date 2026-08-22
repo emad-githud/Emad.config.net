@@ -1,270 +1,574 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EtemadNet | اعتمادنت</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+  <title>Emad Net | فروش VPN</title>
 
-<style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Vazirmatn,sans-serif;
-  background:#020617;
-  color:#f8fafc;
-}
-.glass{
-  background:rgba(15,23,42,.72);
-  backdrop-filter:blur(18px);
-  border:1px solid rgba(255,255,255,.08);
-}
-.card{
-  transition:.25s;
-}
-.card:hover{
-  transform:translateY(-3px);
-  border-color:rgba(99,102,241,.45);
-}
-input,select{
-  color:white;
-}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{
-  background:#334155;
-  border-radius:20px;
-}
-</style>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link
+    href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Vazirmatn", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(79,70,229,.16), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(14,165,233,.08), transparent 30%),
+        #020617;
+      color: #f8fafc;
+    }
+
+    .glass {
+      background: rgba(15,23,42,.72);
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .glass-hover {
+      transition: .25s;
+    }
+
+    .glass-hover:hover {
+      transform: translateY(-4px);
+      border-color: rgba(99,102,241,.45);
+      box-shadow: 0 15px 40px rgba(0,0,0,.25);
+    }
+
+    input {
+      color: white;
+    }
+
+    input::placeholder {
+      color: #64748b;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 20px;
+    }
+
+    .modal {
+      background: rgba(0,0,0,.82);
+      backdrop-filter: blur(15px);
+    }
+
+    .hidden-page {
+      display: none !important;
+    }
+  </style>
 </head>
 
 <body class="min-h-screen pb-28">
 
-<!-- HEADER -->
-<header class="border-b border-slate-800 bg-slate-950/80 sticky top-0 z-30 backdrop-blur-xl">
-  <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+<!-- =========================================================
+     HEADER
+========================================================= -->
 
-    <div>
-      <div class="text-[10px] text-indigo-400 font-bold">سامانه هوشمند فروش VPN</div>
-      <h1 class="text-2xl font-black">
-        Etemad<span class="text-indigo-500">Net</span>
-      </h1>
+<header class="sticky top-0 z-40 glass border-t-0 border-x-0">
+
+  <div class="max-w-7xl mx-auto px-4 py-4">
+
+    <div class="flex items-center justify-between">
+
+      <button onclick="showHome()" class="text-right">
+
+        <div class="text-[10px] text-indigo-400 font-bold">
+          سامانه فروش VPN
+        </div>
+
+        <div class="text-2xl font-black tracking-tight">
+          Emad<span class="text-indigo-500">Net</span>
+        </div>
+
+      </button>
+
+      <div id="header-user"></div>
+
     </div>
 
-    <div id="header-user-area"></div>
-
   </div>
+
 </header>
 
 
-<!-- MAIN -->
-<main class="max-w-6xl mx-auto px-4 py-8">
+<!-- =========================================================
+     MAIN
+========================================================= -->
 
-<!-- ================= HOME ================= -->
+<main class="max-w-7xl mx-auto px-4 py-8">
+
+
+<!-- =========================================================
+     PUBLIC HOME
+========================================================= -->
+
 <section id="home-page">
 
-  <div class="text-center mb-10">
-    <span class="inline-block bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-full px-4 py-2 text-xs mb-4">
-      🚀 سرویس سریع و پایدار
-    </span>
+  <div class="text-center py-8 md:py-14">
 
-    <h2 class="text-3xl md:text-5xl font-black mb-4">
-      اینترنت آزاد با
-      <span class="text-indigo-500">EtemadNet</span>
-    </h2>
+    <div class="inline-flex items-center gap-2
+                bg-indigo-500/10
+                border border-indigo-500/20
+                text-indigo-400
+                px-4 py-2
+                rounded-full
+                text-xs
+                mb-5">
 
-    <p class="text-slate-400 text-sm max-w-xl mx-auto">
-      پلن موردنظر خود را انتخاب کنید و اشتراک خود را به‌صورت سریع دریافت کنید.
+      <span>●</span>
+      سرویس آنلاین Emad Net
+
+    </div>
+
+    <h1 class="text-4xl md:text-6xl font-black leading-tight">
+
+      اینترنت سریع و پایدار
+      <br>
+
+      با
+      <span class="text-indigo-500">
+        Emad Net
+      </span>
+
+    </h1>
+
+    <p class="text-slate-400 text-sm md:text-base max-w-2xl mx-auto mt-5">
+      پلن موردنظر خود را انتخاب کنید و اشتراک خود را دریافت کنید.
     </p>
+
   </div>
 
-  <div id="plans-container"
-       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+  <!-- PLANS -->
+
+  <div class="flex items-center justify-between mb-5">
+
+    <div>
+
+      <div class="text-xs text-indigo-400">
+        انتخاب اشتراک
+      </div>
+
+      <h2 class="text-xl font-black mt-1">
+        پلن‌های فعال
+      </h2>
+
+    </div>
+
+  </div>
+
+
+  <div
+    id="plans-container"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+  >
+
+    <div class="glass rounded-3xl p-8 text-center">
+      <div class="animate-pulse text-slate-500">
+        در حال دریافت پلن‌ها...
+      </div>
+    </div>
+
   </div>
 
 </section>
 
 
-<!-- ================= USER PANEL ================= -->
-<section id="user-panel" class="hidden">
+<!-- =========================================================
+     USER PANEL
+========================================================= -->
 
-  <div class="flex justify-between items-center mb-6">
+<section id="user-page" class="hidden-page">
+
+  <div class="flex flex-col md:flex-row
+              justify-between
+              md:items-center
+              gap-4 mb-7">
+
     <div>
-      <p class="text-xs text-slate-500">پنل کاربری</p>
-      <h2 class="text-2xl font-black">سلام، <span id="user-name"></span> 👋</h2>
+
+      <div class="text-xs text-indigo-400">
+        پنل کاربری
+      </div>
+
+      <h2 class="text-2xl font-black mt-1">
+        سلام
+        <span id="user-name"></span>
+        👋
+      </h2>
+
     </div>
 
-    <button onclick="logout()"
-      class="text-xs bg-rose-500/10 text-rose-400 border border-rose-500/20 px-4 py-2 rounded-xl">
-      خروج
+    <button
+      onclick="logoutUser()"
+      class="bg-rose-500/10
+             border border-rose-500/20
+             text-rose-400
+             px-4 py-2.5
+             rounded-xl
+             text-xs">
+
+      خروج از حساب
+
     </button>
+
   </div>
 
 
   <!-- USER STATS -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
     <div class="glass rounded-2xl p-4">
-      <div class="text-xs text-slate-500">اشتراک‌ها</div>
-      <div id="user-sub-count" class="text-xl font-black mt-2">0</div>
+
+      <div class="text-[11px] text-slate-500">
+        اشتراک‌ها
+      </div>
+
+      <div
+        id="user-sub-count"
+        class="text-2xl font-black mt-2">
+        0
+      </div>
+
     </div>
 
-    <div class="glass rounded-2xl p-4">
-      <div class="text-xs text-slate-500">سفارش‌ها</div>
-      <div id="user-order-count" class="text-xl font-black mt-2">0</div>
-    </div>
 
     <div class="glass rounded-2xl p-4">
-      <div class="text-xs text-slate-500">حجم باقی‌مانده</div>
-      <div id="user-volume" class="text-xl font-black mt-2 text-emerald-400">0 GB</div>
+
+      <div class="text-[11px] text-slate-500">
+        سفارش‌ها
+      </div>
+
+      <div
+        id="user-order-count"
+        class="text-2xl font-black mt-2">
+        0
+      </div>
+
     </div>
 
+
     <div class="glass rounded-2xl p-4">
-      <div class="text-xs text-slate-500">وضعیت</div>
-      <div class="text-xl font-black mt-2 text-emerald-400">فعال</div>
+
+      <div class="text-[11px] text-slate-500">
+        حجم باقی‌مانده
+      </div>
+
+      <div
+        id="user-volume"
+        class="text-xl font-black text-emerald-400 mt-2">
+        0 GB
+      </div>
+
+    </div>
+
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[11px] text-slate-500">
+        وضعیت حساب
+      </div>
+
+      <div
+        class="text-xl font-black text-emerald-400 mt-2">
+        فعال
+      </div>
+
     </div>
 
   </div>
 
 
   <!-- USER SUBSCRIPTIONS -->
+
   <div class="glass rounded-3xl p-5">
 
     <div class="flex justify-between items-center mb-5">
-      <h3 class="font-bold">📦 اشتراک‌های من</h3>
 
-      <button onclick="showHome()"
-        class="text-xs bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl">
+      <h3 class="font-black">
+        📦 اشتراک‌های من
+      </h3>
+
+      <button
+        onclick="showHome()"
+        class="bg-indigo-600
+               hover:bg-indigo-500
+               px-4 py-2
+               rounded-xl
+               text-xs
+               font-bold">
+
         خرید اشتراک
+
       </button>
+
     </div>
 
     <div id="subscriptions-list"></div>
 
   </div>
 
+
+  <!-- USER ORDERS -->
+
+  <div class="glass rounded-3xl p-5 mt-5">
+
+    <h3 class="font-black mb-5">
+      🧾 سفارش‌های من
+    </h3>
+
+    <div id="user-orders-list"></div>
+
+  </div>
+
 </section>
 
 
-<!-- ================= ADMIN PANEL ================= -->
-<section id="admin-panel" class="hidden">
+<!-- =========================================================
+     ADMIN PANEL
+     ONLY ADMIN CAN SEE THIS
+========================================================= -->
 
-  <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-7">
+<section id="admin-page" class="hidden-page">
+
+  <div class="flex flex-col md:flex-row
+              justify-between
+              md:items-center
+              gap-4 mb-7">
 
     <div>
-      <div class="text-xs text-amber-400">مدیریت EtemadNet</div>
-      <h2 class="text-3xl font-black">پنل مدیریت 👑</h2>
+
+      <div class="text-[10px] text-amber-400 font-bold">
+        مدیریت اختصاصی
+      </div>
+
+      <h2 class="text-3xl font-black">
+        پنل مدیریت 👑
+      </h2>
+
     </div>
 
-    <button onclick="adminLogout()"
-      class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-4 py-2 rounded-xl text-xs">
+    <button
+      onclick="adminLogout()"
+      class="bg-rose-500/10
+             border border-rose-500/20
+             text-rose-400
+             px-4 py-2.5
+             rounded-xl
+             text-xs">
+
       خروج ادمین
+
     </button>
 
   </div>
 
 
   <!-- ADMIN STATS -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
-    <div class="glass rounded-2xl p-5">
-      <div class="text-xs text-slate-500">کاربران</div>
-      <div id="stat-users" class="text-2xl font-black mt-2">0</div>
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[10px] text-slate-500">
+        کاربران
+      </div>
+
+      <div
+        id="admin-users-count"
+        class="text-2xl font-black mt-2">
+        0
+      </div>
+
     </div>
 
-    <div class="glass rounded-2xl p-5">
-      <div class="text-xs text-slate-500">سفارش‌ها</div>
-      <div id="stat-orders" class="text-2xl font-black mt-2">0</div>
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[10px] text-slate-500">
+        سفارش‌ها
+      </div>
+
+      <div
+        id="admin-orders-count"
+        class="text-2xl font-black mt-2">
+        0
+      </div>
+
     </div>
 
-    <div class="glass rounded-2xl p-5">
-      <div class="text-xs text-slate-500">پلن‌ها</div>
-      <div id="stat-plans" class="text-2xl font-black mt-2">0</div>
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[10px] text-slate-500">
+        پلن‌ها
+      </div>
+
+      <div
+        id="admin-plans-count"
+        class="text-2xl font-black mt-2">
+        0
+      </div>
+
     </div>
 
-    <div class="glass rounded-2xl p-5">
-      <div class="text-xs text-slate-500">فروش کل</div>
-      <div id="stat-income" class="text-xl font-black mt-2 text-emerald-400">0 تومان</div>
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[10px] text-slate-500">
+        فروش
+      </div>
+
+      <div
+        id="admin-income"
+        class="text-lg font-black text-emerald-400 mt-2">
+        0
+      </div>
+
+    </div>
+
+
+    <div class="glass rounded-2xl p-4">
+
+      <div class="text-[10px] text-slate-500">
+        بکاپ
+      </div>
+
+      <div
+        id="backup-status"
+        class="text-xs font-bold text-emerald-400 mt-3">
+        آماده
+      </div>
+
     </div>
 
   </div>
 
 
-  <!-- ADMIN TABS -->
+  <!-- ADMIN NAV -->
+
   <div class="flex gap-2 overflow-x-auto mb-5">
 
-    <button onclick="adminTab('plans')"
-      class="admin-tab bg-indigo-600 px-4 py-2 rounded-xl text-xs">
+    <button
+      onclick="adminTab('plans')"
+      class="admin-tab-btn bg-indigo-600 px-4 py-2.5 rounded-xl text-xs">
       📋 پلن‌ها
     </button>
 
-    <button onclick="adminTab('users')"
-      class="admin-tab bg-slate-800 px-4 py-2 rounded-xl text-xs">
+    <button
+      onclick="adminTab('users')"
+      class="admin-tab-btn bg-slate-800 px-4 py-2.5 rounded-xl text-xs">
       👥 کاربران
     </button>
 
-    <button onclick="adminTab('orders')"
-      class="admin-tab bg-slate-800 px-4 py-2 rounded-xl text-xs">
+    <button
+      onclick="adminTab('orders')"
+      class="admin-tab-btn bg-slate-800 px-4 py-2.5 rounded-xl text-xs">
       🛒 سفارش‌ها
     </button>
 
-    <button onclick="adminTab('coupons')"
-      class="admin-tab bg-slate-800 px-4 py-2 rounded-xl text-xs">
-      🎟️ تخفیف‌ها
+    <button
+      onclick="adminTab('coupons')"
+      class="admin-tab-btn bg-slate-800 px-4 py-2.5 rounded-xl text-xs">
+      🎟️ تخفیف
+    </button>
+
+    <button
+      onclick="adminTab('backup')"
+      class="admin-tab-btn bg-slate-800 px-4 py-2.5 rounded-xl text-xs">
+      💾 بکاپ
     </button>
 
   </div>
 
 
-  <!-- PLANS -->
+  <!-- ADMIN PLANS -->
+
   <div id="admin-plans" class="admin-section">
 
     <div class="glass rounded-3xl p-5">
 
-      <h3 class="font-bold mb-4">➕ ایجاد پلن جدید</h3>
+      <h3 class="font-black mb-4">
+        ➕ ساخت پلن جدید
+      </h3>
 
       <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
 
-        <input id="new-plan-name"
+        <input
+          id="plan-name"
           placeholder="نام پلن"
           class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
-        <input id="new-plan-gb"
+        <input
+          id="plan-gb"
           type="number"
           placeholder="حجم GB"
           class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
-        <input id="new-plan-days"
+        <input
+          id="plan-days"
           type="number"
           placeholder="مدت روز"
           class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
-        <input id="new-plan-price"
+        <input
+          id="plan-price"
           type="number"
           placeholder="قیمت تومان"
           class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
       </div>
 
-      <button onclick="createPlan()"
-        class="mt-4 bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl text-xs font-bold">
-        ایجاد پلن
+      <button
+        onclick="createPlan()"
+        class="mt-4 bg-indigo-600
+               hover:bg-indigo-500
+               px-6 py-3
+               rounded-xl
+               text-xs
+               font-bold">
+
+        افزودن پلن
+
       </button>
 
     </div>
+
 
     <div id="admin-plans-list" class="space-y-3 mt-4"></div>
 
   </div>
 
 
-  <!-- USERS -->
+  <!-- ADMIN USERS -->
+
   <div id="admin-users" class="admin-section hidden">
 
     <div class="glass rounded-3xl p-5">
 
-      <h3 class="font-bold mb-5">👥 مدیریت کاربران</h3>
+      <h3 class="font-black mb-5">
+        👥 مدیریت کاربران
+      </h3>
 
       <div id="admin-users-list"></div>
 
@@ -273,12 +577,15 @@ input,select{
   </div>
 
 
-  <!-- ORDERS -->
+  <!-- ADMIN ORDERS -->
+
   <div id="admin-orders" class="admin-section hidden">
 
     <div class="glass rounded-3xl p-5">
 
-      <h3 class="font-bold mb-5">🛒 سفارش‌ها</h3>
+      <h3 class="font-black mb-5">
+        🛒 مدیریت سفارش‌ها
+      </h3>
 
       <div id="admin-orders-list"></div>
 
@@ -287,32 +594,136 @@ input,select{
   </div>
 
 
-  <!-- COUPONS -->
+  <!-- ADMIN COUPONS -->
+
   <div id="admin-coupons" class="admin-section hidden">
 
     <div class="glass rounded-3xl p-5">
 
-      <h3 class="font-bold mb-5">🎟️ کد تخفیف</h3>
+      <h3 class="font-black mb-5">
+        🎟️ مدیریت کد تخفیف
+      </h3>
 
-      <div class="flex gap-2 mb-5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
-        <input id="coupon-code"
-          placeholder="مثلاً ETEMAD20"
-          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
+        <input
+          id="coupon-code"
+          placeholder="کد تخفیف"
+          class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
-        <input id="coupon-percent"
+        <input
+          id="coupon-percent"
           type="number"
-          placeholder="%"
-          class="w-24 bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
+          placeholder="درصد تخفیف"
+          class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm">
 
-        <button onclick="createCoupon()"
-          class="bg-purple-600 px-5 rounded-xl text-xs font-bold">
-          ایجاد
+        <button
+          onclick="createCoupon()"
+          class="bg-purple-600
+                 hover:bg-purple-500
+                 rounded-xl
+                 font-bold
+                 text-sm">
+
+          ساخت کد
+
         </button>
 
       </div>
 
-      <div id="coupons-list"></div>
+      <div id="admin-coupons-list" class="mt-5"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- BACKUP -->
+
+  <div id="admin-backup" class="admin-section hidden">
+
+    <div class="glass rounded-3xl p-5">
+
+      <h3 class="font-black mb-2">
+        💾 سیستم بکاپ Emad Net
+      </h3>
+
+      <p class="text-xs text-slate-500 mb-6">
+        Cloudflare R2 فقط برای نگهداری بکاپ استفاده می‌شود.
+        اطلاعات اصلی از API سرور دریافت می‌شود.
+      </p>
+
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+        <button
+          onclick="createBackup()"
+          class="bg-indigo-600 hover:bg-indigo-500
+                 rounded-2xl p-5">
+
+          <div class="text-2xl mb-2">
+            💾
+          </div>
+
+          <div class="font-bold text-sm">
+            بکاپ دستی
+          </div>
+
+          <div class="text-[10px] text-slate-400 mt-1">
+            ساخت و ارسال بکاپ به R2
+          </div>
+
+        </button>
+
+
+        <button
+          onclick="listBackups()"
+          class="bg-slate-800 hover:bg-slate-700
+                 rounded-2xl p-5">
+
+          <div class="text-2xl mb-2">
+            📚
+          </div>
+
+          <div class="font-bold text-sm">
+            لیست بکاپ‌ها
+          </div>
+
+          <div class="text-[10px] text-slate-400 mt-1">
+            مشاهده بکاپ‌های R2
+          </div>
+
+        </button>
+
+
+        <button
+          onclick="restoreBackup()"
+          class="bg-amber-500/10
+                 border border-amber-500/20
+                 text-amber-400
+                 rounded-2xl p-5">
+
+          <div class="text-2xl mb-2">
+            ♻️
+          </div>
+
+          <div class="font-bold text-sm">
+            بازیابی
+          </div>
+
+          <div class="text-[10px] opacity-70 mt-1">
+            بازیابی آخرین بکاپ
+          </div>
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="backup-list"
+        class="mt-5">
+      </div>
 
     </div>
 
@@ -323,569 +734,870 @@ input,select{
 </main>
 
 
-<!-- ================= BOTTOM NAV ================= -->
-<nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-xl glass rounded-3xl p-2 z-40">
+<!-- =========================================================
+     BOTTOM NAV
+========================================================= -->
+
+<nav class="fixed bottom-4 left-1/2
+            -translate-x-1/2
+            w-[94%] max-w-lg
+            glass rounded-3xl
+            p-2 z-50">
 
   <div class="flex justify-around">
 
-    <button onclick="showHome()"
-      class="px-5 py-3 text-xs text-indigo-400">
-      🛒<br>اشتراک‌ها
+    <button
+      onclick="showHome()"
+      class="px-5 py-2.5 text-xs text-indigo-400">
+
+      🛒
+      <br>
+      اشتراک‌ها
+
     </button>
 
-    <button onclick="openLogin()"
-      class="px-5 py-3 text-xs text-slate-400">
-      👤<br>ورود
+
+    <button
+      onclick="openLogin()"
+      class="px-5 py-2.5 text-xs text-slate-400">
+
+      👤
+      <br>
+      حساب من
+
     </button>
 
-    <button onclick="openAdminLogin()"
-      class="px-5 py-3 text-xs text-amber-400">
-      👑<br>ادمین
-    </button>
+
+    <!--
+      عمداً هیچ دکمه‌ای برای پنل ادمین
+      به کاربران عادی نشان داده نمی‌شود.
+    -->
 
   </div>
 
 </nav>
 
 
-<!-- ================= LOGIN MODAL ================= -->
-<div id="login-modal"
-  class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
+<!-- =========================================================
+     USER LOGIN MODAL
+========================================================= -->
+
+<div
+  id="login-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
   <div class="glass w-full max-w-md rounded-3xl p-6">
 
-    <button onclick="closeLogin()"
-      class="float-left text-slate-500">✕</button>
+    <div class="flex justify-between mb-6">
 
-    <h3 class="text-xl font-black mb-2">ورود به حساب</h3>
+      <div>
 
-    <p class="text-xs text-slate-500 mb-6">
-      فقط نام کاربری و رمز عبور موردنیاز است.
-    </p>
-
-    <input id="login-username"
-      placeholder="نام کاربری"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-3">
-
-    <input id="login-password"
-      type="password"
-      placeholder="رمز عبور"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4">
-
-    <button onclick="loginUser()"
-      class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-sm">
-      ورود
-    </button>
-
-    <button onclick="openRegister()"
-      class="w-full mt-3 bg-slate-800 py-3 rounded-xl text-xs">
-      ساخت حساب جدید
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- ================= REGISTER ================= -->
-<div id="register-modal"
-  class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-
-  <div class="glass w-full max-w-md rounded-3xl p-6">
-
-    <button onclick="closeRegister()"
-      class="float-left text-slate-500">✕</button>
-
-    <h3 class="text-xl font-black mb-2">ساخت حساب</h3>
-
-    <p class="text-xs text-slate-500 mb-6">
-      بدون شماره موبایل و ایمیل
-    </p>
-
-    <input id="register-username"
-      placeholder="نام کاربری"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-3">
-
-    <input id="register-password"
-      type="password"
-      placeholder="رمز عبور"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-3">
-
-    <input id="register-password2"
-      type="password"
-      placeholder="تکرار رمز عبور"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4">
-
-    <button onclick="registerUser()"
-      class="w-full bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl font-bold text-sm">
-      ثبت‌نام
-    </button>
-
-  </div>
-
-</div>
-
-
-<!-- ================= ADMIN LOGIN ================= -->
-<div id="admin-login-modal"
-  class="fixed inset-0 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4 z-50">
-
-  <div class="glass w-full max-w-md rounded-3xl p-6">
-
-    <button onclick="closeAdminLogin()"
-      class="float-left text-slate-500">✕</button>
-
-    <div class="text-center mb-6">
-      <div class="text-4xl mb-2">👑</div>
-      <h3 class="text-xl font-black text-amber-400">
-        ورود مدیریت
-      </h3>
-    </div>
-
-    <input id="admin-username"
-      placeholder="نام کاربری ادمین"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-3">
-
-    <input id="admin-password"
-      type="password"
-      placeholder="رمز عبور ادمین"
-      class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 mb-4">
-
-    <button onclick="adminLogin()"
-      class="w-full bg-amber-500 hover:bg-amber-400 text-black py-3 rounded-xl font-black">
-      ورود به پنل مدیریت
-    </button>
-
-  </div>
-
-</div>
-
-
-<script>
-
-/* =====================================================
-   DATABASE LOCAL
-===================================================== */
-
-const DB_KEY = "etemadnet_database";
-
-let db = JSON.parse(localStorage.getItem(DB_KEY)) || {
-
-  users: [],
-
-  plans: [
-    {
-      id:1,
-      name:"پلن اقتصادی",
-      gb:20,
-      days:30,
-      price:50000
-    },
-    {
-      id:2,
-      name:"پلن حرفه‌ای",
-      gb:50,
-      days:30,
-      price:95000
-    },
-    {
-      id:3,
-      name:"پلن ویژه",
-      gb:100,
-      days:60,
-      price:170000
-    }
-  ],
-
-  orders: [],
-
-  coupons: []
-
-};
-
-
-/*
-   ادمین پیش‌فرض
-   username: admin
-   password: admin123
-*/
-
-if(!db.users.some(u => u.username === "admin")){
-
-  db.users.push({
-
-    id:Date.now(),
-
-    username:"admin",
-
-    password:"admin123",
-
-    role:"admin",
-
-    active:true,
-
-    subscriptions:[]
-
-  });
-
-  saveDB();
-
-}
-
-
-function saveDB(){
-
-  localStorage.setItem(
-    DB_KEY,
-    JSON.stringify(db)
-  );
-
-}
-
-
-/* =====================================================
-   HOME
-===================================================== */
-
-function showHome(){
-
-  document.getElementById("home-page")
-    .classList.remove("hidden");
-
-  document.getElementById("user-panel")
-    .classList.add("hidden");
-
-  document.getElementById("admin-panel")
-    .classList.add("hidden");
-
-  renderPlans();
-
-}
-
-
-function renderPlans(){
-
-  const box =
-    document.getElementById("plans-container");
-
-  box.innerHTML = db.plans.map(p => `
-
-    <div class="glass card rounded-3xl p-6">
-
-      <div class="flex justify-between">
-
-        <div>
-
-          <h3 class="text-lg font-black">
-            ${escapeHTML(p.name)}
-          </h3>
-
-          <p class="text-xs text-slate-500 mt-2">
-            ${p.gb} گیگابایت • ${p.days} روز
-          </p>
-
+        <div class="text-xs text-indigo-400">
+          Emad Net
         </div>
 
-        <span class="text-indigo-400 text-2xl">
-          ⚡
-        </span>
-
-      </div>
-
-      <div class="mt-6">
-
-        <span class="text-2xl font-black">
-          ${Number(p.price).toLocaleString()}
-        </span>
-
-        <span class="text-xs text-slate-500">
-          تومان
-        </span>
+        <h3 class="text-xl font-black">
+          ورود به حساب
+        </h3>
 
       </div>
 
       <button
-        onclick="buyPlan(${p.id})"
-        class="w-full mt-5 bg-indigo-600 hover:bg-indigo-500 py-3 rounded-xl text-sm font-bold">
-
-        خرید اشتراک
-
+        onclick="closeLogin()"
+        class="text-slate-500 text-xl">
+        ×
       </button>
 
     </div>
 
-  `).join("");
 
-}
-
-
-/* =====================================================
-   REGISTER
-===================================================== */
-
-function openRegister(){
-
-  closeLogin();
-
-  const m =
-    document.getElementById("register-modal");
-
-  m.classList.remove("hidden");
-  m.classList.add("flex");
-
-}
+    <input
+      id="login-username"
+      placeholder="نام کاربری"
+      autocomplete="username"
+      class="w-full bg-slate-950
+             border border-slate-800
+             rounded-xl p-3 mb-3">
 
 
-function closeRegister(){
-
-  const m =
-    document.getElementById("register-modal");
-
-  m.classList.add("hidden");
-  m.classList.remove("flex");
-
-}
-
-
-function registerUser(){
-
-  const username =
-    document.getElementById("register-username").value.trim();
-
-  const password =
-    document.getElementById("register-password").value;
-
-  const password2 =
-    document.getElementById("register-password2").value;
+    <input
+      id="login-password"
+      type="password"
+      placeholder="رمز عبور"
+      autocomplete="current-password"
+      class="w-full bg-slate-950
+             border border-slate-800
+             rounded-xl p-3 mb-4">
 
 
-  if(username.length < 3){
+    <button
+      onclick="loginUser()"
+      class="w-full bg-indigo-600
+             hover:bg-indigo-500
+             rounded-xl p-3
+             font-bold text-sm">
 
-    alert("نام کاربری باید حداقل ۳ کاراکتر باشد.");
+      ورود
 
-    return;
-
-  }
-
-
-  if(password.length < 6){
-
-    alert("رمز عبور باید حداقل ۶ کاراکتر باشد.");
-
-    return;
-
-  }
+    </button>
 
 
-  if(password !== password2){
+    <button
+      onclick="openRegister()"
+      class="w-full mt-3
+             bg-slate-800
+             rounded-xl p-3
+             text-xs">
 
-    alert("رمزهای عبور یکسان نیستند.");
+      ساخت حساب جدید
 
-    return;
+    </button>
 
-  }
+  </div>
 
-
-  if(db.users.some(
-    u => u.username.toLowerCase() === username.toLowerCase()
-  )){
-
-    alert("این نام کاربری قبلاً استفاده شده است.");
-
-    return;
-
-  }
+</div>
 
 
-  db.users.push({
+<!-- =========================================================
+     REGISTER MODAL
+========================================================= -->
 
-    id:Date.now(),
+<div
+  id="register-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
-    username,
+  <div class="glass w-full max-w-md rounded-3xl p-6">
 
-    password,
+    <div class="flex justify-between mb-6">
 
-    role:"user",
+      <div>
 
-    active:true,
+        <div class="text-xs text-indigo-400">
+          Emad Net
+        </div>
 
-    subscriptions:[]
+        <h3 class="text-xl font-black">
+          ساخت حساب
+        </h3>
+
+      </div>
+
+      <button
+        onclick="closeRegister()"
+        class="text-slate-500 text-xl">
+        ×
+      </button>
+
+    </div>
+
+
+    <p class="text-xs text-slate-500 mb-5">
+      برای ثبت‌نام فقط نام کاربری و رمز عبور لازم است.
+    </p>
+
+
+    <input
+      id="register-username"
+      placeholder="نام کاربری"
+      autocomplete="username"
+      class="w-full bg-slate-950
+             border border-slate-800
+             rounded-xl p-3 mb-3">
+
+
+    <input
+      id="register-password"
+      type="password"
+      placeholder="رمز عبور"
+      autocomplete="new-password"
+      class="w-full bg-slate-950
+             border border-slate-800
+             rounded-xl p-3 mb-3">
+
+
+    <input
+      id="register-password2"
+      type="password"
+      placeholder="تکرار رمز عبور"
+      autocomplete="new-password"
+      class="w-full bg-slate-950
+             border border-slate-800
+             rounded-xl p-3 mb-4">
+
+
+    <button
+      onclick="registerUser()"
+      class="w-full bg-indigo-600
+             hover:bg-indigo-500
+             rounded-xl p-3
+             font-bold text-sm">
+
+      ثبت‌نام
+
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+/* =========================================================
+   API CONFIG
+========================================================= */
+
+const API = "";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let currentUser = null;
+let currentAdmin = false;
+
+
+/* =========================================================
+   API HELPER
+========================================================= */
+
+async function api(url, options = {}) {
+
+  const response = await fetch(API + url, {
+
+    credentials: "include",
+
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    },
+
+    ...options
 
   });
 
 
-  saveDB();
+  let data = {};
 
-  alert("حساب شما با موفقیت ساخته شد.");
-
-  closeRegister();
-
-  openLogin();
-
-}
+  try {
+    data = await response.json();
+  } catch {
+    data = {};
+  }
 
 
-/* =====================================================
-   LOGIN
-===================================================== */
+  if (!response.ok) {
 
-function openLogin(){
-
-  const m =
-    document.getElementById("login-modal");
-
-  m.classList.remove("hidden");
-  m.classList.add("flex");
-
-}
-
-
-function closeLogin(){
-
-  const m =
-    document.getElementById("login-modal");
-
-  m.classList.add("hidden");
-  m.classList.remove("flex");
-
-}
-
-
-function loginUser(){
-
-  const username =
-    document.getElementById("login-username").value.trim();
-
-  const password =
-    document.getElementById("login-password").value;
-
-
-  const user =
-    db.users.find(
-      u =>
-      u.username === username &&
-      u.password === password &&
-      u.role === "user"
+    throw new Error(
+      data.error ||
+      "خطایی در ارتباط با سرور رخ داد."
     );
 
-
-  if(!user){
-
-    alert("نام کاربری یا رمز عبور اشتباه است.");
-
-    return;
-
   }
 
 
-  if(!user.active){
-
-    alert("حساب شما مسدود شده است.");
-
-    return;
-
-  }
+  return data;
+}
 
 
-  localStorage.setItem(
-    "etemadnet_current_user",
-    user.id
-  );
+/* =========================================================
+   MODALS
+========================================================= */
 
+function openModal(id) {
+
+  const element =
+    document.getElementById(id);
+
+  element.classList.remove("hidden");
+  element.classList.add("flex");
+}
+
+
+function closeModal(id) {
+
+  const element =
+    document.getElementById(id);
+
+  element.classList.add("hidden");
+  element.classList.remove("flex");
+}
+
+
+function openLogin() {
+  openModal("login-modal");
+}
+
+
+function closeLogin() {
+  closeModal("login-modal");
+}
+
+
+function openRegister() {
 
   closeLogin();
 
-  openUserPanel();
+  openModal("register-modal");
+}
+
+
+function closeRegister() {
+  closeModal("register-modal");
+}
+
+
+/* =========================================================
+   PAGE CONTROL
+========================================================= */
+
+function hideAllPages() {
+
+  document
+    .getElementById("home-page")
+    .classList.add("hidden-page");
+
+  document
+    .getElementById("user-page")
+    .classList.add("hidden-page");
+
+  document
+    .getElementById("admin-page")
+    .classList.add("hidden-page");
+}
+
+
+function showHome() {
+
+  hideAllPages();
+
+  document
+    .getElementById("home-page")
+    .classList.remove("hidden-page");
+
+  loadPlans();
+  updateHeader();
+}
+
+
+async function openUserPanel() {
+
+  try {
+
+    const data =
+      await api("/api/auth/me");
+
+    if (!data.user) {
+
+      logoutUser();
+      return;
+
+    }
+
+
+    currentUser =
+      data.user;
+
+
+    hideAllPages();
+
+    document
+      .getElementById("user-page")
+      .classList.remove("hidden-page");
+
+
+    document
+      .getElementById("user-name")
+      .innerText =
+      currentUser.username;
+
+
+    await loadUserData();
+
+    updateHeader();
+
+  } catch {
+
+    logoutUser();
+
+  }
 
 }
 
 
-/* =====================================================
-   USER PANEL
-===================================================== */
+/* =========================================================
+   USER REGISTER
+========================================================= */
 
-function openUserPanel(){
+async function registerUser() {
 
-  const id =
-    Number(
-      localStorage.getItem(
-        "etemadnet_current_user"
-      )
+  const username =
+    document
+      .getElementById("register-username")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("register-password")
+      .value;
+
+
+  const password2 =
+    document
+      .getElementById("register-password2")
+      .value;
+
+
+  if (username.length < 3) {
+
+    alert(
+      "نام کاربری باید حداقل ۳ کاراکتر باشد."
     );
-
-
-  const user =
-    db.users.find(
-      u => u.id === id
-    );
-
-
-  if(!user){
-
-    showHome();
 
     return;
 
   }
 
 
-  document.getElementById("home-page")
-    .classList.add("hidden");
+  if (password.length < 6) {
 
-  document.getElementById("admin-panel")
-    .classList.add("hidden");
+    alert(
+      "رمز عبور باید حداقل ۶ کاراکتر باشد."
+    );
 
-  document.getElementById("user-panel")
-    .classList.remove("hidden");
+    return;
 
-
-  document.getElementById("user-name")
-    .innerText = user.username;
+  }
 
 
-  document.getElementById("user-sub-count")
-    .innerText =
-    user.subscriptions.length;
+  if (password !== password2) {
+
+    alert(
+      "تکرار رمز عبور صحیح نیست."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    await api("/api/auth/register", {
+
+      method: "POST",
+
+      body: JSON.stringify({
+
+        username,
+        password
+
+      })
+
+    });
+
+
+    alert(
+      "حساب شما با موفقیت ساخته شد."
+    );
+
+
+    closeRegister();
+    openLogin();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   USER LOGIN
+========================================================= */
+
+async function loginUser() {
+
+  const username =
+    document
+      .getElementById("login-username")
+      .value
+      .trim();
+
+
+  const password =
+    document
+      .getElementById("login-password")
+      .value;
+
+
+  if (!username || !password) {
+
+    alert(
+      "نام کاربری و رمز عبور را وارد کنید."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    const data =
+      await api("/api/auth/login", {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          username,
+          password,
+
+          // مشخص می‌کنیم ورود کاربر عادی است
+          type: "user"
+
+        })
+
+      });
+
+
+    if (!data.user) {
+
+      throw new Error(
+        "ورود انجام نشد."
+      );
+
+    }
+
+
+    currentUser =
+      data.user;
+
+
+    closeLogin();
+
+    await openUserPanel();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   USER LOGOUT
+========================================================= */
+
+async function logoutUser() {
+
+  try {
+
+    await api("/api/auth/logout", {
+      method: "POST"
+    });
+
+  } catch {}
+
+  currentUser = null;
+
+  showHome();
+
+}
+
+
+/* =========================================================
+   LOAD PLANS
+========================================================= */
+
+async function loadPlans() {
+
+  const container =
+    document.getElementById(
+      "plans-container"
+    );
+
+
+  try {
+
+    const data =
+      await api("/api/plans");
+
+
+    const plans =
+      data.plans || data || [];
+
+
+    if (!plans.length) {
+
+      container.innerHTML = `
+        <div class="glass rounded-3xl
+                    p-10 text-center
+                    text-slate-500
+                    col-span-full">
+
+          هنوز پلنی برای فروش فعال نشده است.
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    container.innerHTML =
+      plans.map(plan => `
+
+        <div class="glass glass-hover
+                    rounded-3xl p-6">
+
+          <div class="flex
+                      justify-between
+                      items-start">
+
+            <div>
+
+              <div class="text-lg
+                          font-black">
+
+                ${escapeHTML(plan.name)}
+
+              </div>
+
+              <div class="text-xs
+                          text-slate-500
+                          mt-2">
+
+                ${Number(plan.gb).toLocaleString()}
+                گیگابایت
+
+                •
+                
+                ${Number(plan.days).toLocaleString()}
+                روز
+
+              </div>
+
+            </div>
+
+            <div class="text-2xl">
+              ⚡
+            </div>
+
+          </div>
+
+
+          <div class="mt-7">
+
+            <span class="text-2xl
+                         font-black">
+
+              ${Number(plan.price)
+                .toLocaleString()}
+
+            </span>
+
+            <span class="text-xs
+                         text-slate-500">
+
+              تومان
+
+            </span>
+
+          </div>
+
+
+          <button
+            onclick="buyPlan(${Number(plan.id)})"
+            class="w-full mt-5
+                   bg-indigo-600
+                   hover:bg-indigo-500
+                   rounded-xl p-3
+                   font-bold text-xs">
+
+            خرید اشتراک
+
+          </button>
+
+        </div>
+
+      `).join("");
+
+
+  } catch (error) {
+
+    container.innerHTML = `
+      <div class="glass rounded-3xl
+                  p-8 text-center
+                  text-rose-400
+                  col-span-full">
+
+        ${escapeHTML(error.message)}
+
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   BUY PLAN
+========================================================= */
+
+async function buyPlan(planId) {
+
+  if (!currentUser) {
+
+    openLogin();
+
+    return;
+
+  }
+
+
+  const coupon =
+    prompt(
+      "اگر کد تخفیف دارید وارد کنید؛ در غیر این صورت خالی بگذارید:"
+    ) || "";
+
+
+  try {
+
+    const data =
+      await api("/api/orders", {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          planId,
+          coupon
+
+        })
+
+      });
+
+
+    alert(
+      "سفارش با موفقیت ثبت شد."
+    );
+
+
+    await openUserPanel();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   USER DATA
+========================================================= */
+
+async function loadUserData() {
+
+  const data =
+    await api("/api/user/dashboard");
+
+
+  const subscriptions =
+    data.subscriptions || [];
 
 
   const orders =
-    db.orders.filter(
-      o => o.userId === user.id
-    );
+    data.orders || [];
 
 
-  document.getElementById("user-order-count")
-    .innerText = orders.length;
+  document
+    .getElementById("user-sub-count")
+    .innerText =
+    subscriptions.length;
+
+
+  document
+    .getElementById("user-order-count")
+    .innerText =
+    orders.length;
 
 
   const volume =
-    user.subscriptions.reduce(
-      (sum,s) => sum + Number(s.gbRemaining || 0),
+    subscriptions.reduce(
+
+      (sum, item) =>
+
+        sum +
+        Number(
+          item.gbRemaining || 0
+        ),
+
       0
+
     );
 
 
-  document.getElementById("user-volume")
+  document
+    .getElementById("user-volume")
     .innerText =
     volume + " GB";
 
 
-  renderSubscriptions(user);
+  renderSubscriptions(
+    subscriptions
+  );
+
+
+  renderUserOrders(
+    orders
+  );
 
 }
 
 
-function renderSubscriptions(user){
+/* =========================================================
+   SUBSCRIPTIONS
+========================================================= */
+
+function renderSubscriptions(
+  subscriptions
+) {
 
   const box =
-    document.getElementById("subscriptions-list");
+    document.getElementById(
+      "subscriptions-list"
+    );
 
 
-  if(!user.subscriptions.length){
+  if (!subscriptions.length) {
 
     box.innerHTML = `
-      <div class="text-center py-10 text-slate-500 text-sm">
-        هنوز اشتراکی خریداری نکرده‌اید.
+      <div class="text-center
+                  text-slate-500
+                  py-10 text-sm">
+
+        هنوز اشتراکی ندارید.
+
       </div>
     `;
 
@@ -895,39 +1607,67 @@ function renderSubscriptions(user){
 
 
   box.innerHTML =
-    user.subscriptions.map(s => `
+    subscriptions.map(item => `
 
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-3">
+      <div class="bg-slate-950
+                  border border-slate-800
+                  rounded-2xl p-4 mb-3">
 
-        <div class="flex justify-between">
+        <div class="flex
+                    justify-between
+                    gap-4">
 
           <div>
 
             <div class="font-bold">
-              ${escapeHTML(s.planName)}
+              ${escapeHTML(item.planName)}
             </div>
 
-            <div class="text-xs text-slate-500 mt-1">
-              ${s.days} روز • ${s.gb} GB
+            <div class="text-[10px]
+                        text-slate-500 mt-1">
+
+              ${item.gbRemaining}
+              GB باقی‌مانده
+
+              •
+              
+              ${item.daysRemaining ?? item.days}
+              روز باقی‌مانده
+
             </div>
 
           </div>
 
-          <span class="text-emerald-400 text-xs">
-            فعال
+          <span class="text-emerald-400
+                       text-[10px]">
+
+            ${item.status || "فعال"}
+
           </span>
 
         </div>
 
+
         <div class="mt-4">
 
-          <div class="text-[10px] text-slate-500 mb-1">
-            کانفیگ اشتراک
+          <div class="text-[10px]
+                      text-slate-500 mb-1">
+
+            لینک کانفیگ
+
           </div>
 
-          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-[10px] text-emerald-400 break-all select-all">
+          <div class="bg-slate-900
+                      border border-slate-800
+                      rounded-xl p-3
+                      text-[10px]
+                      text-emerald-400
+                      break-all
+                      select-all">
 
-            ${escapeHTML(s.vpnLink)}
+            ${escapeHTML(
+              item.vpnLink || "در انتظار صدور کانفیگ"
+            )}
 
           </div>
 
@@ -940,562 +1680,657 @@ function renderSubscriptions(user){
 }
 
 
-/* =====================================================
-   BUY PLAN
-===================================================== */
+/* =========================================================
+   USER ORDERS
+========================================================= */
 
-function buyPlan(planId){
+function renderUserOrders(orders) {
 
-  const userId =
-    Number(
-      localStorage.getItem(
-        "etemadnet_current_user"
-      )
+  const box =
+    document.getElementById(
+      "user-orders-list"
     );
 
 
-  if(!userId){
+  if (!orders.length) {
 
-    alert("ابتدا وارد حساب خود شوید.");
+    box.innerHTML = `
+      <div class="text-center
+                  text-slate-500
+                  py-8 text-sm">
 
-    openLogin();
+        سفارشی ثبت نشده است.
+
+      </div>
+    `;
 
     return;
 
   }
 
 
-  const user =
-    db.users.find(
-      u => u.id === userId
-    );
+  box.innerHTML =
+    orders.map(order => `
+
+      <div class="bg-slate-950
+                  border border-slate-800
+                  rounded-2xl p-4 mb-3">
+
+        <div class="flex
+                    justify-between">
+
+          <span class="font-bold text-sm">
+
+            ${escapeHTML(order.planName)}
+
+          </span>
+
+          <span class="text-xs
+                       text-emerald-400">
+
+            ${escapeHTML(
+              order.status || "ثبت شده"
+            )}
+
+          </span>
+
+        </div>
 
 
-  const plan =
-    db.plans.find(
-      p => p.id === planId
-    );
+        <div class="text-xs
+                    text-slate-500 mt-2">
+
+          ${Number(order.finalPrice || order.price || 0)
+            .toLocaleString()}
+
+          تومان
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
 
 
-  if(!plan || !user){
+/* =========================================================
+   ADMIN
+========================================================= */
 
-    alert("خطا در خرید.");
+async function openAdminPanel() {
 
-    return;
+  /*
+    امنیت واقعی در Backend بررسی می‌شود.
+    اینجا فقط UI را نمایش می‌دهیم.
+  */
 
-  }
+  try {
 
-
-  let price =
-    Number(plan.price);
-
-
-  const coupon =
-    prompt(
-      "اگر کد تخفیف دارید وارد کنید، در غیر این صورت خالی بگذارید:"
-    );
+    const data =
+      await api("/api/admin/me");
 
 
-  if(coupon){
+    if (!data.admin) {
 
-    const c =
-      db.coupons.find(
-        x =>
-        x.code.toLowerCase() ===
-        coupon.trim().toLowerCase()
+      throw new Error(
+        "دسترسی ادمین ندارید."
       );
-
-
-    if(c){
-
-      price =
-        Math.round(
-          price -
-          price * c.percent / 100
-        );
-
-    }else{
-
-      alert("کد تخفیف معتبر نیست.");
-
-      return;
 
     }
 
-  }
+
+    currentAdmin = true;
+
+    hideAllPages();
+
+    document
+      .getElementById("admin-page")
+      .classList.remove("hidden-page");
 
 
-  const order = {
-
-    id:Date.now(),
-
-    userId:user.id,
-
-    username:user.username,
-
-    planId:plan.id,
-
-    planName:plan.name,
-
-    price,
-
-    date:new Date().toLocaleString("fa-IR"),
-
-    status:"موفق"
-
-  };
+    await loadAdminDashboard();
 
 
-  db.orders.push(order);
+  } catch (error) {
 
+    currentAdmin = false;
 
-  const subscription = {
-
-    id:Date.now()+1,
-
-    planName:plan.name,
-
-    gb:plan.gb,
-
-    gbRemaining:plan.gb,
-
-    days:plan.days,
-
-    vpnLink:
-      "vless://etemadnet-" +
-      Math.random()
-      .toString(36)
-      .substring(2,14)
-
-  };
-
-
-  user.subscriptions.push(
-    subscription
-  );
-
-
-  saveDB();
-
-
-  alert(
-    "خرید با موفقیت انجام شد!\n\n" +
-    "مبلغ: " +
-    price.toLocaleString() +
-    " تومان"
-  );
-
-
-  openUserPanel();
-
-}
-
-
-/* =====================================================
-   ADMIN LOGIN
-===================================================== */
-
-function openAdminLogin(){
-
-  const m =
-    document.getElementById("admin-login-modal");
-
-  m.classList.remove("hidden");
-  m.classList.add("flex");
-
-}
-
-
-function closeAdminLogin(){
-
-  const m =
-    document.getElementById("admin-login-modal");
-
-  m.classList.add("hidden");
-  m.classList.remove("flex");
-
-}
-
-
-function adminLogin(){
-
-  const username =
-    document.getElementById("admin-username").value.trim();
-
-  const password =
-    document.getElementById("admin-password").value;
-
-
-  const admin =
-    db.users.find(
-      u =>
-      u.username === username &&
-      u.password === password &&
-      u.role === "admin"
+    alert(
+      error.message ||
+      "دسترسی غیرمجاز"
     );
 
-
-  if(!admin){
-
-    alert("اطلاعات ورود ادمین اشتباه است.");
-
-    return;
+    showHome();
 
   }
-
-
-  localStorage.setItem(
-    "etemadnet_admin",
-    "true"
-  );
-
-
-  closeAdminLogin();
-
-  openAdminPanel();
 
 }
 
 
-function adminLogout(){
+/* =========================================================
+   ADMIN LOGIN
+========================================================= */
 
-  localStorage.removeItem(
-    "etemadnet_admin"
-  );
+/*
+  هیچ دکمه‌ای برای ادمین در صفحه عمومی وجود ندارد.
+
+  این تابع را می‌توانی از یک مسیر مخفی
+  یا صفحه جداگانه admin.html صدا بزنی.
+*/
+
+async function adminLogin(username, password) {
+
+  try {
+
+    const data =
+      await api("/api/auth/login", {
+
+        method: "POST",
+
+        body: JSON.stringify({
+
+          username,
+          password,
+
+          type: "admin"
+
+        })
+
+      });
+
+
+    if (!data.admin) {
+
+      throw new Error(
+        "اطلاعات ادمین صحیح نیست."
+      );
+
+    }
+
+
+    currentAdmin = true;
+
+    await openAdminPanel();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN LOGOUT
+========================================================= */
+
+async function adminLogout() {
+
+  try {
+
+    await api("/api/auth/logout", {
+      method: "POST"
+    });
+
+  } catch {}
+
+  currentAdmin = false;
 
   showHome();
 
 }
 
 
-/* =====================================================
-   ADMIN PANEL
-===================================================== */
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
 
-function openAdminPanel(){
+async function loadAdminDashboard() {
 
-  document.getElementById("home-page")
-    .classList.add("hidden");
-
-  document.getElementById("user-panel")
-    .classList.add("hidden");
-
-  document.getElementById("admin-panel")
-    .classList.remove("hidden");
+  const data =
+    await api("/api/admin/dashboard");
 
 
-  renderAdmin();
+  document
+    .getElementById("admin-users-count")
+    .innerText =
+    Number(data.users || 0)
+      .toLocaleString();
+
+
+  document
+    .getElementById("admin-orders-count")
+    .innerText =
+    Number(data.orders || 0)
+      .toLocaleString();
+
+
+  document
+    .getElementById("admin-plans-count")
+    .innerText =
+    Number(data.plans || 0)
+      .toLocaleString();
+
+
+  document
+    .getElementById("admin-income")
+    .innerText =
+    Number(data.income || 0)
+      .toLocaleString();
+
+
+  await loadAdminPlans();
+  await loadAdminUsers();
+  await loadAdminOrders();
+  await loadAdminCoupons();
 
 }
 
 
-function renderAdmin(){
-
-  document.getElementById("stat-users")
-    .innerText =
-    db.users.filter(
-      u => u.role === "user"
-    ).length;
-
-
-  document.getElementById("stat-orders")
-    .innerText =
-    db.orders.length;
-
-
-  document.getElementById("stat-plans")
-    .innerText =
-    db.plans.length;
-
-
-  const income =
-    db.orders.reduce(
-      (sum,o) => sum + Number(o.price),
-      0
-    );
-
-
-  document.getElementById("stat-income")
-    .innerText =
-    income.toLocaleString() +
-    " تومان";
-
-
-  renderAdminPlans();
-
-  renderAdminUsers();
-
-  renderAdminOrders();
-
-  renderCoupons();
-
-}
-
-
-/* =====================================================
+/* =========================================================
    ADMIN TABS
-===================================================== */
+========================================================= */
 
-function adminTab(tab){
+function adminTab(name) {
 
   document
     .querySelectorAll(".admin-section")
     .forEach(
-      x => x.classList.add("hidden")
+      section =>
+        section.classList.add("hidden")
     );
 
 
-  document
-    .getElementById(
-      "admin-" + tab
-    )
-    .classList.remove("hidden");
+  const target =
+    document.getElementById(
+      "admin-" + name
+    );
+
+
+  if (target)
+    target.classList.remove("hidden");
 
 }
 
 
-/* =====================================================
+/* =========================================================
    CREATE PLAN
-===================================================== */
+========================================================= */
 
-function createPlan(){
+async function createPlan() {
+
+  if (!currentAdmin) {
+
+    alert("دسترسی غیرمجاز.");
+    return;
+
+  }
+
 
   const name =
     document.getElementById(
-      "new-plan-name"
+      "plan-name"
     ).value.trim();
+
 
   const gb =
     Number(
       document.getElementById(
-        "new-plan-gb"
+        "plan-gb"
       ).value
     );
+
 
   const days =
     Number(
       document.getElementById(
-        "new-plan-days"
+        "plan-days"
       ).value
     );
+
 
   const price =
     Number(
       document.getElementById(
-        "new-plan-price"
+        "plan-price"
       ).value
     );
 
 
-  if(!name || !gb || !days || !price){
+  if (!name || !gb || !days || !price) {
 
-    alert("تمام اطلاعات پلن را وارد کنید.");
+    alert(
+      "تمام اطلاعات پلن را وارد کنید."
+    );
 
     return;
 
   }
 
 
-  db.plans.push({
+  try {
 
-    id:Date.now(),
+    await api("/api/admin/plans", {
 
-    name,
+      method: "POST",
 
-    gb,
+      body: JSON.stringify({
 
-    days,
+        name,
+        gb,
+        days,
+        price
 
-    price
+      })
 
-  });
+    });
 
 
-  saveDB();
+    alert(
+      "پلن با موفقیت ایجاد شد."
+    );
 
-  renderAdmin();
 
-  renderPlans();
+    document
+      .getElementById("plan-name")
+      .value = "";
 
-  alert("پلن با موفقیت ساخته شد.");
+
+    document
+      .getElementById("plan-gb")
+      .value = "";
+
+
+    document
+      .getElementById("plan-days")
+      .value = "";
+
+
+    document
+      .getElementById("plan-price")
+      .value = "";
+
+
+    await loadAdminDashboard();
+    await loadPlans();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
 
 }
 
 
-/* =====================================================
+/* =========================================================
    ADMIN PLANS
-===================================================== */
+========================================================= */
 
-function renderAdminPlans(){
+async function loadAdminPlans() {
 
-  const box =
-    document.getElementById(
-      "admin-plans-list"
-    );
+  try {
 
-
-  box.innerHTML =
-    db.plans.map(p => `
-
-      <div class="glass rounded-2xl p-4 flex justify-between items-center">
-
-        <div>
-
-          <div class="font-bold">
-            ${escapeHTML(p.name)}
-          </div>
-
-          <div class="text-xs text-slate-500 mt-1">
-            ${p.gb} GB • ${p.days} روز •
-            ${Number(p.price).toLocaleString()} تومان
-          </div>
-
-        </div>
-
-        <button
-          onclick="deletePlan(${p.id})"
-          class="text-xs text-rose-400">
-
-          حذف
-
-        </button>
-
-      </div>
-
-    `).join("");
-
-}
+    const data =
+      await api("/api/admin/plans");
 
 
-function deletePlan(id){
-
-  if(!confirm("این پلن حذف شود؟"))
-    return;
+    const plans =
+      data.plans || [];
 
 
-  db.plans =
-    db.plans.filter(
-      p => p.id !== id
-    );
+    const box =
+      document.getElementById(
+        "admin-plans-list"
+      );
 
-
-  saveDB();
-
-  renderAdmin();
-
-  renderPlans();
-
-}
-
-
-/* =====================================================
-   ADMIN USERS
-===================================================== */
-
-function renderAdminUsers(){
-
-  const box =
-    document.getElementById(
-      "admin-users-list"
-    );
-
-
-  const users =
-    db.users.filter(
-      u => u.role === "user"
-    );
-
-
-  if(!users.length){
 
     box.innerHTML =
-      `<p class="text-slate-500 text-sm">کاربری وجود ندارد.</p>`;
+      plans.map(plan => `
 
-    return;
-
-  }
-
-
-  box.innerHTML =
-    users.map(u => `
-
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-3">
-
-        <div class="flex justify-between items-center">
+        <div class="glass rounded-2xl
+                    p-4 flex
+                    justify-between
+                    items-center">
 
           <div>
 
             <div class="font-bold">
-              ${escapeHTML(u.username)}
+              ${escapeHTML(plan.name)}
             </div>
 
-            <div class="text-[10px] text-slate-500 mt-1">
-              اشتراک‌ها: ${u.subscriptions.length}
+            <div class="text-[10px]
+                        text-slate-500 mt-1">
+
+              ${plan.gb} GB
+              •
+              ${plan.days} روز
+              •
+              ${Number(plan.price)
+                .toLocaleString()} تومان
+
             </div>
 
           </div>
 
-          <div class="flex gap-2">
 
-            <button
-              onclick="changeUserPassword(${u.id})"
-              class="text-xs bg-indigo-500/10 text-indigo-400 px-3 py-2 rounded-lg">
+          <button
+            onclick="deletePlan(${Number(plan.id)})"
+            class="text-xs
+                   text-rose-400
+                   bg-rose-500/10
+                   px-3 py-2
+                   rounded-lg">
 
-              تغییر رمز
+            حذف
 
-            </button>
+          </button>
 
-            <button
-              onclick="toggleUser(${u.id})"
-              class="text-xs bg-slate-800 px-3 py-2 rounded-lg">
+        </div>
 
-              ${u.active ? "مسدود" : "فعال"}
+      `).join("");
 
-            </button>
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* =========================================================
+   DELETE PLAN
+========================================================= */
+
+async function deletePlan(id) {
+
+  if (!currentAdmin) {
+
+    alert("دسترسی غیرمجاز.");
+    return;
+
+  }
+
+
+  if (!confirm(
+    "آیا از حذف این پلن مطمئن هستید؟"
+  )) {
+
+    return;
+
+  }
+
+
+  try {
+
+    await api(
+      "/api/admin/plans/" + id,
+      {
+        method: "DELETE"
+      }
+    );
+
+
+    await loadAdminDashboard();
+    await loadPlans();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN USERS
+========================================================= */
+
+async function loadAdminUsers() {
+
+  try {
+
+    const data =
+      await api("/api/admin/users");
+
+
+    const users =
+      data.users || [];
+
+
+    const box =
+      document.getElementById(
+        "admin-users-list"
+      );
+
+
+    /*
+      نکته مهم:
+      Backend باید ادمین را اصلاً
+      داخل users این endpoint برنگرداند.
+    */
+
+    box.innerHTML =
+      users.map(user => `
+
+        <div class="bg-slate-950
+                    border border-slate-800
+                    rounded-2xl p-4 mb-3">
+
+          <div class="flex
+                      justify-between
+                      items-center">
+
+            <div>
+
+              <div class="font-bold">
+                ${escapeHTML(user.username)}
+              </div>
+
+              <div class="text-[10px]
+                          text-slate-500 mt-1">
+
+                اشتراک‌ها:
+                ${user.subscriptionCount || 0}
+
+              </div>
+
+            </div>
+
+
+            <div class="flex gap-2">
+
+              <button
+                onclick="toggleUser(${Number(user.id)})"
+                class="text-[10px]
+                       bg-slate-800
+                       px-3 py-2
+                       rounded-lg">
+
+                ${user.active
+                  ? "مسدود کردن"
+                  : "فعال کردن"}
+
+              </button>
+
+
+              <button
+                onclick="changeUserPassword(${Number(user.id)})"
+                class="text-[10px]
+                       bg-indigo-500/10
+                       text-indigo-400
+                       px-3 py-2
+                       rounded-lg">
+
+                تغییر رمز
+
+              </button>
+
+            </div>
 
           </div>
 
         </div>
 
-      </div>
-
-    `).join("");
-
-}
+      `).join("");
 
 
-function toggleUser(id){
+  } catch (error) {
 
-  const user =
-    db.users.find(
-      u => u.id === id
-    );
+    console.error(error);
 
-
-  if(!user) return;
-
-
-  user.active =
-    !user.active;
-
-
-  saveDB();
-
-  renderAdminUsers();
+  }
 
 }
 
 
-function changeUserPassword(id){
+/* =========================================================
+   USER STATUS
+========================================================= */
 
-  const user =
-    db.users.find(
-      u => u.id === id
+async function toggleUser(id) {
+
+  try {
+
+    await api(
+      "/api/admin/users/" + id + "/status",
+      {
+
+        method: "PATCH",
+
+        body: JSON.stringify({
+          toggle: true
+        })
+
+      }
     );
 
 
-  if(!user) return;
+    await loadAdminUsers();
 
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   CHANGE USER PASSWORD
+========================================================= */
+
+async function changeUserPassword(id) {
 
   const password =
     prompt(
@@ -1503,14 +2338,14 @@ function changeUserPassword(id){
     );
 
 
-  if(!password)
+  if (!password)
     return;
 
 
-  if(password.length < 6){
+  if (password.length < 6) {
 
     alert(
-      "رمز باید حداقل ۶ کاراکتر باشد."
+      "رمز عبور باید حداقل ۶ کاراکتر باشد."
     );
 
     return;
@@ -1518,90 +2353,123 @@ function changeUserPassword(id){
   }
 
 
-  user.password =
-    password;
+  try {
+
+    await api(
+      "/api/admin/users/" + id + "/password",
+      {
+
+        method: "PATCH",
+
+        body: JSON.stringify({
+          password
+        })
+
+      }
+    );
 
 
-  saveDB();
+    alert(
+      "رمز کاربر تغییر کرد."
+    );
 
-  alert(
-    "رمز عبور کاربر تغییر کرد."
-  );
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
 
 }
 
 
-/* =====================================================
+/* =========================================================
    ADMIN ORDERS
-===================================================== */
+========================================================= */
 
-function renderAdminOrders(){
+async function loadAdminOrders() {
 
-  const box =
-    document.getElementById(
-      "admin-orders-list"
-    );
+  try {
+
+    const data =
+      await api("/api/admin/orders");
 
 
-  if(!db.orders.length){
+    const orders =
+      data.orders || [];
+
+
+    const box =
+      document.getElementById(
+        "admin-orders-list"
+      );
+
 
     box.innerHTML =
-      `<p class="text-slate-500 text-sm">سفارشی وجود ندارد.</p>`;
+      orders.map(order => `
 
-    return;
+        <div class="bg-slate-950
+                    border border-slate-800
+                    rounded-2xl p-4 mb-3">
+
+          <div class="flex
+                      justify-between">
+
+            <div>
+
+              <div class="font-bold">
+                ${escapeHTML(order.planName)}
+              </div>
+
+              <div class="text-[10px]
+                          text-slate-500 mt-1">
+
+                کاربر:
+                ${escapeHTML(order.username)}
+
+              </div>
+
+            </div>
+
+
+            <div class="text-emerald-400
+                        text-xs">
+
+              ${Number(order.finalPrice || 0)
+                .toLocaleString()}
+              تومان
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `).join("");
+
+
+  } catch (error) {
+
+    console.error(error);
 
   }
-
-
-  box.innerHTML =
-    db.orders
-    .slice()
-    .reverse()
-    .map(o => `
-
-      <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 mb-3">
-
-        <div class="flex justify-between">
-
-          <div>
-
-            <div class="font-bold">
-              ${escapeHTML(o.planName)}
-            </div>
-
-            <div class="text-xs text-slate-500">
-              کاربر: ${escapeHTML(o.username)}
-            </div>
-
-          </div>
-
-          <div class="text-emerald-400 text-xs">
-            ${Number(o.price).toLocaleString()} تومان
-          </div>
-
-        </div>
-
-        <div class="text-[10px] text-slate-600 mt-3">
-          ${o.date}
-        </div>
-
-      </div>
-
-    `).join("");
 
 }
 
 
-/* =====================================================
+/* =========================================================
    COUPONS
-===================================================== */
+========================================================= */
 
-function createCoupon(){
+async function createCoupon() {
 
   const code =
-    document.getElementById(
-      "coupon-code"
-    ).value.trim().toUpperCase();
+    document
+      .getElementById("coupon-code")
+      .value
+      .trim()
+      .toUpperCase();
+
 
   const percent =
     Number(
@@ -1611,112 +2479,378 @@ function createCoupon(){
     );
 
 
-  if(!code || !percent){
+  if (!code || !percent) {
 
-    alert("اطلاعات کد تخفیف را وارد کنید.");
-
-    return;
-
-  }
-
-
-  if(percent > 100){
-
-    alert("درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد.");
+    alert(
+      "کد و درصد تخفیف را وارد کنید."
+    );
 
     return;
 
   }
 
 
-  db.coupons.push({
+  if (percent > 100) {
 
-    id:Date.now(),
+    alert(
+      "درصد تخفیف نمی‌تواند بیشتر از ۱۰۰ باشد."
+    );
 
-    code,
+    return;
 
-    percent
-
-  });
+  }
 
 
-  saveDB();
+  try {
 
-  renderCoupons();
+    await api("/api/admin/coupons", {
 
-  alert("کد تخفیف ساخته شد.");
+      method: "POST",
+
+      body: JSON.stringify({
+
+        code,
+        percent
+
+      })
+
+    });
+
+
+    alert(
+      "کد تخفیف ساخته شد."
+    );
+
+
+    await loadAdminCoupons();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
 
 }
 
 
-function renderCoupons(){
+async function loadAdminCoupons() {
+
+  try {
+
+    const data =
+      await api("/api/admin/coupons");
+
+
+    const coupons =
+      data.coupons || [];
+
+
+    const box =
+      document.getElementById(
+        "admin-coupons-list"
+      );
+
+
+    box.innerHTML =
+      coupons.map(coupon => `
+
+        <div class="bg-slate-950
+                    border border-slate-800
+                    rounded-xl p-3
+                    flex justify-between
+                    mb-2">
+
+          <span>
+            ${escapeHTML(coupon.code)}
+          </span>
+
+          <span class="text-purple-400">
+            ${coupon.percent}%
+          </span>
+
+        </div>
+
+      `).join("");
+
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* =========================================================
+   R2 BACKUP
+========================================================= */
+
+async function createBackup() {
+
+  if (!currentAdmin) {
+
+    alert(
+      "دسترسی غیرمجاز."
+    );
+
+    return;
+
+  }
+
+
+  const status =
+    document.getElementById(
+      "backup-status"
+    );
+
+
+  status.innerText =
+    "در حال بکاپ...";
+
+
+  try {
+
+    /*
+      Backend اطلاعات اصلی را می‌گیرد،
+      JSON می‌سازد و آن را در Cloudflare R2
+      ذخیره می‌کند.
+
+      هیچ R2 Secret داخل مرورگر نیست.
+    */
+
+    const data =
+      await api("/api/admin/backup", {
+
+        method: "POST"
+
+      });
+
+
+    status.innerText =
+      "بکاپ با موفقیت ذخیره شد";
+
+
+    alert(
+      data.message ||
+      "بکاپ با موفقیت در R2 ذخیره شد."
+    );
+
+
+  } catch (error) {
+
+    status.innerText =
+      "خطا";
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   LIST R2 BACKUPS
+========================================================= */
+
+async function listBackups() {
+
+  try {
+
+    const data =
+      await api("/api/admin/backups");
+
+
+    const backups =
+      data.backups || [];
+
+
+    const box =
+      document.getElementById(
+        "backup-list"
+      );
+
+
+    if (!backups.length) {
+
+      box.innerHTML = `
+        <div class="text-center
+                    text-slate-500
+                    py-6 text-xs">
+
+          هنوز بکاپی وجود ندارد.
+
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    box.innerHTML =
+      backups.map(backup => `
+
+        <div class="bg-slate-950
+                    border border-slate-800
+                    rounded-xl p-4 mb-2
+                    flex justify-between
+                    items-center">
+
+          <div>
+
+            <div class="text-xs font-bold">
+              ${escapeHTML(backup.name)}
+            </div>
+
+            <div class="text-[10px]
+                        text-slate-500 mt-1">
+
+              ${escapeHTML(
+                backup.date || ""
+              )}
+
+            </div>
+
+          </div>
+
+
+          <button
+            onclick="restoreSpecificBackup('${escapeAttribute(backup.id)}')"
+            class="text-xs
+                   text-amber-400
+                   bg-amber-500/10
+                   px-3 py-2
+                   rounded-lg">
+
+            بازیابی
+
+          </button>
+
+        </div>
+
+      `).join("");
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   RESTORE
+========================================================= */
+
+async function restoreBackup() {
+
+  if (!confirm(
+    "آخرین بکاپ بازیابی شود؟ اطلاعات فعلی ممکن است جایگزین شوند."
+  )) {
+
+    return;
+
+  }
+
+
+  try {
+
+    await api(
+      "/api/admin/backup/restore",
+      {
+        method: "POST"
+      }
+    );
+
+
+    alert(
+      "بازیابی با موفقیت انجام شد."
+    );
+
+
+    await loadAdminDashboard();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+async function restoreSpecificBackup(id) {
+
+  if (!confirm(
+    "این بکاپ بازیابی شود؟"
+  )) {
+
+    return;
+
+  }
+
+
+  try {
+
+    await api(
+      "/api/admin/backups/" +
+      encodeURIComponent(id) +
+      "/restore",
+      {
+        method: "POST"
+      }
+    );
+
+
+    alert(
+      "بکاپ با موفقیت بازیابی شد."
+    );
+
+
+    await loadAdminDashboard();
+
+
+  } catch (error) {
+
+    alert(error.message);
+
+  }
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+function updateHeader() {
 
   const box =
     document.getElementById(
-      "coupons-list"
+      "header-user"
     );
 
 
-  if(!db.coupons.length){
+  if (currentAdmin) {
 
-    box.innerHTML =
-      `<p class="text-slate-500 text-sm">کدی ساخته نشده است.</p>`;
+    box.innerHTML = `
+      <button
+        onclick="openAdminPanel()"
+        class="bg-amber-500/10
+               border border-amber-500/20
+               text-amber-400
+               px-4 py-2
+               rounded-xl
+               text-xs
+               font-bold">
 
-    return;
-
-  }
-
-
-  box.innerHTML =
-    db.coupons.map(c => `
-
-      <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-2 flex justify-between">
-
-        <span>
-          ${escapeHTML(c.code)}
-        </span>
-
-        <span class="text-purple-400">
-          ${c.percent}%
-        </span>
-
-      </div>
-
-    `).join("");
-
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-function updateHeader(){
-
-  const area =
-    document.getElementById(
-      "header-user-area"
-    );
-
-
-  const admin =
-    localStorage.getItem(
-      "etemadnet_admin"
-    );
-
-
-  const userId =
-    localStorage.getItem(
-      "etemadnet_current_user"
-    );
-
-
-  if(admin === "true"){
-
-    area.innerHTML = `
-      <button onclick="openAdminPanel()"
-        class="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-4 py-2 rounded-xl text-xs">
         👑 مدیریت
+
       </button>
     `;
 
@@ -1725,86 +2859,121 @@ function updateHeader(){
   }
 
 
-  if(userId){
+  if (currentUser) {
 
-    const user =
-      db.users.find(
-        u => u.id === Number(userId)
-      );
+    box.innerHTML = `
+      <button
+        onclick="openUserPanel()"
+        class="bg-indigo-500/10
+               border border-indigo-500/20
+               text-indigo-400
+               px-4 py-2
+               rounded-xl
+               text-xs">
 
+        👤
+        ${escapeHTML(currentUser.username)}
 
-    if(user){
+      </button>
+    `;
 
-      area.innerHTML = `
-        <button onclick="openUserPanel()"
-          class="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-4 py-2 rounded-xl text-xs">
-          👤 ${escapeHTML(user.username)}
-        </button>
-      `;
-
-      return;
-
-    }
+    return;
 
   }
 
 
-  area.innerHTML = `
-    <button onclick="openLogin()"
-      class="bg-indigo-600 px-4 py-2 rounded-xl text-xs font-bold">
+  box.innerHTML = `
+    <button
+      onclick="openLogin()"
+      class="bg-indigo-600
+             hover:bg-indigo-500
+             px-4 py-2
+             rounded-xl
+             text-xs
+             font-bold">
+
       ورود / ثبت‌نام
+
     </button>
   `;
 
 }
 
 
-/* =====================================================
-   SECURITY HELPER
-===================================================== */
+/* =========================================================
+   SECURITY HELPERS
+========================================================= */
 
-function escapeHTML(value){
+function escapeHTML(value) {
 
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+function escapeAttribute(value) {
+
+  return String(value ?? "")
+    .replaceAll("\\", "\\\\")
+    .replaceAll("'", "\\'")
+    .replaceAll('"', "&quot;");
 
 }
 
 
-/* =====================================================
-   START
-===================================================== */
+/* =========================================================
+   INITIALIZATION
+========================================================= */
 
-renderPlans();
+async function initialize() {
 
-updateHeader();
+  try {
 
-
-const currentUser =
-  localStorage.getItem(
-    "etemadnet_current_user"
-  );
+    const data =
+      await api("/api/auth/me");
 
 
-const currentAdmin =
-  localStorage.getItem(
-    "etemadnet_admin"
-  );
+    if (data.admin) {
+
+      currentAdmin = true;
+
+      await openAdminPanel();
+
+      return;
+
+    }
 
 
-if(currentAdmin === "true"){
+    if (data.user) {
 
-  openAdminPanel();
+      currentUser =
+        data.user;
 
-}else if(currentUser){
+      await openUserPanel();
 
-  openUserPanel();
+      return;
+
+    }
+
+
+  } catch {}
+
+
+  showHome();
 
 }
+
+
+/*
+  شروع سایت
+*/
+
+initialize();
 
 </script>
 
