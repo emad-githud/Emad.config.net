@@ -3,582 +3,344 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EmadNet | فروشگاه اشتراک اختصاصی</title>
+  <title>شاهراه تاپ | سامانه فروش اشتراک</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
   <style>
-    body { font-family: 'Vazirmatn', sans-serif; }
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: #030712;
+      color: #f3f4f6;
+    }
+    .glass-bottom-nav {
+      background: rgba(17, 24, 39, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between">
+<body class="min-h-screen pb-32 flex flex-col justify-between">
 
-  <!-- Navbar -->
-  <nav class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="flex items-center space-x-3 space-x-reverse">
-        <span class="text-2xl font-black tracking-wider text-indigo-500">EmadNet</span>
-      </div>
-      <div id="nav-auth-buttons" class="flex gap-3">
-        <button onclick="openAuthModal('login')" class="text-sm px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 transition">ورود</button>
-        <button onclick="openAuthModal('register')" class="text-sm px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition">ثبت‌نام</button>
-      </div>
-      <div id="nav-user-info" class="hidden flex items-center gap-3">
-        <span id="user-display" class="text-sm text-slate-300 font-medium"></span>
-        <button id="admin-panel-btn" onclick="openAdminModal()" class="hidden text-sm px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30 transition">👑 پنل ادمین</button>
-        <button onclick="openDashboard()" class="text-sm px-3 py-1.5 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/30 transition">داشبورد من</button>
-        <button onclick="logout()" class="text-sm px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition">خروج</button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Hero Section -->
-  <header class="max-w-4xl mx-auto text-center px-4 py-10">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">اینترنت آزاد و باکیفیت با <span class="text-indigo-500">EmadNet</span></h1>
-    <p class="text-slate-400 text-lg max-w-xl mx-auto">خرید سریع و آنی سرویس‌های اختصاصی با بالاترین سرعت و تحویل آنی.</p>
+  <!-- Header -->
+  <header class="py-8 text-center border-b border-slate-800/60 bg-slate-900/40">
+    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">نسخه VIP</span>
+    <h1 class="text-3xl font-extrabold text-white mt-2">شاهراه <span class="text-indigo-500">تاپ</span></h1>
+    <p class="text-xs text-slate-400 mt-1">سامانه هوشمند و پرسرعت خرید اشتراک و حجم اختصاصی</p>
   </header>
 
-  <!-- Plans Section -->
-  <main class="max-w-6xl mx-auto px-4 mb-16 flex-grow w-full">
-    <h2 class="text-2xl font-bold mb-8 text-center text-slate-200">🛒 پلن‌های اشتراک</h2>
-    <div id="plans-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="text-center text-slate-500 col-span-3 py-8">در حال دریافت پلن‌ها...</div>
-    </div>
+  <!-- Main Content Container -->
+  <main class="max-w-2xl mx-auto px-4 mt-6 w-full flex-grow">
+
+    <!-- TAB 1: خرید اشتراک -->
+    <section id="tab-plans" class="tab-content space-y-4">
+      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">🛒 انتخاب و خرید اشتراک</h2>
+      <div id="plans-container" class="grid grid-cols-1 gap-4">
+        <div class="text-center text-slate-500 py-8">در حال دریافت پلن‌ها...</div>
+      </div>
+    </section>
+
+    <!-- TAB 2: خرید حجم اضافه -->
+    <section id="tab-volume" class="tab-content hidden space-y-4">
+      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">⚡ خرید حجم و ترافیک اضافه</h2>
+      <div class="glass-card p-6 rounded-2xl space-y-4">
+        <p class="text-xs text-slate-400">لینک یا UUID اشتراک فعلی خود را وارد کنید تا حجم مستقیم اضافه شود:</p>
+        <input type="text" id="vol-sub-key" placeholder="vless:// یا کلید اشتراک..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500">
+        <div class="grid grid-cols-3 gap-3">
+          <button onclick="buyExtraVolume(10)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+            <div class="font-bold text-sm text-white">+۱۰ گیگ</div>
+            <div class="text-[10px] text-slate-400 mt-1">۲۵,۰۰۰ تومان</div>
+          </button>
+          <button onclick="buyExtraVolume(25)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+            <div class="font-bold text-sm text-white">+۲۵ گیگ</div>
+            <div class="text-[10px] text-slate-400 mt-1">۵۵,۰۰۰ تومان</div>
+          </button>
+          <button onclick="buyExtraVolume(50)" class="bg-slate-800/80 hover:bg-indigo-600 p-4 rounded-xl text-center border border-slate-700 transition">
+            <div class="font-bold text-sm text-white">+۵۰ گیگ</div>
+            <div class="text-[10px] text-slate-400 mt-1">۹۵,۰۰۰ تومان</div>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: اشتراک‌ها و سفارشات من -->
+    <section id="tab-orders" class="tab-content hidden space-y-4">
+      <h2 class="text-lg font-bold text-slate-200 flex items-center gap-2">📦 اشتراک‌ها و تحویل فوری</h2>
+      <div id="user-orders-list" class="space-y-3">
+        <div class="text-center text-slate-500 py-8">سفارشی ثبت نشده است.</div>
+      </div>
+    </section>
+
+    <!-- TAB 4: پنل ادمین -->
+    <section id="tab-admin" class="tab-content hidden space-y-6">
+      
+      <!-- فرم لاگین ادمین -->
+      <div id="admin-login-sec" class="glass-card p-6 rounded-2xl max-w-sm mx-auto space-y-4">
+        <h3 class="text-base font-bold text-center text-amber-400">👑 ورود به مدیریت شاهراه</h3>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">نام کاربری</label>
+          <input type="text" id="adm-user-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">رمز عبور</label>
+          <input type="password" id="adm-pass-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+        </div>
+        <button onclick="loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-sm transition">ورود ادمین</button>
+      </div>
+
+      <!-- پنل مدیریتی اصلی (پس از لاگین) -->
+      <div id="admin-panel-sec" class="hidden space-y-6">
+        
+        <!-- افزودن پلن -->
+        <div class="glass-card p-5 rounded-2xl space-y-4">
+          <h4 class="text-sm font-bold text-indigo-400">➕ ساخت پلن جدید</h4>
+          <form onsubmit="handleCreatePlan(event)" class="grid grid-cols-2 gap-3">
+            <input type="text" id="adm-p-name" placeholder="نام پلن" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <input type="number" id="adm-p-price" placeholder="قیمت (تومان)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <input type="number" id="adm-p-gb" placeholder="حجم (GB)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <input type="number" id="adm-p-days" placeholder="مدت (روز)" required class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <button type="submit" class="col-span-2 bg-indigo-600 hover:bg-indigo-500 font-bold py-2.5 rounded-xl text-xs transition">ایجاد پلن</button>
+          </form>
+        </div>
+
+        <!-- مدیریت کدهای تخفیف -->
+        <div class="glass-card p-5 rounded-2xl space-y-4">
+          <h4 class="text-sm font-bold text-purple-400">🎟️ ساخت کد تخفیف</h4>
+          <form onsubmit="handleCreateCoupon(event)" class="flex gap-2">
+            <input type="text" id="adm-c-code" placeholder="کد (مثال: OFF20)" required class="flex-1 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <input type="number" id="adm-c-pct" placeholder="درصد (%)" required class="w-24 bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs text-white">
+            <button type="submit" class="bg-purple-600 hover:bg-purple-500 font-bold px-4 rounded-lg text-xs transition">ثبت</button>
+          </form>
+        </div>
+
+        <!-- لیست پلن‌های فعال -->
+        <div class="glass-card p-5 rounded-2xl space-y-3">
+          <h4 class="text-sm font-bold text-slate-300">📋 پلن‌های موجود</h4>
+          <div id="adm-plans-list" class="space-y-2 text-xs"></div>
+        </div>
+
+      </div>
+    </section>
+
   </main>
 
-  <!-- Auth Modal -->
-  <div id="auth-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative">
-      <button onclick="closeAuthModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
-      
-      <div class="flex border-b border-slate-800 mb-6">
-        <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400">ورود</button>
-        <button id="tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 font-bold text-center text-slate-400">ثبت‌نام</button>
-      </div>
-
-      <form id="auth-form" onsubmit="handleAuth(event)" class="space-y-4">
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">نام کاربری</label>
-          <input type="text" id="auth-username" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div>
-          <label class="block text-sm text-slate-400 mb-1">رمز عبور</label>
-          <input type="password" id="auth-password" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
-        </div>
-        <div id="auth-error" class="text-rose-500 text-sm hidden"></div>
-        <button type="submit" id="auth-submit-btn" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">ورود به حساب</button>
-      </form>
-    </div>
+  <!-- Glass Floating Bottom Navigation Bar -->
+  <div class="fixed bottom-4 inset-x-0 mx-auto max-w-md px-4 z-50">
+    <nav class="glass-bottom-nav rounded-3xl p-2 flex justify-around items-center shadow-2xl">
+      <button onclick="switchTab('plans', this)" class="nav-item active flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20">
+        <span class="text-lg">🛒</span>
+        <span class="text-[10px] font-medium">اشتراک‌ها</span>
+      </button>
+      <button onclick="switchTab('volume', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
+        <span class="text-lg">⚡</span>
+        <span class="text-[10px] font-medium">خرید حجم</span>
+      </button>
+      <button onclick="switchTab('orders', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
+        <span class="text-lg">📦</span>
+        <span class="text-[10px] font-medium">سفارشات</span>
+      </button>
+      <button onclick="switchTab('admin', this)" class="nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200">
+        <span class="text-lg">👑</span>
+        <span class="text-[10px] font-medium">پنل ادمین</span>
+      </button>
+    </nav>
   </div>
 
-  <!-- User Dashboard Modal -->
-  <div id="dashboard-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-3xl rounded-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-      <button onclick="closeDashboard()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
-      <h3 class="text-xl font-bold mb-4 text-white">📦 سفارش‌ها و اشتراک‌های من</h3>
-      
-      <div class="overflow-x-auto">
-        <table class="w-full text-right text-sm">
-          <thead class="bg-slate-950 text-slate-400">
-            <tr>
-              <th class="p-3">نام پلن</th>
-              <th class="p-3">حجم / روز</th>
-              <th class="p-3">مبلغ</th>
-              <th class="p-3">🔗 لینک اشتراک VPN</th>
-              <th class="p-3">وضعیت</th>
-            </tr>
-          </thead>
-          <tbody id="orders-list-body" class="divide-y divide-slate-800">
-            <tr><td colspan="5" class="p-4 text-center text-slate-500">در حال دریافت اطلاعات...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Admin Panel Modal -->
-  <div id="admin-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-2xl p-6 relative max-h-[92vh] overflow-y-auto">
-      <button onclick="closeAdminModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">✕</button>
-      <h3 class="text-xl font-bold mb-6 text-white border-b border-slate-800 pb-3 flex items-center gap-2">
-        <span>👤 پنل مدیریت ادمین</span>
-      </h3>
-
-      <!-- Admin Tabs -->
-      <div class="flex border-b border-slate-800 mb-6 gap-2 overflow-x-auto">
-        <button id="adm-tab-dash" onclick="switchAdminTab('dash')" class="px-4 py-2 font-bold text-indigo-400 border-b-2 border-indigo-500 whitespace-nowrap">📊 آمار و سفارشات</button>
-        <button id="adm-tab-plans" onclick="switchAdminTab('plans')" class="px-4 py-2 font-bold text-slate-400 whitespace-nowrap">➕ مدیریت پلن‌ها</button>
-        <button id="adm-tab-coupons" onclick="switchAdminTab('coupons')" class="px-4 py-2 font-bold text-slate-400 whitespace-nowrap">🎟️ کدهای تخفیف</button>
-        <button id="adm-tab-settings" onclick="switchAdminTab('settings')" class="px-4 py-2 font-bold text-slate-400 whitespace-nowrap">⚙️ درگاه & API پنل VPN</button>
-      </div>
-
-      <!-- Tab 1: Dash -->
-      <div id="adm-sec-dash" class="space-y-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-            <span class="text-xs text-slate-500 block mb-1">کل کاربران</span>
-            <span id="admin-summary-users" class="text-2xl font-bold text-indigo-400">-</span>
-          </div>
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-            <span class="text-xs text-slate-500 block mb-1">کل سفارشات</span>
-            <span id="admin-summary-orders" class="text-2xl font-bold text-emerald-400">-</span>
-          </div>
-          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-            <span class="text-xs text-slate-500 block mb-1">کدهای تخفیف</span>
-            <span id="admin-summary-coupons" class="text-2xl font-bold text-purple-400">-</span>
-          </div>
-        </div>
-
-        <div>
-          <h4 class="text-md font-bold mb-3 text-slate-200">📦 لیست آخرین سفارش‌ها</h4>
-          <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-2">
-            <table class="w-full text-right text-sm">
-              <thead class="text-slate-400 border-b border-slate-800">
-                <tr>
-                  <th class="p-3">کاربر</th>
-                  <th class="p-3">پلن</th>
-                  <th class="p-3">مبلغ پرداختی</th>
-                  <th class="p-3">لینک اختصاصی</th>
-                  <th class="p-3">وضعیت</th>
-                </tr>
-              </thead>
-              <tbody id="admin-orders-body" class="divide-y divide-slate-800 text-slate-300">
-                <tr><td colspan="5" class="p-4 text-center">در حال دریافت...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab 2: Plans -->
-      <div id="adm-sec-plans" class="hidden space-y-6">
-        <form onsubmit="savePlan(event)" class="bg-slate-950 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">نام پلن</label>
-            <input type="text" id="new-plan-name" required placeholder="مثلا: یک ماهه 50 گیگ" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">قیمت (تومان)</label>
-            <input type="number" id="new-plan-price" required placeholder="50000" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">حجم (GB)</label>
-            <input type="number" id="new-plan-gb" required placeholder="50" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">مدت (روز)</label>
-            <input type="number" id="new-plan-days" required placeholder="30" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <button type="submit" class="md:col-span-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-lg text-sm transition">➕ ساخت پلن جدید</button>
-        </form>
-
-        <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-2">
-          <table class="w-full text-right text-sm">
-            <thead class="text-slate-400 border-b border-slate-800">
-              <tr>
-                <th class="p-3">نام پلن</th>
-                <th class="p-3">قیمت</th>
-                <th class="p-3">حجم</th>
-                <th class="p-3">روز</th>
-                <th class="p-3">عملیات</th>
-              </tr>
-            </thead>
-            <tbody id="admin-plans-body" class="divide-y divide-slate-800 text-slate-300">
-              <tr><td colspan="5" class="p-4 text-center">در حال بارگذاری...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tab 3: Coupons -->
-      <div id="adm-sec-coupons" class="hidden space-y-6">
-        <form onsubmit="saveCoupon(event)" class="bg-slate-950 p-4 rounded-xl border border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">کد تخفیف</label>
-            <input type="text" id="new-coupon-code" required placeholder="OFF50" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 mb-1">درصد تخفیف (%)</label>
-            <input type="number" id="new-coupon-pct" min="1" max="100" required placeholder="20" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-1.5 text-sm">
-          </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-2 rounded-lg text-sm transition">🎟️ ساخت کد تخفیف</button>
-          </div>
-        </form>
-
-        <div class="overflow-x-auto bg-slate-950 rounded-xl border border-slate-800 p-2">
-          <table class="w-full text-right text-sm">
-            <thead class="text-slate-400 border-b border-slate-800">
-              <tr>
-                <th class="p-3">کد</th>
-                <th class="p-3">درصد تخفیف</th>
-                <th class="p-3">عملیات</th>
-              </tr>
-            </thead>
-            <tbody id="admin-coupons-body" class="divide-y divide-slate-800 text-slate-300">
-              <tr><td colspan="3" class="p-4 text-center">در حال بارگذاری...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Tab 4: Settings -->
-      <div id="adm-sec-settings" class="hidden space-y-6">
-        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
-          <h4 class="font-bold text-amber-400 flex items-center gap-2">🔌 محل اتصال API پنل VPN (Marzban / X-UI)</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">آدرس پنل (Panel URL)</label>
-              <input type="text" id="setting-vpn-url" placeholder="https://vpn.example.com:8080" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">کلید API / Token</label>
-              <input type="password" id="setting-vpn-token" placeholder="Bearer Token..." class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-4">
-          <h4 class="font-bold text-emerald-400 flex items-center gap-2">💳 محل اتصال درگاه پرداخت</h4>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">کد مرچنت درگاه (Merchant ID)</label>
-              <input type="text" id="setting-gateway-id" placeholder="Merchant ID" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">وضعیت درگاه</label>
-              <select id="setting-gateway-active" class="w-full bg-slate-900 border border-slate-800 rounded px-3 py-2 text-sm">
-                <option value="false">حالت تست (خرید مستقیم)</option>
-                <option value="true">فعال (درگاه آنلاین)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <button onclick="saveAdminSettings()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-lg text-sm transition">💾 ذخیره تنظیمات درگاه و API</button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Footer -->
-  <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-600">
-    &copy; تمامی حقوق برای EmadNet محفوظ است.
-  </footer>
-
-  <!-- Javascript Logic -->
+  <!-- Complete Full JavaScript Logic -->
   <script>
-    let currentAuthMode = 'login';
-    let selectedPlanId = null;
+    let activeTab = 'plans';
+    let isAdminLoggedIn = false;
+    let localOrders = [];
 
-    async function init() {
-      checkUserStatus();
-      loadPlans();
+    // مقداردهی اولیه
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchPlans();
+    });
+
+    // سوییچ بین تب‌های نوار پایین
+    function switchTab(tabName, element) {
+      activeTab = tabName;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.className = "nav-item flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-slate-400 hover:text-slate-200";
+      });
+      element.className = "nav-item active flex flex-col items-center gap-1 px-4 py-2 rounded-2xl text-indigo-400 bg-indigo-500/10 border border-indigo-500/20";
+
+      if (tabName === 'orders') renderOrders();
+      if (tabName === 'admin' && isAdminLoggedIn) fetchAdminData();
     }
 
-    async function checkUserStatus() {
-      try {
-        const res = await fetch('/api/me');
-        const data = await res.json();
-        if (data.loggedIn) {
-          document.getElementById('nav-auth-buttons').classList.add('hidden');
-          document.getElementById('nav-user-info').classList.remove('hidden');
-          document.getElementById('user-display').innerText = data.user.username;
-
-          if (data.user.role === 'admin') {
-            document.getElementById('admin-panel-btn').classList.remove('hidden');
-          } else {
-            document.getElementById('admin-panel-btn').classList.add('hidden');
-          }
-        } else {
-          document.getElementById('nav-auth-buttons').classList.remove('hidden');
-          document.getElementById('nav-user-info').classList.add('hidden');
-          document.getElementById('admin-panel-btn').classList.add('hidden');
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    async function loadPlans() {
+    // دریافت پلن‌ها از بک‌اند
+    async function fetchPlans() {
       try {
         const res = await fetch('/api/plans');
         const plans = await res.json();
         const container = document.getElementById('plans-container');
-        
+
+        if (!plans || plans.length === 0) {
+          container.innerHTML = `<div class="text-center text-slate-500 py-8">هیچ پلنی یافت نشد.</div>`;
+          return;
+        }
+
         container.innerHTML = plans.map(p => `
-          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-indigo-500/50 transition">
-            <div>
-              <h3 class="text-xl font-bold text-white mb-2">${p.name}</h3>
-              <div class="text-3xl font-extrabold text-indigo-400 mb-4">${p.price.toLocaleString()} <span class="text-xs text-slate-400">تومان</span></div>
-              <ul class="text-sm text-slate-400 space-y-2 mb-6">
-                <li>✔ حجم: ${p.gb} گیگابایت</li>
-                <li>✔ مدت زمان: ${p.days} روز</li>
-                <li>✔ اتصال پرسرعت و بدون قطعی</li>
-              </ul>
+          <div class="glass-card rounded-2xl p-5 flex justify-between items-center hover:border-indigo-500/40 transition">
+            <div class="space-y-1">
+              <h3 class="font-bold text-white text-base">${p.name}</h3>
+              <p class="text-xs text-slate-400">حجم: ${p.gb} گیگابایت | مدت: ${p.days} روز</p>
+              <div class="text-indigo-400 font-extrabold text-lg mt-2">${Number(p.price).toLocaleString()} <span class="text-xs text-slate-500">تومان</span></div>
             </div>
-            <button onclick="buyPlan(${p.id})" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition">خرید آنلاین</button>
+            <button onclick="checkoutPlan(${p.id})" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition">خرید آنی</button>
           </div>
         `).join('');
-      } catch (e) {
-        document.getElementById('plans-container').innerHTML = '<div class="col-span-3 text-center text-rose-500">خطا در دریافت لیست پلن‌ها</div>';
+      } catch (err) {
+        document.getElementById('plans-container').innerHTML = `<div class="text-center text-rose-500 py-8">خطا در دریافت اطلاعات از سرور</div>`;
       }
     }
 
-    function openAuthModal(mode) {
-      switchAuthTab(mode);
-      document.getElementById('auth-modal').classList.remove('hidden');
-      document.getElementById('auth-modal').classList.add('flex');
-    }
+    // پردازش خرید پلن
+    async function checkoutPlan(planId) {
+      const coupon = prompt("اگر کد تخفیف دارید وارد کنید (در غیر این صورت خالی بگذارید):") || "";
+      try {
+        const res = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ planId, coupon })
+        });
+        const data = await res.json();
 
-    function closeAuthModal() {
-      document.getElementById('auth-modal').classList.add('hidden');
-      document.getElementById('auth-modal').classList.remove('flex');
-    }
+        if (!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
 
-    function switchAuthTab(mode) {
-      currentAuthMode = mode;
-      const loginTab = document.getElementById('tab-login');
-      const regTab = document.getElementById('tab-register');
-      const submitBtn = document.getElementById('auth-submit-btn');
-
-      if (mode === 'login') {
-        loginTab.className = "flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400";
-        regTab.className = "flex-1 py-2 font-bold text-center text-slate-400";
-        submitBtn.innerText = "ورود به حساب";
-      } else {
-        regTab.className = "flex-1 py-2 font-bold text-center border-b-2 border-indigo-500 text-indigo-400";
-        loginTab.className = "flex-1 py-2 font-bold text-center text-slate-400";
-        submitBtn.innerText = "ایجاد حساب کاربری";
+        localOrders.unshift(data.order);
+        alert(`خرید با موفقیت انجام شد!\nمبلغ پرداختی: ${Number(data.order.finalPrice).toLocaleString()} تومان`);
+        switchTab('orders', document.querySelectorAll('.nav-item')[2]);
+      } catch (err) {
+        alert(err.message);
       }
     }
 
-    async function handleAuth(e) {
-      e.preventDefault();
-      const errDiv = document.getElementById('auth-error');
-      errDiv.classList.add('hidden');
+    // خرید حجم اضافه
+    function buyExtraVolume(gb) {
+      const key = document.getElementById('vol-sub-key').value;
+      if (!key) {
+        alert('لطفاً ابتدا لینک یا کلید اشتراک خود را وارد کنید.');
+        return;
+      }
+      alert(`درخواست افزایش ${gb} گیگابایت برای اشتراک ثبت شد. انتقال به درگاه پرداخت...`);
+    }
 
-      const username = document.getElementById('auth-username').value;
-      const password = document.getElementById('auth-password').value;
-      const endpoint = currentAuthMode === 'login' ? '/api/login' : '/api/register';
+    // رندر لیست سفارشات
+    function renderOrders() {
+      const container = document.getElementById('user-orders-list');
+      if (localOrders.length === 0) {
+        container.innerHTML = `<div class="text-center text-slate-500 py-8">سفارشی ثبت نشده است.</div>`;
+        return;
+      }
+
+      container.innerHTML = localOrders.map(o => `
+        <div class="glass-card p-4 rounded-2xl space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-indigo-400">${o.planName}</span>
+            <span class="text-slate-500">${o.gb}GB / ${o.days} روز</span>
+          </div>
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[11px] text-emerald-400 break-all select-all">${o.vpnLink || 'vless://shahrah-vip-server'}</div>
+        </div>
+      `).join('');
+    }
+
+    // لاگین ادمین
+    async function loginAdmin() {
+      const username = document.getElementById('adm-user-input').value;
+      const password = document.getElementById('adm-pass-input').value;
 
       try {
-        const res = await fetch(endpoint, {
+        const res = await fetch('/api/login', {
           method: 'POST',
-          headers: {'content-type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.error || 'خطایی رخ داد');
+        if (!res.ok) throw new Error(data.error || 'اطلاعات ادمین اشتباه است');
 
-        closeAuthModal();
-        checkUserStatus();
-        if (selectedPlanId) {
-          processOrder(selectedPlanId);
-          selectedPlanId = null;
-        }
+        isAdminLoggedIn = true;
+        document.getElementById('admin-login-sec').classList.add('hidden');
+        document.getElementById('admin-panel-sec').classList.remove('hidden');
+        fetchAdminData();
       } catch (err) {
-        errDiv.innerText = err.message;
-        errDiv.classList.remove('hidden');
+        alert(err.message);
       }
     }
 
-    async function logout() {
-      await fetch('/api/logout', { method: 'POST' });
-      checkUserStatus();
-    }
-
-    async function buyPlan(planId) {
-      const res = await fetch('/api/me');
-      const data = await res.json();
-
-      if (!data.loggedIn) {
-        selectedPlanId = planId;
-        openAuthModal('login');
-      } else {
-        processOrder(planId);
-      }
-    }
-
-    async function processOrder(planId) {
-      const coupon = prompt('اگر کد تخفیف دارید وارد کنید:') || '';
+    // دریافت اطلاعات مدیریت
+    async function fetchAdminData() {
       try {
-        const res = await fetch('/api/orders', {
-          method: 'POST',
-          headers: {'content-type': 'application/json'},
-          body: JSON.stringify({ planId, coupon })
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'خطا در ثبت سفارش');
-
-        alert(`سفارش با موفقیت ثبت شد!\nمبلغ: ${data.order.finalPrice.toLocaleString()} تومان`);
-        openDashboard();
-      } catch (e) {
-        alert(e.message);
-      }
-    }
-
-    async function openDashboard() {
-      document.getElementById('dashboard-modal').classList.remove('hidden');
-      document.getElementById('dashboard-modal').classList.add('flex');
-      
-      const tbody = document.getElementById('orders-list-body');
-      tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">در حال دریافت اطلاعات...</td></tr>';
-
-      try {
-        const res = await fetch('/api/dashboard');
-        const data = await res.json();
-
-        if (!data.orders || data.orders.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">هنوز هیچ سفارشی ثبت نکرده‌اید.</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = data.orders.map(o => `
-          <tr class="hover:bg-slate-800/50">
-            <td class="p-3 font-bold text-white">${o.planName}</td>
-            <td class="p-3 text-slate-400">${o.gb}GB / ${o.days} روز</td>
-            <td class="p-3 text-indigo-400 font-bold">${o.finalPrice.toLocaleString()} تومان</td>
-            <td class="p-3 font-mono text-xs text-emerald-400 select-all">${o.vpnLink || 'در حال صدور...'}</td>
-            <td class="p-3"><span class="px-2 py-1 rounded text-xs bg-amber-500/10 text-amber-400">${o.status}</span></td>
-          </tr>
+        const res = await fetch('/api/plans');
+        const plans = await res.json();
+        
+        document.getElementById('adm-plans-list').innerHTML = plans.map(p => `
+          <div class="flex justify-between items-center bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <span>${p.name} (${p.gb}GB - ${Number(p.price).toLocaleString()} تومان)</span>
+            <button onclick="deletePlan(${p.id})" class="text-rose-400 hover:underline">حذف</button>
+          </div>
         `).join('');
-      } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">خطا در دریافت لیست سفارش‌ها</td></tr>';
+      } catch (err) {
+        console.error(err);
       }
     }
 
-    function closeDashboard() {
-      document.getElementById('dashboard-modal').classList.add('hidden');
-      document.getElementById('dashboard-modal').classList.remove('flex');
-    }
+    // افزودن پلن جدید توسط ادمین
+    async function handleCreatePlan(e) {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('adm-p-name').value,
+        price: document.getElementById('adm-p-price').value,
+        gb: document.getElementById('adm-p-gb').value,
+        days: document.getElementById('adm-p-days').value
+      };
 
-    function openAdminModal() {
-      document.getElementById('admin-modal').classList.remove('hidden');
-      document.getElementById('admin-modal').classList.add('flex');
-      loadAdminData();
-    }
-
-    function closeAdminModal() {
-      document.getElementById('admin-modal').classList.add('hidden');
-      document.getElementById('admin-modal').classList.remove('flex');
-    }
-
-    function switchAdminTab(tab) {
-      const tabs = ['dash', 'plans', 'coupons', 'settings'];
-      tabs.forEach(t => {
-        document.getElementById(`adm-sec-${t}`).classList.add('hidden');
-        document.getElementById(`adm-tab-${t}`).className = "px-4 py-2 font-bold text-slate-400 whitespace-nowrap";
+      await fetch('/api/admin/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
       });
 
-      document.getElementById(`adm-sec-${tab}`).classList.remove('hidden');
-      document.getElementById(`adm-tab-${tab}`).className = "px-4 py-2 font-bold text-indigo-400 border-b-2 border-indigo-500 whitespace-nowrap";
+      fetchAdminData();
+      fetchPlans();
+      alert('پلن با موفقیت ساخته شد.');
     }
 
-    async function loadAdminData() {
-      try {
-        const sumRes = await fetch('/api/admin/summary');
-        const sumData = await sumRes.json();
-        document.getElementById('admin-summary-users').innerText = sumData.users;
-        document.getElementById('admin-summary-orders').innerText = sumData.orders;
-        document.getElementById('admin-summary-coupons').innerText = sumData.coupons;
-
-        const ordersRes = await fetch('/api/admin/orders');
-        const orders = await ordersRes.json();
-        document.getElementById('admin-orders-body').innerHTML = orders.map(o => `
-          <tr>
-            <td class="p-3">${o.username}</td>
-            <td class="p-3">${o.planName}</td>
-            <td class="p-3 font-bold text-indigo-400">${o.finalPrice.toLocaleString()} تومان</td>
-            <td class="p-3 font-mono text-xs text-slate-400 select-all">${o.vpnLink || 'صادر نشده'}</td>
-            <td class="p-3"><span class="text-emerald-400">${o.status}</span></td>
-          </tr>
-        `).join('');
-
-        const plansRes = await fetch('/api/plans');
-        const plans = await plansRes.json();
-        document.getElementById('admin-plans-body').innerHTML = plans.map(p => `
-          <tr>
-            <td class="p-3 font-bold">${p.name}</td>
-            <td class="p-3">${p.price.toLocaleString()} تومان</td>
-            <td class="p-3">${p.gb} گیگ</td>
-            <td class="p-3">${p.days} روز</td>
-            <td class="p-3"><button onclick="deletePlan(${p.id})" class="text-xs text-rose-400 hover:underline">حذف</button></td>
-          </tr>
-        `).join('');
-
-        const couponsRes = await fetch('/api/admin/coupons');
-        const coupons = await couponsRes.json();
-        document.getElementById('admin-coupons-body').innerHTML = coupons.map(c => `
-          <tr>
-            <td class="p-3 font-mono font-bold">${c.code}</td>
-            <td class="p-3">${c.percent}%</td>
-            <td class="p-3"><button onclick="deleteCoupon('${c.code}')" class="text-xs text-rose-400 hover:underline">حذف</button></td>
-          </tr>
-        `).join('');
-
-        const setRes = await fetch('/api/admin/settings');
-        const settings = await setRes.json();
-        if(settings.vpnUrl) document.getElementById('setting-vpn-url').value = settings.vpnUrl;
-        if(settings.vpnToken) document.getElementById('setting-vpn-token').value = settings.vpnToken;
-        if(settings.gatewayId) document.getElementById('setting-gateway-id').value = settings.gatewayId;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    async function savePlan(e) {
-      e.preventDefault();
-      const body = {
-        name: document.getElementById('new-plan-name').value,
-        price: document.getElementById('new-plan-price').value,
-        gb: document.getElementById('new-plan-gb').value,
-        days: document.getElementById('new-plan-days').value,
-      };
-      await fetch('/api/admin/plans', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(body) });
-      loadAdminData();
-      loadPlans();
-      alert('پلن جدید ذخیره شد.');
-    }
-
+    // حذف پلن
     async function deletePlan(id) {
-      if(confirm('آیا از حذف این پلن اطمینان دارید؟')) {
+      if (confirm('آیا از حذف این پلن اطمینان دارید؟')) {
         await fetch(`/api/admin/plans/${id}`, { method: 'DELETE' });
-        loadAdminData();
-        loadPlans();
+        fetchAdminData();
+        fetchPlans();
       }
     }
 
-    async function saveCoupon(e) {
+    // ساخت کد تخفیف
+    async function handleCreateCoupon(e) {
       e.preventDefault();
       const body = {
-        code: document.getElementById('new-coupon-code').value,
-        percent: document.getElementById('new-coupon-pct').value
+        code: document.getElementById('adm-c-code').value,
+        percent: document.getElementById('adm-c-pct').value
       };
-      await fetch('/api/admin/coupons', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(body) });
-      loadAdminData();
-      alert('کد تخفیف ثبت شد.');
-    }
 
-    async function deleteCoupon(code) {
-      if(confirm('حذف کد تخفیف؟')) {
-        await fetch(`/api/admin/coupons/${code}`, { method: 'DELETE' });
-        loadAdminData();
-      }
-    }
+      await fetch('/api/admin/coupons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
 
-    async function saveAdminSettings() {
-      const body = {
-        vpnUrl: document.getElementById('setting-vpn-url').value,
-        vpnToken: document.getElementById('setting-vpn-token').value,
-        gatewayId: document.getElementById('setting-gateway-id').value,
-        gatewayActive: document.getElementById('setting-gateway-active').value === 'true'
-      };
-      await fetch('/api/admin/settings', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(body) });
-      alert('تنظیمات درگاه و API ذخیره شد.');
+      alert('کد تخفیف ایجاد شد.');
     }
-
-    init();
   </script>
 </body>
 </html>
