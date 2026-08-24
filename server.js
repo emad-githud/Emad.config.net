@@ -1,42 +1,46 @@
-const express = require('express');
-const session = require('express-session');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const express = require("express");
+const session = require("express-session");
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+const DB_FILE = path.join(DATA_DIR, "db.json");
 
-const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+const ADMIN_USER = String(process.env.ADMIN_USER || "admin").trim();
+const ADMIN_PASSWORD = String(process.env.ADMIN_PASSWORD || "admin");
 
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "emadnet-session-secret",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24 * 7
+    }
+  })
+);
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'emadnet-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false,
-    httpOnly: true,
-    sameSite: 'lax'
-  }
-}));
-
-
-/* =========================================================
-   DATABASE
-========================================================= */
+function hashPassword(password) {
+  return crypto
+    .createHash("sha256")
+    .update(String(password))
+    .digest("hex");
+}
 
 function defaultDatabase() {
   return {
     users: [],
-
     plans: [
       {
         id: 1,
@@ -63,7 +67,6 @@ function defaultDatabase() {
         active: true
       }
     ],
-
     coupons: [
       {
         code: "OFF20",
@@ -71,9 +74,7 @@ function defaultDatabase() {
         active: true
       }
     ],
-
     orders: [],
-
     settings: {
       vpnUrl: "",
       vpnToken: "",
@@ -83,161 +84,138 @@ function defaultDatabase() {
   };
 }
 
-
 async function readDB() {
   try {
-    const data = await fs.promises.readFile(DB_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (err) {
+    const raw = await fs.promises.readFile(DB_FILE, "utf8");
+    return JSON.parse(raw);
+  } catch {
     return defaultDatabase();
   }
 }
 
-
-async function writeDB(data) {
+async function writeDB(db) {
   await fs.promises.mkdir(DATA_DIR, { recursive: true });
-
   await fs.promises.writeFile(
     DB_FILE,
-    JSON.stringify(data, null, 2),
-    'utf8'
+    JSON.stringify(db, null, 2),
+    "utf8"
   );
 }
 
-
-function hashPassword(password) {
-  return crypto
-    .createHash('sha256')
-    .update(String(password))
-    .digest('hex');
-}
-
-
-/* =========================================================
-   CREATE / UPDATE ADMIN
-========================================================= */
-
 async function ensureDB() {
-
-  await fs.promises.mkdir(DATA_DIR, {
-    recursive: true
-  });
+  await fs.promises.mkdir(DATA_DIR, { recursive: true });
 
   const db = await readDB();
 
-  if (!Array.isArray(db.users)) {
-    db.users = [];
+  if (!Array.isArray(db.users)) db.users = [];
+  if (!Array.isArray(db.plans)) db.plans = [];
+  if (!Array.isArray(db.coupons)) db.coupons = [];
+  if (!Array.isArray(db.orders)) db.orders = [];
+
+  if (!db.settings) {
+    db.settings = {
+      vpnUrl: "",
+      vpnToken: "",
+      gatewayId: "",
+      gatewayActive: false
+    };
   }
 
-  const hashedPassword =
-    hashPassword(ADMIN_PASSWORD);
+  const adminHash = hashPassword(ADMIN_PASSWORD);
 
-  let adminUser =
-    db.users.find(
-      u =>
-        u.username === ADMIN_USER &&
-        u.role === 'admin'
-    );
+  let admin = db.users.find(
+    u => u.role === "admin" && u.username === ADMIN_USER
+  );
 
-  if (!adminUser) {
-
-    adminUser = {
-      id: 'admin',
+  if (!admin) {
+    admin = {
+      id: "admin",
       username: ADMIN_USER,
-      password: hashedPassword,
-      role: 'admin'
+      password: adminHash,
+      role: "admin"
     };
 
-    db.users.push(adminUser);
-
-    console.log(
-      `Admin created: ${ADMIN_USER}`
-    );
-
+    db.users.push(admin);
   } else {
-
-    adminUser.password = hashedPassword;
-
-    console.log(
-      `Admin password synchronized: ${ADMIN_USER}`
-    );
+    admin.password = adminHash;
+    admin.role = "admin";
   }
 
   await writeDB(db);
+
+  console.log("=================================");
+  console.log("Emad Net");
+  console.log("ADMIN USER:", ADMIN_USER);
+  console.log("ADMIN PASSWORD: configured");
+  console.log("=================================");
 }
 
-
-/* =========================================================
-   ADMIN AUTH MIDDLEWARE
-========================================================= */
-
-function requireAdmin(req, res, next) {
-
-  if (
-    !req.session.user ||
-    req.session.user.role !== 'admin'
-  ) {
-
-    return res.status(403).json({
-      error: 'دسترسی غیرمجاز'
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({
+      error: "ابتدا وارد حساب شوید."
     });
   }
 
   next();
 }
 
+function requireAdmin(req, res, next) {
+  if (
+    !req.session.user ||
+    req.session.user.role !== "admin"
+  ) {
+    return res.status(403).json({
+      error: "دسترسی غیرمجاز."
+    });
+  }
 
-/* =========================================================
-   USER AUTH
-========================================================= */
+  next();
+}
 
-app.get('/api/me', (req, res) => {
+/* =========================
+   USER SESSION
+========================= */
 
-  if (req.session.user) {
-
+app.get("/api/me", (req, res) => {
+  if (!req.session.user) {
     return res.json({
-      loggedIn: true,
-      user: req.session.user
+      loggedIn: false
     });
   }
 
   res.json({
-    loggedIn: false
+    loggedIn: true,
+    user: req.session.user
   });
 });
 
+/* =========================
+   USER LOGIN
+========================= */
 
-app.post('/api/login', async (req, res) => {
-
+app.post("/api/login", async (req, res) => {
   try {
-
-    const { username, password } =
-      req.body || {};
+    const username = String(req.body.username || "").trim();
+    const password = String(req.body.password || "");
 
     if (!username || !password) {
-
       return res.status(400).json({
-        error: 'نام کاربری و رمز عبور را وارد کنید.'
+        error: "نام کاربری و رمز عبور را وارد کنید."
       });
     }
 
     const db = await readDB();
 
-    const hashedPassword =
-      hashPassword(password);
-
-    const user =
-      db.users.find(
-        u =>
-          u.username === username &&
-          u.password === hashedPassword &&
-          u.role !== 'admin'
-      );
+    const user = db.users.find(
+      u =>
+        u.username === username &&
+        u.password === hashPassword(password)
+    );
 
     if (!user) {
-
       return res.status(401).json({
-        error: 'نام کاربری یا رمز عبور اشتباه است.'
+        error: "نام کاربری یا رمز عبور اشتباه است."
       });
     }
 
@@ -251,677 +229,480 @@ app.post('/api/login', async (req, res) => {
       success: true,
       user: req.session.user
     });
-
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
-      error: 'خطا در ورود.'
+      error: "خطای داخلی سرور."
     });
   }
 });
 
+/* =========================
+   ADMIN LOGIN
+========================= */
 
-app.post('/api/register', async (req, res) => {
-
+app.post("/api/admin/login", async (req, res) => {
   try {
-
-    const { username, password } =
-      req.body || {};
+    const username = String(req.body.username || "").trim();
+    const password = String(req.body.password || "");
 
     if (!username || !password) {
-
       return res.status(400).json({
-        error: 'نام کاربری و رمز عبور را وارد کنید.'
+        error: "نام کاربری و رمز عبور ادمین را وارد کنید."
       });
     }
 
     const db = await readDB();
 
-    if (
-      db.users.some(
-        u => u.username === username
-      )
-    ) {
+    const admin = db.users.find(
+      u =>
+        u.role === "admin" &&
+        u.username === username
+    );
 
-      return res.status(400).json({
-        error: 'این نام کاربری قبلاً ثبت شده است.'
+    if (
+      !admin ||
+      admin.password !== hashPassword(password)
+    ) {
+      return res.status(401).json({
+        error: "نام کاربری یا رمز عبور ادمین اشتباه است."
       });
     }
 
-    const newUser = {
-
-      id: Date.now().toString(),
-
-      username,
-
-      password:
-        hashPassword(password),
-
-      role: 'user'
-    };
-
-    db.users.push(newUser);
-
-    await writeDB(db);
-
     req.session.user = {
-      id: newUser.id,
-      username: newUser.username,
-      role: newUser.role
+      id: admin.id,
+      username: admin.username,
+      role: "admin"
     };
 
     res.json({
       success: true,
+      admin: true,
       user: req.session.user
     });
-
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
-      error: 'خطا در ثبت‌نام.'
+      error: "خطای داخلی سرور."
     });
   }
 });
 
+/* =========================
+   ADMIN SESSION
+========================= */
 
-app.post('/api/logout', (req, res) => {
+app.get("/api/admin/me", (req, res) => {
+  const isAdmin =
+    !!req.session.user &&
+    req.session.user.role === "admin";
 
+  res.json({
+    authenticated: isAdmin,
+    admin: isAdmin,
+    user: isAdmin ? req.session.user : null
+  });
+});
+
+/* =========================
+   REGISTER
+========================= */
+
+app.post("/api/register", async (req, res) => {
+  const username = String(req.body.username || "").trim();
+  const password = String(req.body.password || "");
+
+  if (username.length < 3) {
+    return res.status(400).json({
+      error: "نام کاربری باید حداقل ۳ کاراکتر باشد."
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      error: "رمز عبور باید حداقل ۶ کاراکتر باشد."
+    });
+  }
+
+  const db = await readDB();
+
+  if (
+    db.users.some(
+      u => u.username.toLowerCase() === username.toLowerCase()
+    )
+  ) {
+    return res.status(400).json({
+      error: "این نام کاربری قبلاً ثبت شده است."
+    });
+  }
+
+  const user = {
+    id: Date.now().toString(),
+    username,
+    password: hashPassword(password),
+    role: "user"
+  };
+
+  db.users.push(user);
+
+  await writeDB(db);
+
+  req.session.user = {
+    id: user.id,
+    username: user.username,
+    role: "user"
+  };
+
+  res.json({
+    success: true,
+    user: req.session.user
+  });
+});
+
+/* =========================
+   LOGOUT
+========================= */
+
+app.post("/api/logout", (req, res) => {
   req.session.destroy(() => {
-
     res.json({
       success: true
     });
-
   });
-
 });
 
-
-/* =========================================================
-   ADMIN LOGIN
-========================================================= */
-
-app.post('/api/admin/login', async (req, res) => {
-  try {
-    const username = String(req.body?.username || '').trim();
-    const password = String(req.body?.password || '');
-
-    console.log('ADMIN LOGIN ATTEMPT:', username);
-    console.log('EXPECTED ADMIN:', ADMIN_USER);
-
-    if (!username || !password) {
-      return res.status(400).json({
-        error: 'نام کاربری و رمز عبور را وارد کنید.'
-      });
-    }
-
-    if (
-      username !== ADMIN_USER ||
-      password !== ADMIN_PASSWORD
-    ) {
-      return res.status(401).json({
-        error: 'نام کاربری یا رمز عبور ادمین اشتباه است.'
-      });
-    }
-
-    req.session.user = {
-      id: 'admin',
-      username: ADMIN_USER,
-      role: 'admin'
-    };
-
-    req.session.save(err => {
-      if (err) {
-        console.error('SESSION SAVE ERROR:', err);
-
-        return res.status(500).json({
-          error: 'خطا در ایجاد نشست ادمین.'
-        });
-      }
-
-      res.json({
-        success: true,
-        authenticated: true,
-        admin: true,
-        user: req.session.user
-      });
+app.post("/api/admin/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.json({
+      success: true
     });
-
-  } catch (error) {
-    console.error('ADMIN LOGIN ERROR:', error);
-
-    res.status(500).json({
-      error: 'خطا در ورود ادمین.'
-    });
-  }
+  });
 });
 
-/* =========================================================
+/* =========================
    PLANS
-========================================================= */
+========================= */
 
-app.get('/api/plans', async (req, res) => {
-
+app.get("/api/plans", async (req, res) => {
   const db = await readDB();
 
   res.json(
-    db.plans.filter(
-      p => p.active !== false
-    )
+    db.plans.filter(p => p.active !== false)
   );
-
 });
 
-
 app.get(
-  '/api/admin/plans',
+  "/api/admin/plans",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
-
     res.json(db.plans);
-
   }
 );
 
-
 app.post(
-  '/api/admin/plans',
+  "/api/admin/plans",
   requireAdmin,
   async (req, res) => {
+    const name = String(req.body.name || "").trim();
+    const price = Number(req.body.price);
+    const gb = Number(req.body.gb);
+    const days = Number(req.body.days);
 
-    const {
-      name,
-      price,
-      gb,
-      days
-    } = req.body;
-
-    if (
-      !name ||
-      !price ||
-      !gb ||
-      !days
-    ) {
-
+    if (!name || price <= 0 || gb <= 0 || days <= 0) {
       return res.status(400).json({
-        error: 'تمام اطلاعات پلن را وارد کنید.'
+        error: "اطلاعات پلن صحیح نیست."
       });
     }
 
     const db = await readDB();
 
-    const newPlan = {
-
+    const plan = {
       id: Date.now(),
-
       name,
-
-      price: Number(price),
-
-      gb: Number(gb),
-
-      days: Number(days),
-
+      price,
+      gb,
+      days,
       active: true
     };
 
-    db.plans.push(newPlan);
+    db.plans.push(plan);
 
     await writeDB(db);
 
     res.json({
       success: true,
-      plan: newPlan
+      plan
     });
-
   }
 );
 
-
 app.delete(
-  '/api/admin/plans/:id',
+  "/api/admin/plans/:id",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
 
-    db.plans =
-      db.plans.filter(
-        p =>
-          Number(p.id) !==
-          Number(req.params.id)
-      );
+    db.plans = db.plans.filter(
+      p => Number(p.id) !== Number(req.params.id)
+    );
 
     await writeDB(db);
 
     res.json({
       success: true
     });
-
   }
 );
 
-
-/* =========================================================
+/* =========================
    ORDERS
-========================================================= */
+========================= */
 
-app.post('/api/orders', async (req, res) => {
-
-  try {
-
-    if (!req.session.user) {
-
-      return res.status(401).json({
-        error: 'ابتدا وارد حساب شوید.'
-      });
-    }
-
-    const {
-      planId,
-      coupon
-    } = req.body;
-
-    const db = await readDB();
-
-    const plan =
-      db.plans.find(
-        p =>
-          Number(p.id) ===
-          Number(planId)
-      );
-
-    if (!plan) {
-
-      return res.status(404).json({
-        error: 'پلن یافت نشد.'
-      });
-    }
-
-    let finalPrice =
-      Number(plan.price);
-
-    if (coupon) {
-
-      const cp =
-        db.coupons.find(
-          c =>
-            c.code === coupon &&
-            c.active
-        );
-
-      if (cp) {
-
-        finalPrice =
-          finalPrice -
-          (
-            finalPrice *
-            (Number(cp.percent) / 100)
-          );
-      }
-    }
-
-    const vpnLink =
-      db.settings &&
-      db.settings.vpnUrl
-        ? `${db.settings.vpnUrl}/sub/${crypto.randomBytes(8).toString('hex')}`
-        : `vless://${crypto.randomUUID()}@emadnet.server.com:443?type=ws#EmadNet-${req.session.user.username}`;
-
-    const newOrder = {
-
-      id: Date.now().toString(),
-
-      userId:
-        req.session.user.id,
-
-      username:
-        req.session.user.username,
-
-      planName:
-        plan.name,
-
-      gb:
-        plan.gb,
-
-      days:
-        plan.days,
-
-      finalPrice,
-
-      vpnLink,
-
-      subscriptionUrl:
-        vpnLink,
-
-      status:
-        'pending',
-
-      createdAt:
-        new Date().toISOString()
-    };
-
-    db.orders.push(newOrder);
-
-    await writeDB(db);
-
-    res.json({
-      success: true,
-      order: newOrder
-    });
-
-  } catch (error) {
-
-    console.error(error);
-
-    res.status(500).json({
-      error: 'خطا در ایجاد سفارش.'
-    });
-  }
-
-});
-
-
-/* =========================================================
-   USER ORDERS
-========================================================= */
-
-app.get('/api/my/orders', async (req, res) => {
-
-  if (!req.session.user) {
-
-    return res.status(401).json({
-      error: 'ابتدا وارد حساب شوید.'
-    });
-  }
+app.post("/api/orders", requireLogin, async (req, res) => {
+  const planId = Number(req.body.planId);
+  const coupon = String(req.body.coupon || "")
+    .trim()
+    .toUpperCase();
 
   const db = await readDB();
 
-  const orders =
-    db.orders.filter(
-      o =>
-        o.userId ===
-        req.session.user.id
-    );
+  const plan = db.plans.find(
+    p => Number(p.id) === planId
+  );
 
-  res.json({
-    orders
-  });
-
-});
-
-
-app.get('/api/dashboard', async (req, res) => {
-
-  if (!req.session.user) {
-
-    return res.status(401).json({
-      error: 'غیرمجاز'
+  if (!plan) {
+    return res.status(404).json({
+      error: "پلن پیدا نشد."
     });
   }
 
-  const db = await readDB();
+  let finalPrice = Number(plan.price);
 
-  const orders =
-    db.orders.filter(
-      o =>
-        o.userId ===
-        req.session.user.id
+  if (coupon) {
+    const cp = db.coupons.find(
+      c =>
+        String(c.code).toUpperCase() === coupon &&
+        c.active !== false
     );
 
+    if (cp) {
+      finalPrice =
+        finalPrice -
+        finalPrice * (Number(cp.percent) / 100);
+    }
+  }
+
+  const token = crypto.randomUUID();
+
+  const vpnLink = db.settings.vpnUrl
+    ? `${String(db.settings.vpnUrl).replace(/\/$/, "")}/sub/${token}`
+    : `vless://${token}@emadnet.server.com:443?type=ws#EmadNet-${encodeURIComponent(
+        req.session.user.username
+      )}`;
+
+  const order = {
+    id: Date.now().toString(),
+    userId: req.session.user.id,
+    username: req.session.user.username,
+    planId: plan.id,
+    planName: plan.name,
+    gb: plan.gb,
+    days: plan.days,
+    finalPrice,
+    vpnLink,
+    subscriptionUrl: vpnLink,
+    status: "pending",
+    createdAt: new Date().toISOString()
+  };
+
+  db.orders.push(order);
+
+  await writeDB(db);
+
   res.json({
-    orders
+    success: true,
+    order
   });
-
 });
-
-
-/* =========================================================
-   USER SUBSCRIPTIONS
-========================================================= */
 
 app.get(
-  '/api/my/subscriptions',
+  "/api/my/orders",
+  requireLogin,
   async (req, res) => {
-
-    if (!req.session.user) {
-
-      return res.status(401).json({
-        error: 'ابتدا وارد حساب شوید.'
-      });
-    }
-
     const db = await readDB();
 
-    const subscriptions =
-      db.orders
-        .filter(
-          o =>
-            o.userId ===
-            req.session.user.id &&
-            (
-              o.status === 'approved' ||
-              o.status === 'paid' ||
-              o.status === 'completed' ||
-              o.status === 'فعال'
-            )
-        )
-        .map(o => ({
+    const orders = db.orders.filter(
+      o => o.userId === req.session.user.id
+    );
 
-          id: o.id,
+    res.json({
+      orders
+    });
+  }
+);
 
-          planName:
-            o.planName,
+app.get(
+  "/api/my/subscriptions",
+  requireLogin,
+  async (req, res) => {
+    const db = await readDB();
 
-          gb:
-            o.gb,
-
-          days:
-            o.days,
-
-          subscriptionUrl:
-            o.subscriptionUrl ||
-            o.vpnLink ||
-            '',
-
-          status:
-            o.status,
-
-          createdAt:
-            o.createdAt
-
-        }));
+    const subscriptions = db.orders
+      .filter(
+        o =>
+          o.userId === req.session.user.id &&
+          o.status === "approved"
+      )
+      .map(o => ({
+        id: o.id,
+        planName: o.planName,
+        gb: o.gb,
+        days: o.days,
+        subscriptionUrl:
+          o.subscriptionUrl || o.vpnLink,
+        status: o.status,
+        createdAt: o.createdAt
+      }));
 
     res.json({
       subscriptions
     });
-
   }
 );
 
-
-/* =========================================================
-   ADMIN DASHBOARD
-========================================================= */
-
 app.get(
-  '/api/admin/dashboard',
-  requireAdmin,
+  "/api/dashboard",
+  requireLogin,
   async (req, res) => {
-
     const db = await readDB();
 
-    const income =
-      db.orders.reduce(
-        (sum, order) =>
-          sum +
-          Number(
-            order.finalPrice ||
-            order.price ||
-            0
-          ),
+    res.json({
+      orders: db.orders.filter(
+        o => o.userId === req.session.user.id
+      )
+    });
+  }
+);
+
+/* =========================
+   ADMIN DASHBOARD
+========================= */
+
+app.get(
+  "/api/admin/dashboard",
+  requireAdmin,
+  async (req, res) => {
+    const db = await readDB();
+
+    const income = db.orders
+      .filter(o => o.status === "approved")
+      .reduce(
+        (sum, o) => sum + Number(o.finalPrice || 0),
         0
       );
 
     res.json({
+      usersCount: db.users.filter(
+        u => u.role !== "admin"
+      ).length,
 
-      usersCount:
-        db.users.filter(
-          u => u.role !== 'admin'
-        ).length,
+      ordersCount: db.orders.length,
 
-      ordersCount:
-        db.orders.length,
-
-      plansCount:
-        db.plans.length,
+      plansCount: db.plans.length,
 
       income
-
     });
-
   }
 );
 
-
-/* =========================================================
-   ADMIN SUMMARY
-========================================================= */
-
 app.get(
-  '/api/admin/summary',
+  "/api/admin/summary",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
 
     res.json({
-
-      users:
-        db.users.length,
-
-      orders:
-        db.orders.length,
-
-      coupons:
-        db.coupons.length,
-
-      plans:
-        db.plans.length
-
+      users: db.users.length,
+      orders: db.orders.length,
+      coupons: db.coupons.length,
+      plans: db.plans.length
     });
-
   }
 );
 
-
-/* =========================================================
+/* =========================
    ADMIN USERS
-========================================================= */
+========================= */
 
 app.get(
-  '/api/admin/users',
+  "/api/admin/users",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
-
-    const users =
-      db.users.map(
-        u => ({
-
-          id: u.id,
-
-          username:
-            u.username,
-
-          role:
-            u.role
-
-        })
-      );
 
     res.json({
-      users
+      users: db.users
+        .filter(u => u.role !== "admin")
+        .map(u => ({
+          id: u.id,
+          username: u.username,
+          role: u.role
+        }))
     });
-
   }
 );
 
-
-/* =========================================================
+/* =========================
    ADMIN ORDERS
-========================================================= */
+========================= */
 
 app.get(
-  '/api/admin/orders',
+  "/api/admin/orders",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
 
-    res.json(db.orders);
-
+    res.json({
+      orders: db.orders
+    });
   }
 );
-
-
-/* =========================================================
-   APPROVE / REJECT ORDER
-========================================================= */
 
 app.patch(
-  '/api/admin/orders/:id',
+  "/api/admin/orders/:id",
   requireAdmin,
   async (req, res) => {
+    const status = String(req.body.status || "");
 
-    const {
-      status
-    } = req.body || {};
+    const allowed = [
+      "pending",
+      "approved",
+      "rejected",
+      "cancelled"
+    ];
 
-    if (
-      ![
-        'approved',
-        'rejected'
-      ].includes(status)
-    ) {
-
+    if (!allowed.includes(status)) {
       return res.status(400).json({
-        error: 'وضعیت سفارش نامعتبر است.'
+        error: "وضعیت سفارش نامعتبر است."
       });
     }
 
     const db = await readDB();
 
-    const order =
-      db.orders.find(
-        o =>
-          String(o.id) ===
-          String(req.params.id)
-      );
+    const order = db.orders.find(
+      o => String(o.id) === String(req.params.id)
+    );
 
     if (!order) {
-
       return res.status(404).json({
-        error: 'سفارش پیدا نشد.'
+        error: "سفارش پیدا نشد."
       });
     }
 
     order.status = status;
-
-    if (status === 'approved') {
-
-      order.subscriptionUrl =
-        order.subscriptionUrl ||
-        order.vpnLink ||
-        '';
-
-    }
 
     await writeDB(db);
 
@@ -929,144 +710,113 @@ app.patch(
       success: true,
       order
     });
-
   }
 );
 
-
-/* =========================================================
+/* =========================
    COUPONS
-========================================================= */
+========================= */
 
 app.get(
-  '/api/admin/coupons',
+  "/api/admin/coupons",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
-
-    res.json(db.coupons);
-
+    res.json({
+      coupons: db.coupons
+    });
   }
 );
 
-
 app.post(
-  '/api/admin/coupons',
+  "/api/admin/coupons",
   requireAdmin,
   async (req, res) => {
+    const code = String(req.body.code || "")
+      .trim()
+      .toUpperCase();
 
-    const {
-      code,
-      percent
-    } = req.body;
+    const percent = Number(req.body.percent);
 
-    if (!code || !percent) {
-
+    if (!code || percent <= 0 || percent > 100) {
       return res.status(400).json({
-        error: 'کد و درصد تخفیف را وارد کنید.'
+        error: "کد یا درصد تخفیف صحیح نیست."
       });
     }
 
     const db = await readDB();
 
-    const newCoupon = {
+    if (
+      db.coupons.some(
+        c => String(c.code).toUpperCase() === code
+      )
+    ) {
+      return res.status(400).json({
+        error: "این کد تخفیف وجود دارد."
+      });
+    }
 
-      code:
-        String(code).trim(),
-
-      percent:
-        Number(percent),
-
-      active:
-        true
-
+    const coupon = {
+      code,
+      percent,
+      active: true
     };
 
-    db.coupons.push(newCoupon);
+    db.coupons.push(coupon);
 
     await writeDB(db);
 
     res.json({
       success: true,
-      coupon: newCoupon
+      coupon
     });
-
   }
 );
 
-
 app.delete(
-  '/api/admin/coupons/:code',
+  "/api/admin/coupons/:code",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
 
-    db.coupons =
-      db.coupons.filter(
-        c =>
-          c.code !==
-          req.params.code
-      );
+    db.coupons = db.coupons.filter(
+      c =>
+        String(c.code).toUpperCase() !==
+        String(req.params.code).toUpperCase()
+    );
 
     await writeDB(db);
 
     res.json({
       success: true
     });
-
   }
 );
 
-
-/* =========================================================
+/* =========================
    SETTINGS
-========================================================= */
+========================= */
 
 app.get(
-  '/api/admin/settings',
+  "/api/admin/settings",
   requireAdmin,
   async (req, res) => {
-
     const db = await readDB();
-
-    res.json(
-      db.settings || {}
-    );
-
+    res.json(db.settings || {});
   }
 );
 
-
 app.post(
-  '/api/admin/settings',
+  "/api/admin/settings",
   requireAdmin,
   async (req, res) => {
-
-    const {
-      vpnUrl,
-      vpnToken,
-      gatewayId,
-      gatewayActive
-    } = req.body;
-
     const db = await readDB();
 
     db.settings = {
-
-      vpnUrl:
-        vpnUrl || '',
-
-      vpnToken:
-        vpnToken || '',
-
-      gatewayId:
-        gatewayId || '',
-
-      gatewayActive:
-        Boolean(gatewayActive)
-
+      vpnUrl: String(req.body.vpnUrl || ""),
+      vpnToken: String(req.body.vpnToken || ""),
+      gatewayId: String(req.body.gatewayId || ""),
+      gatewayActive: Boolean(req.body.gatewayActive)
     };
 
     await writeDB(db);
@@ -1074,88 +824,120 @@ app.post(
     res.json({
       success: true
     });
-
   }
 );
 
-
-/* =========================================================
-   BACKUP PLACEHOLDER
-========================================================= */
+/* =========================
+   BACKUP
+========================= */
 
 app.post(
-  '/api/admin/backup',
+  "/api/admin/backup",
   requireAdmin,
   async (req, res) => {
+    try {
+      const db = await readDB();
 
-    res.json({
-      success: true,
-      message:
-        'سیستم بکاپ آماده اتصال به Cloudflare R2 است.'
-    });
+      const backupDir = path.join(
+        DATA_DIR,
+        "backups"
+      );
 
+      await fs.promises.mkdir(
+        backupDir,
+        { recursive: true }
+      );
+
+      const name =
+        `backup-${new Date()
+          .toISOString()
+          .replace(/[:.]/g, "-")}.json`;
+
+      await fs.promises.writeFile(
+        path.join(backupDir, name),
+        JSON.stringify(db, null, 2),
+        "utf8"
+      );
+
+      res.json({
+        success: true,
+        message: "بکاپ با موفقیت ساخته شد.",
+        name
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "ساخت بکاپ ناموفق بود."
+      });
+    }
   }
 );
-
 
 app.get(
-  '/api/admin/backups',
+  "/api/admin/backups",
   requireAdmin,
   async (req, res) => {
+    const backupDir = path.join(
+      DATA_DIR,
+      "backups"
+    );
 
-    res.json({
-      backups: []
-    });
+    try {
+      const files = await fs.promises.readdir(
+        backupDir
+      );
 
+      res.json({
+        backups: files.map(name => ({
+          name
+        }))
+      });
+    } catch {
+      res.json({
+        backups: []
+      });
+    }
   }
 );
-
 
 app.post(
-  '/api/admin/backup/restore',
+  "/api/admin/backup/restore",
   requireAdmin,
   async (req, res) => {
-
-    res.status(501).json({
+    return res.status(400).json({
       error:
-        'سیستم بازیابی هنوز به Cloudflare R2 متصل نشده است.'
+        "برای جلوگیری از جایگزینی اشتباه اطلاعات، نام بکاپ باید مشخص شود."
     });
-
   }
 );
 
+/* =========================
+   404 API
+========================= */
 
-/* =========================================================
-   START SERVER
-========================================================= */
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    error: "API پیدا نشد."
+  });
+});
+
+/* =========================
+   START
+========================= */
 
 ensureDB()
   .then(() => {
-
-    app.listen(
-      PORT,
-      '0.0.0.0',
-      () => {
-
-        console.log(
-          `Emad Net server running on port ${PORT}`
-        );
-
-        console.log(
-          `Admin username: ${ADMIN_USER}`
-        );
-
-      }
-    );
-
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(
+        `Emad Net server running on port ${PORT}`
+      );
+    });
   })
   .catch(error => {
-
     console.error(
-      'SERVER START ERROR:',
+      "Server startup failed:",
       error
     );
-
     process.exit(1);
-
   });
