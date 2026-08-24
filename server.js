@@ -346,89 +346,59 @@ app.post('/api/logout', (req, res) => {
 ========================================================= */
 
 app.post('/api/admin/login', async (req, res) => {
-
   try {
+    const username = String(req.body?.username || '').trim();
+    const password = String(req.body?.password || '');
 
-    const { username, password } =
-      req.body || {};
+    console.log('ADMIN LOGIN ATTEMPT:', username);
+    console.log('EXPECTED ADMIN:', ADMIN_USER);
 
     if (!username || !password) {
-
       return res.status(400).json({
-        error: 'نام کاربری و رمز عبور ادمین را وارد کنید.'
+        error: 'نام کاربری و رمز عبور را وارد کنید.'
       });
     }
 
-    const db = await readDB();
-
-    const hashedPassword =
-      hashPassword(password);
-
-    const admin =
-      db.users.find(
-        u =>
-          u.username === username &&
-          u.password === hashedPassword &&
-          u.role === 'admin'
-      );
-
-    if (!admin) {
-
+    if (
+      username !== ADMIN_USER ||
+      password !== ADMIN_PASSWORD
+    ) {
       return res.status(401).json({
         error: 'نام کاربری یا رمز عبور ادمین اشتباه است.'
       });
     }
 
     req.session.user = {
-      id: admin.id,
-      username: admin.username,
+      id: 'admin',
+      username: ADMIN_USER,
       role: 'admin'
     };
 
-    res.json({
-      success: true,
-      authenticated: true,
-      admin: true,
-      user: req.session.user
+    req.session.save(err => {
+      if (err) {
+        console.error('SESSION SAVE ERROR:', err);
+
+        return res.status(500).json({
+          error: 'خطا در ایجاد نشست ادمین.'
+        });
+      }
+
+      res.json({
+        success: true,
+        authenticated: true,
+        admin: true,
+        user: req.session.user
+      });
     });
 
   } catch (error) {
-
-    console.error(
-      'ADMIN LOGIN ERROR:',
-      error
-    );
+    console.error('ADMIN LOGIN ERROR:', error);
 
     res.status(500).json({
-      error: 'خطا در ورود به پنل مدیریت.'
+      error: 'خطا در ورود ادمین.'
     });
   }
 });
-
-
-app.get('/api/admin/me', requireAdmin, (req, res) => {
-
-  res.json({
-    authenticated: true,
-    admin: true,
-    user: req.session.user
-  });
-
-});
-
-
-app.post('/api/admin/logout', (req, res) => {
-
-  req.session.destroy(() => {
-
-    res.json({
-      success: true
-    });
-
-  });
-
-});
-
 
 /* =========================================================
    PLANS
