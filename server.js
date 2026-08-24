@@ -1,981 +1,1394 @@
 const express = require("express");
-const session = require("express-session");
-const bcrypt = require("bcryptjs");
-const Database = require("better-sqlite3");
 const path = require("path");
+const crypto = require("crypto");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
+const ADMIN_USERNAME =
+  process.env.ADMIN_USERNAME || "admin";
 
-const SUBSCRIPTION_BASE_URL =
-  process.env.SUBSCRIPTION_BASE_URL || "https://example.com/sub";
+const ADMIN_PASSWORD =
+  process.env.ADMIN_PASSWORD || "change-this-password";
 
-const db = new Database("emadnet.db");
+const SESSION_SECRET =
+  process.env.SESSION_SECRET ||
+  crypto.randomBytes(32).toString("hex");
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  session({
-    secret:
-      process.env.SESSION_SECRET ||
-      "emad-net-change-this-secret-please",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24 * 30
-    }
-  })
-);
-
-app.use(express.static(path.join(__dirname, "public")));
-
-/* =========================================================
+/* =====================================================
    DATABASE
-========================================================= */
+===================================================== */
 
-db.exec(`
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS plans (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  gb INTEGER NOT NULL,
-  days INTEGER NOT NULL,
-  price INTEGER NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS coupons (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  code TEXT UNIQUE NOT NULL,
-  percent INTEGER NOT NULL,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS orders (
-  id TEXT PRIMARY KEY,
-  user_id INTEGER NOT NULL,
-  plan_id INTEGER NOT NULL,
-  coupon_code TEXT,
-  original_price INTEGER NOT NULL,
-  final_price INTEGER NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending',
-  subscription_url TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY(user_id) REFERENCES users(id),
-  FOREIGN KEY(plan_id) REFERENCES plans(id)
-);
-`);
+let users = [];
+let plans = [];
+let orders = [];
+let coupons = [];
+let subscriptions = [];
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* =====================================================
+   SIMPLE ID
+===================================================== */
+
+function id() {
+  return crypto.randomUUID();
+}
+
+
+/* =====================================================
+   PASSWORD HASH
+===================================================== */
+
+function hashPassword(password) {
+
+  return crypto
+    .createHash("sha256")
+    .update(password + SESSION_SECRET)
+    .digest("hex");
+
+}
+
+
+/* =====================================================
+   SESSION
+===================================================== */
+
+const sessions = new Map();
+
+
+function createSession(type, userId) {
+
+  const token = crypto.randomBytes(32).toString("hex");
+
+  sessions.set(token, {
+    type,
+    userId,
+    createdAt: Date.now()
+  });
+
+  return token;
+}
+
+
+function getSession(req) {
+
+  const cookie = req.headers.cookie || "";
+
+  const match = cookie
+    .split(";")
+    .map(x => x.trim())
+    .find(x => x.startsWith("session="));
+
+  if (!match) return null;
+
+  const token = match.substring("session=".length);
+
+  return sessions.get(token) || null;
+
+}
+
+
+function setSession(res, token) {
+
+  res.setHeader(
+    "Set-Cookie",
+    `session=${token}; Path=/; HttpOnly; SameSite=Lax`
+  );
+
+}
+
+
+function clearSession(res) {
+
+  res.setHeader(
+    "Set-Cookie",
+    "session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0"
+  );
+
+}
+
+
+/* =====================================================
+   AUTH MIDDLEWARE
+===================================================== */
 
 function requireUser(req, res, next) {
-  if (!req.session.userId) {
+
+  const session = getSession(req);
+
+  if (
+    !session ||
+    session.type !== "user"
+  ) {
+
     return res.status(401).json({
       error: "ابتدا وارد حساب کاربری شوید."
     });
+
   }
 
+  req.userId = session.userId;
+
   next();
+
 }
+
 
 function requireAdmin(req, res, next) {
-  if (!req.session.admin) {
-    return res.status(403).json({
-      error: "دسترسی ادمین ندارید."
+
+  const session = getSession(req);
+
+  if (
+    !session ||
+    session.type !== "admin"
+  ) {
+
+    return res.status(401).json({
+      error: "دسترسی مدیریت نیازمند ورود ادمین است."
     });
+
   }
 
   next();
-}
 
-function generateOrderId() {
-  return (
-    Date.now().toString(36) +
-    "-" +
-    Math.random().toString(36).slice(2, 10)
-  );
-}
-
-function generateSubscriptionUrl(orderId) {
-  return `${SUBSCRIPTION_BASE_URL}/${encodeURIComponent(orderId)}`;
 }
 
 
-/* =========================================================
-   USER REGISTER
-========================================================= */
-
-app.post("/api/register", async (req, res) => {
-  try {
-    const username = String(req.body.username || "").trim();
-    const password = String(req.body.password || "");
-
-    if (!username || !password) {
-      return res.status(400).json({
-        error: "نام کاربری و رمز عبور را وارد کنید."
-      });
-    }
-
-    if (username.length < 3) {
-      return res.status(400).json({
-        error: "نام کاربری حداقل ۳ کاراکتر باشد."
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        error: "رمز عبور حداقل ۶ کاراکتر باشد."
-      });
-    }
-
-    const exists = db
-      .prepare("SELECT id FROM users WHERE username = ?")
-      .get(username);
-
-    if (exists) {
-      return res.status(409).json({
-        error: "این نام کاربری قبلاً ثبت شده است."
-      });
-    }
-
-    const hash = await bcrypt.hash(password, 12);
-
-    const result = db
-      .prepare(
-        "INSERT INTO users (username, password) VALUES (?, ?)"
-      )
-      .run(username, hash);
-
-    req.session.userId = result.lastInsertRowid;
-    req.session.admin = false;
-
-    res.json({
-      success: true,
-      user: {
-        id: result.lastInsertRowid,
-        username
-      }
-    });
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "خطا در ثبت‌نام."
-    });
-  }
-});
-
-
-/* =========================================================
-   USER LOGIN
-========================================================= */
-
-app.post("/api/login", async (req, res) => {
-  try {
-    const username = String(req.body.username || "").trim();
-    const password = String(req.body.password || "");
-
-    const user = db
-      .prepare("SELECT * FROM users WHERE username = ?")
-      .get(username);
-
-    if (!user) {
-      return res.status(401).json({
-        error: "نام کاربری یا رمز عبور اشتباه است."
-      });
-    }
-
-    const valid = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!valid) {
-      return res.status(401).json({
-        error: "نام کاربری یا رمز عبور اشتباه است."
-      });
-    }
-
-    req.session.userId = user.id;
-    req.session.admin = false;
-
-    res.json({
-      success: true,
-      user: {
-        id: user.id,
-        username: user.username
-      }
-    });
-  } catch (err) {
-    console.error(err);
-
-    res.status(500).json({
-      error: "خطا در ورود."
-    });
-  }
-});
-
-
-/* =========================================================
-   USER SESSION
-========================================================= */
-
-app.get("/api/me", (req, res) => {
-  if (!req.session.userId) {
-    return res.json({
-      loggedIn: false
-    });
-  }
-
-  const user = db
-    .prepare(
-      "SELECT id, username, created_at FROM users WHERE id = ?"
-    )
-    .get(req.session.userId);
-
-  if (!user) {
-    req.session.destroy(() => {});
-
-    return res.json({
-      loggedIn: false
-    });
-  }
-
-  res.json({
-    loggedIn: true,
-    user
-  });
-});
-
-
-/* =========================================================
-   USER LOGOUT
-========================================================= */
-
-app.post("/api/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.json({
-      success: true
-    });
-  });
-});
-
-
-/* =========================================================
+/* =====================================================
    PUBLIC PLANS
-========================================================= */
+===================================================== */
 
 app.get("/api/plans", (req, res) => {
-  try {
-    const plans = db
-      .prepare(
-        `
-        SELECT id, name, gb, days, price
-        FROM plans
-        ORDER BY id DESC
-        `
-      )
-      .all();
 
-    res.json(plans);
-  } catch (err) {
-    console.error(err);
+  res.json(
+    plans.filter(p => p.active !== false)
+  );
 
-    res.status(500).json({
-      error: "خطا در دریافت پلن‌ها."
-    });
-  }
 });
 
 
-/* =========================================================
-   CREATE ORDER
-========================================================= */
+/* =====================================================
+   REGISTER
+===================================================== */
 
-app.post("/api/orders", requireUser, (req, res) => {
-  try {
-    const planId = Number(req.body.planId);
-    const couponCode = String(req.body.coupon || "")
-      .trim()
-      .toUpperCase();
+app.post("/api/register", (req, res) => {
 
-    if (!planId) {
-      return res.status(400).json({
-        error: "پلن انتخاب نشده است."
-      });
-    }
+  const username =
+    String(req.body.username || "")
+      .trim();
 
-    const plan = db
-      .prepare("SELECT * FROM plans WHERE id = ?")
-      .get(planId);
+  const password =
+    String(req.body.password || "");
 
-    if (!plan) {
-      return res.status(404).json({
-        error: "پلن پیدا نشد."
-      });
-    }
 
-    let finalPrice = Number(plan.price);
-    let appliedCoupon = null;
+  if (!username || !password) {
 
-    if (couponCode) {
-      const coupon = db
-        .prepare(
-          "SELECT * FROM coupons WHERE code = ?"
-        )
-        .get(couponCode);
+    return res.status(400).json({
+      error: "نام کاربری و رمز عبور الزامی است."
+    });
 
-      if (!coupon) {
-        return res.status(400).json({
-          error: "کد تخفیف معتبر نیست."
-        });
-      }
+  }
 
-      const percent = Math.min(
-        100,
-        Math.max(0, Number(coupon.percent))
-      );
 
-      finalPrice = Math.round(
-        finalPrice - (finalPrice * percent) / 100
-      );
+  if (username.length < 3) {
 
-      appliedCoupon = coupon.code;
-    }
+    return res.status(400).json({
+      error: "نام کاربری حداقل ۳ کاراکتر باشد."
+    });
 
-    const orderId = generateOrderId();
+  }
 
-    db.prepare(
-      `
-      INSERT INTO orders
-      (
-        id,
-        user_id,
-        plan_id,
-        coupon_code,
-        original_price,
-        final_price,
-        status
-      )
-      VALUES (?, ?, ?, ?, ?, ?, 'pending')
-      `
-    ).run(
-      orderId,
-      req.session.userId,
-      plan.id,
-      appliedCoupon,
-      plan.price,
-      finalPrice
+
+  if (password.length < 6) {
+
+    return res.status(400).json({
+      error: "رمز عبور حداقل ۶ کاراکتر باشد."
+    });
+
+  }
+
+
+  const exists =
+    users.some(
+      u =>
+        u.username.toLowerCase() ===
+        username.toLowerCase()
     );
 
-    res.json({
-      success: true,
-      order: {
-        id: orderId,
-        planId: plan.id,
-        planName: plan.name,
-        originalPrice: plan.price,
-        finalPrice,
-        status: "pending"
-      }
-    });
-  } catch (err) {
-    console.error(err);
 
-    res.status(500).json({
-      error: "خطا در ثبت سفارش."
+  if (exists) {
+
+    return res.status(409).json({
+      error: "این نام کاربری قبلاً ثبت شده است."
     });
+
   }
+
+
+  const user = {
+
+    id: id(),
+
+    username,
+
+    passwordHash:
+      hashPassword(password),
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+
+  users.push(user);
+
+
+  const token =
+    createSession("user", user.id);
+
+
+  setSession(res, token);
+
+
+  res.json({
+
+    user: {
+      id: user.id,
+      username: user.username
+    }
+
+  });
+
 });
 
 
-/* =========================================================
-   USER SUBSCRIPTIONS
-========================================================= */
+/* =====================================================
+   LOGIN
+===================================================== */
 
-app.get(
-  "/api/my/subscriptions",
-  requireUser,
-  (req, res) => {
-    try {
-      const subscriptions = db
-        .prepare(
-          `
-          SELECT
-            o.id,
-            p.name AS planName,
-            p.gb,
-            p.days,
-            o.subscription_url AS subscriptionUrl,
-            o.created_at
-          FROM orders o
-          JOIN plans p ON p.id = o.plan_id
-          WHERE
-            o.user_id = ?
-            AND o.status = 'approved'
-            AND o.subscription_url IS NOT NULL
-          ORDER BY o.created_at DESC
-          `
-        )
-        .all(req.session.userId);
+app.post("/api/login", (req, res) => {
 
-      res.json({
-        subscriptions
-      });
-    } catch (err) {
-      console.error(err);
+  const username =
+    String(req.body.username || "")
+      .trim();
 
-      res.status(500).json({
-        error: "خطا در دریافت اشتراک‌ها."
-      });
+  const password =
+    String(req.body.password || "");
+
+
+  const user =
+    users.find(
+      u =>
+        u.username.toLowerCase() ===
+        username.toLowerCase()
+    );
+
+
+  if (
+    !user ||
+    user.passwordHash !==
+    hashPassword(password)
+  ) {
+
+    return res.status(401).json({
+      error: "نام کاربری یا رمز عبور اشتباه است."
+    });
+
+  }
+
+
+  const token =
+    createSession("user", user.id);
+
+
+  setSession(res, token);
+
+
+  res.json({
+
+    user: {
+      id: user.id,
+      username: user.username
     }
+
+  });
+
+});
+
+
+/* =====================================================
+   CURRENT USER
+===================================================== */
+
+app.get("/api/me", (req, res) => {
+
+  const session = getSession(req);
+
+
+  if (
+    !session ||
+    session.type !== "user"
+  ) {
+
+    return res.json({
+      loggedIn: false
+    });
+
+  }
+
+
+  const user =
+    users.find(
+      u => u.id === session.userId
+    );
+
+
+  if (!user) {
+
+    return res.json({
+      loggedIn: false
+    });
+
+  }
+
+
+  res.json({
+
+    loggedIn: true,
+
+    user: {
+      id: user.id,
+      username: user.username
+    }
+
+  });
+
+});
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+app.post("/api/logout", (req, res) => {
+
+  const cookie = req.headers.cookie || "";
+
+  const match = cookie
+    .split(";")
+    .map(x => x.trim())
+    .find(x => x.startsWith("session="));
+
+
+  if (match) {
+
+    const token =
+      match.substring("session=".length);
+
+    sessions.delete(token);
+
+  }
+
+
+  clearSession(res);
+
+
+  res.json({
+    success: true
+  });
+
+});
+
+
+/* =====================================================
+   FORGOT PASSWORD
+===================================================== */
+
+app.post(
+  "/api/forgot-password",
+  (req, res) => {
+
+    const username =
+      String(req.body.username || "")
+        .trim();
+
+
+    if (!username) {
+
+      return res.status(400).json({
+        error:
+          "نام کاربری یا ایمیل را وارد کنید."
+      });
+
+    }
+
+
+    /*
+      برای امنیت، وجود یا عدم وجود
+      حساب را اعلام نمی‌کنیم.
+    */
+
+    res.json({
+
+      success: true,
+
+      message:
+        "اگر حسابی با این مشخصات وجود داشته باشد، درخواست بازیابی ثبت شد."
+
+    });
+
   }
 );
 
 
-/* =========================================================
+/* =====================================================
+   CREATE ORDER
+===================================================== */
+
+app.post(
+  "/api/orders",
+  requireUser,
+  (req, res) => {
+
+    const planId =
+      Number(req.body.planId);
+
+    const couponCode =
+      String(req.body.coupon || "")
+        .trim()
+        .toUpperCase();
+
+
+    const plan =
+      plans.find(
+        p =>
+          Number(p.id) === planId &&
+          p.active !== false
+      );
+
+
+    if (!plan) {
+
+      return res.status(404).json({
+        error: "پلن پیدا نشد."
+      });
+
+    }
+
+
+    let finalPrice =
+      Number(plan.price);
+
+
+    let discount = 0;
+
+
+    if (couponCode) {
+
+      const coupon =
+        coupons.find(
+          c =>
+            c.code === couponCode &&
+            c.active !== false
+        );
+
+
+      if (!coupon) {
+
+        return res.status(400).json({
+          error: "کد تخفیف معتبر نیست."
+        });
+
+      }
+
+
+      discount =
+        Math.floor(
+          finalPrice *
+          Number(coupon.percent) /
+          100
+        );
+
+
+      finalPrice =
+        Math.max(
+          0,
+          finalPrice - discount
+        );
+
+    }
+
+
+    const order = {
+
+      id: id(),
+
+      userId: req.userId,
+
+      planId: plan.id,
+
+      planName: plan.name,
+
+      price: Number(plan.price),
+
+      discount,
+
+      finalPrice,
+
+      coupon:
+        couponCode || null,
+
+      status: "pending",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    orders.unshift(order);
+
+
+    res.json({
+
+      success: true,
+
+      order
+
+    });
+
+  }
+);
+
+
+/* =====================================================
    USER ORDERS
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/my/orders",
   requireUser,
   (req, res) => {
-    try {
-      const orders = db
-        .prepare(
-          `
-          SELECT
-            o.id,
-            p.name AS planName,
-            o.final_price AS finalPrice,
-            o.status,
-            o.subscription_url AS subscriptionUrl,
-            o.created_at
-          FROM orders o
-          JOIN plans p ON p.id = o.plan_id
-          WHERE o.user_id = ?
-          ORDER BY o.created_at DESC
-          `
+
+    const result =
+      orders
+        .filter(
+          o =>
+            o.userId === req.userId
         )
-        .all(req.session.userId);
+        .map(order => {
 
-      res.json({
-        orders
-      });
-    } catch (err) {
-      console.error(err);
+          const subscription =
+            subscriptions.find(
+              s =>
+                s.orderId === order.id
+            );
 
-      res.status(500).json({
-        error: "خطا در دریافت سفارش‌ها."
-      });
-    }
+
+          return {
+
+            ...order,
+
+            subscriptionUrl:
+              subscription
+                ? subscription.subscriptionUrl
+                : null
+
+          };
+
+        });
+
+
+    res.json({
+      orders: result
+    });
+
   }
 );
 
 
-/* =========================================================
-   ADMIN LOGIN
-========================================================= */
+/* =====================================================
+   USER SUBSCRIPTIONS
+===================================================== */
 
-app.post("/api/admin/login", (req, res) => {
-  const username = String(
-    req.body.username || ""
-  ).trim();
+app.get(
+  "/api/my/subscriptions",
+  requireUser,
+  (req, res) => {
 
-  const password = String(
-    req.body.password || ""
-  );
+    const result =
+      subscriptions
+        .filter(
+          s =>
+            s.userId === req.userId &&
+            s.active !== false
+        )
+        .map(s => {
 
-  if (
-    username !== ADMIN_USERNAME ||
-    password !== ADMIN_PASSWORD
-  ) {
-    return res.status(401).json({
-      error: "نام کاربری یا رمز عبور ادمین اشتباه است."
+          const plan =
+            plans.find(
+              p =>
+                Number(p.id) ===
+                Number(s.planId)
+            );
+
+
+          return {
+
+            ...s,
+
+            planName:
+              plan
+                ? plan.name
+                : s.planName,
+
+            gb:
+              plan
+                ? plan.gb
+                : s.gb,
+
+            days:
+              plan
+                ? plan.days
+                : s.days
+
+          };
+
+        });
+
+
+    res.json({
+      subscriptions: result
     });
+
   }
-
-  req.session.admin = true;
-  req.session.userId = null;
-
-  res.json({
-    success: true,
-    admin: true
-  });
-});
+);
 
 
-/* =========================================================
+/* =====================================================
+   ADMIN LOGIN
+===================================================== */
+
+app.post(
+  "/api/admin/login",
+  (req, res) => {
+
+    const username =
+      String(req.body.username || "")
+        .trim();
+
+    const password =
+      String(req.body.password || "");
+
+
+    if (
+      username !== ADMIN_USERNAME ||
+      password !== ADMIN_PASSWORD
+    ) {
+
+      return res.status(401).json({
+        error:
+          "نام کاربری یا رمز عبور ادمین اشتباه است."
+      });
+
+    }
+
+
+    const token =
+      createSession(
+        "admin",
+        "admin"
+      );
+
+
+    setSession(res, token);
+
+
+    res.json({
+      admin: true
+    });
+
+  }
+);
+
+
+/* =====================================================
    ADMIN SESSION
-========================================================= */
+===================================================== */
 
-app.get("/api/admin/me", (req, res) => {
-  res.json({
-    authenticated: req.session.admin === true
-  });
-});
+app.get(
+  "/api/admin/me",
+  (req, res) => {
+
+    const session =
+      getSession(req);
 
 
-/* =========================================================
+    res.json({
+
+      authenticated:
+        !!(
+          session &&
+          session.type === "admin"
+        )
+
+    });
+
+  }
+);
+
+
+/* =====================================================
    ADMIN LOGOUT
-========================================================= */
+===================================================== */
 
-app.post("/api/admin/logout", (req, res) => {
-  req.session.destroy(() => {
+app.post(
+  "/api/admin/logout",
+  (req, res) => {
+
+    const cookie =
+      req.headers.cookie || "";
+
+
+    const match =
+      cookie
+        .split(";")
+        .map(x => x.trim())
+        .find(
+          x =>
+            x.startsWith("session=")
+        );
+
+
+    if (match) {
+
+      const token =
+        match.substring(
+          "session=".length
+        );
+
+      sessions.delete(token);
+
+    }
+
+
+    clearSession(res);
+
+
     res.json({
       success: true
     });
-  });
-});
+
+  }
+);
 
 
-/* =========================================================
+/* =====================================================
    ADMIN DASHBOARD
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/admin/dashboard",
   requireAdmin,
   (req, res) => {
-    try {
-      const usersCount = db
-        .prepare("SELECT COUNT(*) AS count FROM users")
-        .get().count;
 
-      const ordersCount = db
-        .prepare("SELECT COUNT(*) AS count FROM orders")
-        .get().count;
-
-      const plansCount = db
-        .prepare("SELECT COUNT(*) AS count FROM plans")
-        .get().count;
-
-      const income = db
-        .prepare(
-          `
-          SELECT COALESCE(SUM(final_price), 0) AS total
-          FROM orders
-          WHERE status = 'approved'
-          `
+    const income =
+      orders
+        .filter(
+          o =>
+            o.status === "approved"
         )
-        .get().total;
+        .reduce(
+          (sum, o) =>
+            sum + Number(o.finalPrice || 0),
+          0
+        );
 
-      res.json({
-        usersCount,
-        ordersCount,
-        plansCount,
-        income
-      });
-    } catch (err) {
-      console.error(err);
 
-      res.status(500).json({
-        error: "خطا در دریافت داشبورد."
-      });
-    }
+    res.json({
+
+      usersCount:
+        users.length,
+
+      ordersCount:
+        orders.length,
+
+      plansCount:
+        plans.length,
+
+      income
+
+    });
+
   }
 );
 
 
-/* =========================================================
+/* =====================================================
    ADMIN PLANS
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/admin/plans",
   requireAdmin,
   (req, res) => {
-    const plans = db
-      .prepare(
-        `
-        SELECT id, name, gb, days, price
-        FROM plans
-        ORDER BY id DESC
-        `
-      )
-      .all();
 
     res.json({
       plans
     });
+
   }
 );
 
+
+/* =====================================================
+   CREATE PLAN
+===================================================== */
 
 app.post(
   "/api/admin/plans",
   requireAdmin,
   (req, res) => {
-    try {
-      const name = String(
-        req.body.name || ""
-      ).trim();
 
-      const gb = Number(req.body.gb);
-      const days = Number(req.body.days);
-      const price = Number(req.body.price);
+    const name =
+      String(req.body.name || "")
+        .trim();
 
-      if (
-        !name ||
-        !Number.isFinite(gb) ||
-        gb <= 0 ||
-        !Number.isFinite(days) ||
-        days <= 0 ||
-        !Number.isFinite(price) ||
-        price <= 0
-      ) {
-        return res.status(400).json({
-          error: "اطلاعات پلن صحیح نیست."
-        });
-      }
+    const gb =
+      Number(req.body.gb);
 
-      const result = db
-        .prepare(
-          `
-          INSERT INTO plans
-          (name, gb, days, price)
-          VALUES (?, ?, ?, ?)
-          `
-        )
-        .run(
-          name,
-          Math.floor(gb),
-          Math.floor(days),
-          Math.floor(price)
-        );
+    const days =
+      Number(req.body.days);
 
-      res.json({
-        success: true,
-        id: result.lastInsertRowid
+    const price =
+      Number(req.body.price);
+
+
+    if (
+      !name ||
+      !Number.isFinite(gb) ||
+      gb <= 0 ||
+      !Number.isFinite(days) ||
+      days <= 0 ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+
+      return res.status(400).json({
+        error:
+          "اطلاعات پلن صحیح نیست."
       });
-    } catch (err) {
-      console.error(err);
 
-      res.status(500).json({
-        error: "خطا در ساخت پلن."
-      });
     }
+
+
+    const plan = {
+
+      id:
+        Date.now(),
+
+      name,
+
+      gb,
+
+      days,
+
+      price,
+
+      active: true,
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    plans.push(plan);
+
+
+    res.json({
+      success: true,
+      plan
+    });
+
   }
 );
 
+
+/* =====================================================
+   DELETE PLAN
+===================================================== */
 
 app.delete(
   "/api/admin/plans/:id",
   requireAdmin,
   (req, res) => {
-    try {
-      const id = Number(req.params.id);
 
-      const result = db
-        .prepare("DELETE FROM plans WHERE id = ?")
-        .run(id);
+    const planId =
+      Number(req.params.id);
 
-      if (!result.changes) {
-        return res.status(404).json({
-          error: "پلن پیدا نشد."
-        });
-      }
 
-      res.json({
-        success: true
+    const index =
+      plans.findIndex(
+        p =>
+          Number(p.id) === planId
+      );
+
+
+    if (index === -1) {
+
+      return res.status(404).json({
+        error: "پلن پیدا نشد."
       });
-    } catch (err) {
-      console.error(err);
 
-      res.status(500).json({
-        error: "خطا در حذف پلن."
-      });
     }
+
+
+    plans.splice(index, 1);
+
+
+    res.json({
+      success: true
+    });
+
   }
 );
 
 
-/* =========================================================
+/* =====================================================
    ADMIN USERS
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/admin/users",
   requireAdmin,
   (req, res) => {
-    try {
-      const users = db
-        .prepare(
-          `
-          SELECT id, username, created_at
-          FROM users
-          ORDER BY id DESC
-          `
+
+    res.json({
+
+      users:
+        users.map(
+          u => ({
+            id: u.id,
+            username: u.username,
+            createdAt: u.createdAt
+          })
         )
-        .all();
 
-      res.json({
-        users
-      });
-    } catch (err) {
-      console.error(err);
+    });
 
-      res.status(500).json({
-        error: "خطا در دریافت کاربران."
-      });
-    }
   }
 );
 
 
-/* =========================================================
+/* =====================================================
    ADMIN ORDERS
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/admin/orders",
   requireAdmin,
   (req, res) => {
-    try {
-      const orders = db
-        .prepare(
-          `
-          SELECT
-            o.id,
-            u.username,
-            p.name AS planName,
-            o.final_price AS finalPrice,
-            o.status,
-            o.subscription_url AS subscriptionUrl,
-            o.created_at
-          FROM orders o
-          JOIN users u ON u.id = o.user_id
-          JOIN plans p ON p.id = o.plan_id
-          ORDER BY o.created_at DESC
-          `
-        )
-        .all();
 
-      res.json({
-        orders
-      });
-    } catch (err) {
-      console.error(err);
+    const result =
+      orders.map(order => {
 
-      res.status(500).json({
-        error: "خطا در دریافت سفارش‌ها."
+        const user =
+          users.find(
+            u =>
+              u.id === order.userId
+          );
+
+
+        const subscription =
+          subscriptions.find(
+            s =>
+              s.orderId === order.id
+          );
+
+
+        return {
+
+          ...order,
+
+          username:
+            user
+              ? user.username
+              : "نامشخص",
+
+          subscriptionUrl:
+            subscription
+              ? subscription.subscriptionUrl
+              : null
+
+        };
+
       });
-    }
+
+
+    res.json({
+      orders: result
+    });
+
   }
 );
 
 
-/* =========================================================
+/* =====================================================
    APPROVE / REJECT ORDER
-========================================================= */
+===================================================== */
 
 app.patch(
   "/api/admin/orders/:id",
   requireAdmin,
   (req, res) => {
-    try {
-      const orderId = req.params.id;
-      const status = String(req.body.status || "");
 
-      if (
-        status !== "approved" &&
-        status !== "rejected"
-      ) {
-        return res.status(400).json({
-          error: "وضعیت سفارش نامعتبر است."
-        });
-      }
+    const order =
+      orders.find(
+        o =>
+          String(o.id) ===
+          String(req.params.id)
+      );
 
-      const order = db
-        .prepare(
-          `
-          SELECT *
-          FROM orders
-          WHERE id = ?
-          `
-        )
-        .get(orderId);
 
-      if (!order) {
-        return res.status(404).json({
-          error: "سفارش پیدا نشد."
-        });
-      }
+    if (!order) {
 
-      if (status === "approved") {
-        const subscriptionUrl =
-          generateSubscriptionUrl(order.id);
-
-        db.prepare(
-          `
-          UPDATE orders
-          SET
-            status = 'approved',
-            subscription_url = ?
-          WHERE id = ?
-          `
-        ).run(subscriptionUrl, orderId);
-      } else {
-        db.prepare(
-          `
-          UPDATE orders
-          SET
-            status = 'rejected',
-            subscription_url = NULL
-          WHERE id = ?
-          `
-        ).run(orderId);
-      }
-
-      res.json({
-        success: true,
-        status
+      return res.status(404).json({
+        error: "سفارش پیدا نشد."
       });
-    } catch (err) {
-      console.error(err);
 
-      res.status(500).json({
-        error: "خطا در تغییر وضعیت سفارش."
-      });
     }
+
+
+    const status =
+      String(req.body.status || "");
+
+
+    if (
+      status !== "approved" &&
+      status !== "rejected"
+    ) {
+
+      return res.status(400).json({
+        error: "وضعیت سفارش نامعتبر است."
+      });
+
+    }
+
+
+    order.status = status;
+
+    order.updatedAt =
+      new Date().toISOString();
+
+
+    /*
+      در صورت تأیید سفارش،
+      یک Subscription ایجاد می‌کنیم.
+    */
+
+    if (status === "approved") {
+
+      const old =
+        subscriptions.find(
+          s =>
+            s.orderId === order.id
+        );
+
+
+      if (!old) {
+
+        const plan =
+          plans.find(
+            p =>
+              Number(p.id) ===
+              Number(order.planId)
+          );
+
+
+        if (plan) {
+
+          const subscriptionToken =
+            crypto
+              .randomBytes(24)
+              .toString("hex");
+
+
+          subscriptions.push({
+
+            id: id(),
+
+            orderId:
+              order.id,
+
+            userId:
+              order.userId,
+
+            planId:
+              plan.id,
+
+            planName:
+              plan.name,
+
+            gb:
+              plan.gb,
+
+            days:
+              plan.days,
+
+            active: true,
+
+            subscriptionUrl:
+              `/subscription/${subscriptionToken}`,
+
+            createdAt:
+              new Date().toISOString()
+
+          });
+
+        }
+
+      }
+
+    }
+
+
+    if (status === "rejected") {
+
+      subscriptions =
+        subscriptions.filter(
+          s =>
+            s.orderId !== order.id
+        );
+
+    }
+
+
+    res.json({
+
+      success: true,
+
+      order
+
+    });
+
   }
 );
 
 
-/* =========================================================
+/* =====================================================
    ADMIN COUPONS
-========================================================= */
+===================================================== */
 
 app.get(
   "/api/admin/coupons",
   requireAdmin,
   (req, res) => {
-    try {
-      const coupons = db
-        .prepare(
-          `
-          SELECT id, code, percent, created_at
-          FROM coupons
-          ORDER BY id DESC
-          `
-        )
-        .all();
 
-      res.json({
-        coupons
-      });
-    } catch (err) {
-      console.error(err);
+    res.json({
+      coupons
+    });
 
-      res.status(500).json({
-        error: "خطا در دریافت کدهای تخفیف."
-      });
-    }
   }
 );
 
+
+/* =====================================================
+   CREATE COUPON
+===================================================== */
 
 app.post(
   "/api/admin/coupons",
   requireAdmin,
   (req, res) => {
-    try {
-      const code = String(
-        req.body.code || ""
-      )
+
+    const code =
+      String(req.body.code || "")
         .trim()
         .toUpperCase();
 
-      const percent = Number(req.body.percent);
 
-      if (!code) {
-        return res.status(400).json({
-          error: "کد تخفیف را وارد کنید."
-        });
-      }
+    const percent =
+      Number(req.body.percent);
 
-      if (
-        !Number.isFinite(percent) ||
-        percent <= 0 ||
-        percent > 100
-      ) {
-        return res.status(400).json({
-          error: "درصد تخفیف باید بین ۱ تا ۱۰۰ باشد."
-        });
-      }
 
-      const exists = db
-        .prepare(
-          "SELECT id FROM coupons WHERE code = ?"
-        )
-        .get(code);
+    if (
+      !code ||
+      !Number.isFinite(percent) ||
+      percent <= 0 ||
+      percent > 100
+    ) {
 
-      if (exists) {
-        return res.status(409).json({
-          error: "این کد تخفیف قبلاً ساخته شده است."
-        });
-      }
-
-      const result = db
-        .prepare(
-          `
-          INSERT INTO coupons
-          (code, percent)
-          VALUES (?, ?)
-          `
-        )
-        .run(code, Math.floor(percent));
-
-      res.json({
-        success: true,
-        id: result.lastInsertRowid
+      return res.status(400).json({
+        error:
+          "کد تخفیف یا درصد تخفیف صحیح نیست."
       });
-    } catch (err) {
-      console.error(err);
 
-      res.status(500).json({
-        error: "خطا در ساخت کد تخفیف."
-      });
     }
+
+
+    const exists =
+      coupons.some(
+        c =>
+          c.code === code
+      );
+
+
+    if (exists) {
+
+      return res.status(409).json({
+        error:
+          "این کد تخفیف قبلاً ساخته شده است."
+      });
+
+    }
+
+
+    const coupon = {
+
+      id: id(),
+
+      code,
+
+      percent,
+
+      active: true,
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    coupons.push(coupon);
+
+
+    res.json({
+
+      success: true,
+
+      coupon
+
+    });
+
   }
 );
 
 
-/* =========================================================
-   FALLBACK
-========================================================= */
+/* =====================================================
+   SUBSCRIPTION DEMO ENDPOINT
+===================================================== */
+
+app.get(
+  "/subscription/:token",
+  (req, res) => {
+
+    const subscription =
+      subscriptions.find(
+        s =>
+          s.subscriptionUrl ===
+          `/subscription/${req.params.token}`
+      );
+
+
+    if (!subscription) {
+
+      return res.status(404).send(
+        "Subscription not found"
+      );
+
+    }
+
+
+    res.type("text/plain").send(
+      `Emad Net Subscription\n\n` +
+      `Plan: ${subscription.planName}\n` +
+      `Volume: ${subscription.gb} GB\n` +
+      `Duration: ${subscription.days} days\n`
+    );
+
+  }
+);
+
+
+/* =====================================================
+   HEALTH CHECK
+===================================================== */
+
+app.get("/health", (req, res) => {
+
+  res.json({
+    status: "ok",
+    service: "Emad Net"
+  });
+
+});
+
+
+/* =====================================================
+   STATIC WEBSITE
+===================================================== */
+
+app.use(
+  express.static(
+    path.join(__dirname, "public")
+  )
+);
+
+
+/* =====================================================
+   SPA FALLBACK
+===================================================== */
 
 app.get("*", (req, res) => {
+
   res.sendFile(
-    path.join(__dirname, "public", "index.html")
+    path.join(
+      __dirname,
+      "public",
+      "index.html"
+    )
   );
+
 });
 
 
-/* =========================================================
+/* =====================================================
+   ERROR HANDLER
+===================================================== */
+
+app.use(
+  (err, req, res, next) => {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      error:
+        "خطای داخلی سرور."
+
+    });
+
+  }
+);
+
+
+/* =====================================================
    START
-========================================================= */
+===================================================== */
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("=================================");
-  console.log("Emad Net Server Started");
-  console.log(`Port: ${PORT}`);
-  console.log("=================================");
-});
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+
+    console.log(
+      `Emad Net server running on port ${PORT}`
+    );
+
+  }
+);
