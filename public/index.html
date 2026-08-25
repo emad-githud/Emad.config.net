@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,139 +9,91 @@
 <script src="https://cdn.tailwindcss.com"></script>
 
 <link
-href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css"
-rel="stylesheet">
+  href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn-font@v33.003/Vazirmatn-font-face.css"
+  rel="stylesheet"
+>
 
 <style>
+*{box-sizing:border-box}
 
-*{
-box-sizing:border-box;
-}
-
-html{
-scroll-behavior:smooth;
-}
+html{scroll-behavior:smooth}
 
 body{
-margin:0;
-font-family:"Vazirmatn",sans-serif;
-background:#ffffff;
-color:#0f172a;
+  margin:0;
+  font-family:"Vazirmatn",sans-serif;
+  background:#fff;
+  color:#0f172a;
 }
 
-button,
-input{
-font-family:inherit;
-}
+button,input{font-family:inherit}
+button{cursor:pointer}
 
-button{
-cursor:pointer;
-}
-
-.hidden-page{
-display:none!important;
-}
-
-/* HEADER */
+.hidden-page{display:none!important}
 
 .site-header{
-background:rgba(255,255,255,.92);
-backdrop-filter:blur(18px);
--webkit-backdrop-filter:blur(18px);
-border-bottom:1px solid #e5e7eb;
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-bottom:1px solid #e5e7eb;
 }
-
-/* HERO */
 
 .hero-bg{
-background:
-radial-gradient(
-circle at 85% 15%,
-rgba(79,70,229,.12),
-transparent 30%
-),
-radial-gradient(
-circle at 10% 80%,
-rgba(14,165,233,.10),
-transparent 30%
-),
-#fff;
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(79,70,229,.12),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 10% 80%,
+      rgba(14,165,233,.10),
+      transparent 30%
+    ),
+    #fff;
 }
-
-/* CARDS */
-
-.product-card{
-background:#fff;
-border:1px solid #e5e7eb;
-transition:.25s ease;
-}
-
-.product-card:hover{
-transform:translateY(-5px);
-box-shadow:
-0 20px 50px rgba(15,23,42,.10);
-border-color:#c7d2fe;
-}
-
-/* MODAL */
 
 .modal{
-background:rgba(15,23,42,.60);
-backdrop-filter:blur(10px);
--webkit-backdrop-filter:blur(10px);
+  background:rgba(15,23,42,.60);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
 }
 
 .modal-box{
-background:#fff;
-box-shadow:
-0 30px 80px rgba(15,23,42,.25);
+  background:#fff;
+  box-shadow:0 30px 80px rgba(15,23,42,.25);
 }
 
-/* INPUT */
-
 .form-input{
-width:100%;
-background:#f8fafc;
-border:1px solid #e2e8f0;
-border-radius:14px;
-padding:13px 15px;
-color:#0f172a;
-outline:none;
-transition:.2s;
+  width:100%;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:14px;
+  padding:13px 15px;
+  color:#0f172a;
+  outline:none;
+  transition:.2s;
 }
 
 .form-input:focus{
-border-color:#6366f1;
-box-shadow:
-0 0 0 3px rgba(99,102,241,.10);
+  border-color:#6366f1;
+  box-shadow:0 0 0 3px rgba(99,102,241,.10);
 }
 
-.form-input::placeholder{
-color:#94a3b8;
-}
-
-/* USER PANEL */
+.form-input::placeholder{color:#94a3b8}
 
 .panel-card{
-background:#fff;
-border:1px solid #e5e7eb;
-border-radius:24px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:24px;
 }
-
-/* MOBILE */
 
 @media(max-width:640px){
-
-.hero-title{
-font-size:34px!important;
+  .hero-title{
+    font-size:34px!important;
+  }
 }
-
-}
-
 </style>
-
 </head>
-
 
 <body class="min-h-screen">
 
@@ -150,64 +101,48 @@ font-size:34px!important;
 
 <header class="site-header sticky top-0 z-50">
 
-<div class="max-w-7xl mx-auto px-4">
+  <div class="max-w-7xl mx-auto px-4">
 
-<div class="h-20 flex items-center justify-between">
+    <div class="h-20 flex items-center justify-between">
 
-<!-- LOGO -->
+      <!-- LOGO -->
 
-<button
-onclick="showHome()"
-class="text-right">
+      <button onclick="showHome()" class="text-right">
 
-<div class="text-[10px] text-indigo-600 font-bold">
-سامانه فروش VPN
-</div>
+        <div class="text-[10px] text-indigo-600 font-bold">
+          سامانه فروش VPN
+        </div>
 
-<div class="text-2xl font-black tracking-tight">
+        <div class="text-2xl font-black tracking-tight">
+          Emad
+          <span class="text-indigo-600">Net</span>
+        </div>
 
-Emad
-<span class="text-indigo-600">
-Net
-</span>
+      </button>
 
-</div>
+      <!-- DESKTOP MENU -->
 
-</button>
+      <div class="hidden md:flex items-center gap-3">
 
+        <button
+          onclick="openSupport()"
+          class="px-4 py-2 text-sm text-slate-600 hover:text-indigo-600">
+          پشتیبانی
+        </button>
 
-<!-- DESKTOP MENU -->
+        <div id="header-user"></div>
 
-<div class="hidden md:flex items-center gap-3">
+      </div>
 
-<button
-onclick="scrollToProducts()"
-class="px-4 py-2 text-sm text-slate-600 hover:text-indigo-600">
-محصولات ما
-</button>
+      <!-- MOBILE ACCOUNT -->
 
-<button
-onclick="openSupport()"
-class="px-4 py-2 text-sm text-slate-600 hover:text-indigo-600">
-پشتیبانی
-</button>
+      <div class="md:hidden">
+        <div id="mobile-header-user"></div>
+      </div>
 
-<div id="header-user"></div>
+    </div>
 
-</div>
-
-
-<!-- MOBILE ACCOUNT -->
-
-<div class="md:hidden">
-
-<div id="mobile-header-user"></div>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </header>
 
@@ -216,204 +151,104 @@ class="px-4 py-2 text-sm text-slate-600 hover:text-indigo-600">
 
 <main>
 
-
 <!-- ================= HOME ================= -->
 
 <section
-id="home-page"
-class="hero-bg min-h-[calc(100vh-80px)]">
+  id="home-page"
+  class="hero-bg min-h-[calc(100vh-80px)]">
 
-<div class="max-w-7xl mx-auto px-4">
+  <div class="max-w-7xl mx-auto px-4">
 
-<!-- HERO -->
+    <!-- HERO -->
 
-<div class="text-center pt-16 md:pt-24 pb-16">
+    <div class="text-center pt-16 md:pt-24 pb-16">
 
-<div
-class="inline-flex items-center gap-2
-bg-indigo-50
-border border-indigo-100
-text-indigo-600
-px-4 py-2
-rounded-full
-text-xs
-font-bold
-mb-6">
+      <div
+        class="inline-flex items-center gap-2
+        bg-indigo-50
+        border border-indigo-100
+        text-indigo-600
+        px-4 py-2
+        rounded-full
+        text-xs
+        font-bold
+        mb-6">
 
-<span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
 
-سرویس آنلاین Emad Net
+        سرویس آنلاین Emad Net
 
-</div>
-
-
-<h1
-class="hero-title text-5xl md:text-7xl font-black leading-tight tracking-tight">
-
-اینترنت سریع،
-<br>
-
-پایدار و مطمئن
-
-<br>
-
-با
-
-<span class="text-indigo-600">
-Emad Net
-</span>
-
-</h1>
+      </div>
 
 
-<p
-class="text-slate-500
-max-w-2xl
-mx-auto
-mt-6
-leading-8">
+      <h1
+        class="hero-title text-5xl md:text-7xl font-black leading-tight tracking-tight">
 
-با Emad Net به سرویس‌های سریع و پایدار دسترسی داشته باشید.
-محصول موردنظر خود را انتخاب کنید و اشتراک خود را دریافت کنید.
+        اینترنت سریع،
+        <br>
 
-</p>
+        پایدار و مطمئن
 
+        <br>
 
-<div class="flex flex-wrap justify-center gap-3 mt-8">
+        با
 
-<button
-onclick="openLogin()"
-class="bg-indigo-600
-hover:bg-indigo-700
-text-white
-px-7 py-3.5
-rounded-2xl
-font-bold
-shadow-lg
-shadow-indigo-600/20">
+        <span class="text-indigo-600">
+          Emad Net
+        </span>
 
-ورود به حساب
-
-</button>
+      </h1>
 
 
-<button
-onclick="openRegister()"
-class="bg-white
-border border-slate-200
-hover:border-indigo-300
-px-7 py-3.5
-rounded-2xl
-font-bold">
+      <p
+        class="text-slate-500
+        max-w-2xl
+        mx-auto
+        mt-6
+        leading-8">
 
-ساخت حساب
+        با Emad Net به سرویس‌های سریع و پایدار دسترسی داشته باشید.
+        برای استفاده از خدمات، وارد حساب خود شوید.
 
-</button>
-
-</div>
-
-</div>
+      </p>
 
 
-<!-- PRODUCTS -->
+      <div class="flex flex-wrap justify-center gap-3 mt-8">
 
-<section
-id="products-section"
-class="pb-24">
+        <button
+          onclick="openLogin()"
+          class="bg-indigo-600
+          hover:bg-indigo-700
+          text-white
+          px-7 py-3.5
+          rounded-2xl
+          font-bold
+          shadow-lg
+          shadow-indigo-600/20">
 
-<div class="flex items-center justify-between mb-7">
+          ورود به حساب
 
-<div>
-
-<div class="text-xs text-indigo-600 font-bold mb-1">
-Emad Net
-</div>
-
-<h2 class="text-2xl md:text-3xl font-black">
-محصولات ما
-</h2>
-
-</div>
-
-<div class="text-xs text-slate-400">
-پلن‌های فعال
-</div>
-
-</div>
+        </button>
 
 
-<div
-id="plans-container"
-class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <button
+          onclick="openRegister()"
+          class="bg-white
+          border border-slate-200
+          hover:border-indigo-300
+          px-7 py-3.5
+          rounded-2xl
+          font-bold">
 
-<div
-class="col-span-full
-text-center
-py-12
-text-slate-400">
+          ساخت حساب
 
-در حال دریافت محصولات...
+        </button>
 
-</div>
+      </div>
 
-</div>
+    </div>
 
-</section>
-
-
-<!-- SUPPORT -->
-
-<section
-class="pb-24">
-
-<div
-class="bg-slate-50
-border border-slate-200
-rounded-[28px]
-p-7 md:p-10
-text-center">
-
-<div
-class="mx-auto
-w-14 h-14
-rounded-2xl
-bg-indigo-100
-text-indigo-600
-flex items-center justify-center
-text-2xl
-mb-5">
-
-🎧
-
-</div>
-
-<h2 class="text-2xl font-black">
-نیاز به پشتیبانی دارید؟
-</h2>
-
-<p class="text-slate-500 mt-3">
-اگر در خرید، فعال‌سازی یا استفاده از سرویس مشکلی دارید،
-پشتیبانی Emad Net در کنار شماست.
-</p>
-
-<button
-onclick="openSupport()"
-class="mt-6
-bg-slate-900
-text-white
-px-6 py-3
-rounded-xl
-font-bold">
-
-ارتباط با پشتیبانی
-
-</button>
-
-</div>
-
-</section>
-
-</div>
+  </div>
 
 </section>
 
@@ -421,169 +256,149 @@ font-bold">
 <!-- ================= USER PANEL ================= -->
 
 <section
-id="user-page"
-class="hidden-page
-bg-slate-50
-min-h-screen
-py-10">
+  id="user-page"
+  class="hidden-page
+  bg-slate-50
+  min-h-screen
+  py-10">
 
-<div class="max-w-6xl mx-auto px-4">
+  <div class="max-w-6xl mx-auto px-4">
 
+    <div class="flex justify-between items-center mb-7">
 
-<div class="flex justify-between items-center mb-7">
+      <div>
 
-<div>
+        <div class="text-xs text-indigo-600 font-bold">
+          پنل کاربری
+        </div>
 
-<div class="text-xs text-indigo-600 font-bold">
-پنل کاربری
-</div>
+        <h2 class="text-2xl font-black mt-1">
 
-<h2 class="text-2xl font-black mt-1">
+          سلام
+          <span id="user-name"></span>
+          👋
 
-سلام
-<span id="user-name"></span>
-👋
+        </h2>
 
-</h2>
+      </div>
 
-</div>
+      <button
+        onclick="logoutUser()"
+        class="bg-rose-50
+        border border-rose-100
+        text-rose-600
+        px-4 py-2
+        rounded-xl
+        text-xs
+        font-bold">
 
+        خروج
 
-<button
-onclick="logoutUser()"
-class="bg-rose-50
-border border-rose-100
-text-rose-600
-px-4 py-2
-rounded-xl
-text-xs
-font-bold">
+      </button>
 
-خروج
+    </div>
 
-</button>
 
-</div>
+    <!-- STATS -->
 
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
 
-<!-- STATS -->
+      <div class="panel-card p-5">
 
-<div
-class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="text-xs text-slate-400">
+          اشتراک‌ها
+        </div>
 
+        <div
+          id="user-sub-count"
+          class="text-2xl font-black mt-2">
 
-<div class="panel-card p-5">
+          0
 
-<div class="text-xs text-slate-400">
-اشتراک‌ها
-</div>
+        </div>
 
-<div
-id="user-sub-count"
-class="text-2xl font-black mt-2">
+      </div>
 
-0
 
-</div>
+      <div class="panel-card p-5">
 
-</div>
+        <div class="text-xs text-slate-400">
+          سفارش‌ها
+        </div>
 
+        <div
+          id="user-order-count"
+          class="text-2xl font-black mt-2">
 
-<div class="panel-card p-5">
+          0
 
-<div class="text-xs text-slate-400">
-سفارش‌ها
-</div>
+        </div>
 
-<div
-id="user-order-count"
-class="text-2xl font-black mt-2">
+      </div>
 
-0
 
-</div>
+      <div class="panel-card p-5">
 
-</div>
+        <div class="text-xs text-slate-400">
+          حجم
+        </div>
 
+        <div
+          id="user-volume"
+          class="text-xl font-black text-emerald-600 mt-2">
 
-<div class="panel-card p-5">
+          0 GB
 
-<div class="text-xs text-slate-400">
-حجم
-</div>
+        </div>
 
-<div
-id="user-volume"
-class="text-xl font-black text-emerald-600 mt-2">
+      </div>
 
-0 GB
 
-</div>
+      <div class="panel-card p-5">
 
-</div>
+        <div class="text-xs text-slate-400">
+          وضعیت
+        </div>
 
+        <div class="text-xl font-black text-emerald-600 mt-2">
+          فعال
+        </div>
 
-<div class="panel-card p-5">
+      </div>
 
-<div class="text-xs text-slate-400">
-وضعیت
-</div>
+    </div>
 
-<div
-class="text-xl font-black text-emerald-600 mt-2">
 
-فعال
+    <!-- SUBSCRIPTIONS -->
 
-</div>
+    <div class="panel-card p-6 mb-5">
 
-</div>
+      <div class="flex justify-between items-center mb-5">
 
-</div>
+        <h3 class="font-black">
+          📦 اشتراک‌های من
+        </h3>
 
+      </div>
 
-<!-- SUBSCRIPTIONS -->
+      <div id="subscriptions-list"></div>
 
-<div class="panel-card p-6 mb-5">
+    </div>
 
-<div class="flex justify-between items-center mb-5">
 
-<h3 class="font-black">
-📦 اشتراک‌های من
-</h3>
+    <!-- ORDERS -->
 
-<button
-onclick="showHome()"
-class="bg-indigo-600
-text-white
-px-4 py-2
-rounded-xl
-text-xs
-font-bold">
+    <div class="panel-card p-6">
 
-خرید اشتراک
+      <h3 class="font-black mb-5">
+        🧾 سفارش‌های من
+      </h3>
 
-</button>
+      <div id="user-orders-list"></div>
 
-</div>
+    </div>
 
-<div id="subscriptions-list"></div>
-
-</div>
-
-
-<!-- ORDERS -->
-
-<div class="panel-card p-6">
-
-<h3 class="font-black mb-5">
-🧾 سفارش‌های من
-</h3>
-
-<div id="user-orders-list"></div>
-
-</div>
-
-</div>
+  </div>
 
 </section>
 
@@ -593,63 +408,63 @@ font-bold">
 <!-- ================= BOTTOM NAV ================= -->
 
 <nav
-class="fixed
-bottom-4
-left-1/2
--translate-x-1/2
-w-[92%]
-max-w-md
-bg-white
-border border-slate-200
-shadow-xl
-rounded-2xl
-p-2
-z-40">
+  class="fixed
+  bottom-4
+  left-1/2
+  -translate-x-1/2
+  w-[92%]
+  max-w-md
+  bg-white
+  border border-slate-200
+  shadow-xl
+  rounded-2xl
+  p-2
+  z-40">
 
-<div class="flex justify-around">
+  <div class="flex justify-around">
 
-<button
-onclick="showHome()"
-class="px-5 py-2
-text-xs
-text-slate-600
-hover:text-indigo-600">
+    <button
+      onclick="showHome()"
+      class="px-5 py-2
+      text-xs
+      text-slate-600
+      hover:text-indigo-600">
 
-🛒
-<br>
-محصولات
+      🏠
+      <br>
+      خانه
 
-</button>
-
-
-<button
-onclick="openLogin()"
-class="px-5 py-2
-text-xs
-text-slate-600
-hover:text-indigo-600">
-
-👤
-<br>
-حساب من
-
-</button>
+    </button>
 
 
-<button
-onclick="openSupport()"
-class="px-5 py-2
-text-xs
-text-slate-600
-hover:text-indigo-600">
+    <button
+      onclick="openLogin()"
+      class="px-5 py-2
+      text-xs
+      text-slate-600
+      hover:text-indigo-600">
 
-🎧
-<br>
-پشتیبانی
+      👤
+      <br>
+      حساب من
 
-</button>
+    </button>
 
-</div>
+
+    <button
+      onclick="openSupport()"
+      class="px-5 py-2
+      text-xs
+      text-slate-600
+      hover:text-indigo-600">
+
+      🎧
+      <br>
+      پشتیبانی
+
+    </button>
+
+  </div>
 
 </nav>
 
@@ -657,100 +472,97 @@ hover:text-indigo-600">
 <!-- ================= LOGIN ================= -->
 
 <div
-id="login-modal"
-class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
+  id="login-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
-<div
-class="modal-box
-w-full max-w-md
-rounded-3xl
-p-6">
+  <div
+    class="modal-box
+    w-full max-w-md
+    rounded-3xl
+    p-6">
 
+    <div class="flex justify-between mb-6">
 
-<div class="flex justify-between mb-6">
+      <div>
 
-<div>
+        <div class="text-xs text-indigo-600 font-bold">
+          Emad Net
+        </div>
 
-<div class="text-xs text-indigo-600 font-bold">
-Emad Net
-</div>
+        <h3 class="text-xl font-black mt-1">
+          ورود به حساب
+        </h3>
 
-<h3 class="text-xl font-black mt-1">
-ورود به حساب
-</h3>
+      </div>
 
-</div>
+      <button
+        onclick="closeLogin()"
+        class="text-2xl text-slate-400">
+        ×
+      </button>
 
-<button
-onclick="closeLogin()"
-class="text-2xl text-slate-400">
-
-×
-
-</button>
-
-</div>
+    </div>
 
 
-<input
-id="login-username"
-placeholder="نام کاربری"
-autocomplete="username"
-class="form-input mb-3">
+    <input
+      id="login-username"
+      placeholder="نام کاربری"
+      autocomplete="username"
+      class="form-input mb-3">
 
 
-<input
-id="login-password"
-type="password"
-placeholder="رمز عبور"
-autocomplete="current-password"
-class="form-input mb-4">
+    <input
+      id="login-password"
+      type="password"
+      placeholder="رمز عبور"
+      autocomplete="current-password"
+      class="form-input mb-4">
 
 
-<button
-onclick="loginUser()"
-class="w-full
-bg-indigo-600
-hover:bg-indigo-700
-text-white
-rounded-xl
-p-3
-font-bold">
+    <button
+      onclick="loginUser()"
+      class="w-full
+      bg-indigo-600
+      hover:bg-indigo-700
+      text-white
+      rounded-xl
+      p-3
+      font-bold">
 
-ورود
+      ورود
 
-</button>
-
-
-<button
-onclick="openRegister()"
-class="w-full
-mt-3
-bg-slate-100
-hover:bg-slate-200
-rounded-xl
-p-3
-text-xs
-font-bold">
-
-ساخت حساب جدید
-
-</button>
+    </button>
 
 
-<button
-onclick="openForgotPassword()"
-class="w-full
-mt-4
-text-indigo-600
-text-xs
-font-bold">
+    <button
+      onclick="openRegister()"
+      class="w-full
+      mt-3
+      bg-slate-100
+      hover:bg-slate-200
+      rounded-xl
+      p-3
+      text-xs
+      font-bold">
 
-بازیابی رمز عبور
+      ساخت حساب جدید
 
-</button>
+    </button>
 
-</div>
+
+    <button
+      onclick="openForgotPassword()"
+      class="w-full
+      mt-4
+      text-indigo-600
+      text-xs
+      font-bold">
+
+      بازیابی رمز عبور
+
+    </button>
+
+  </div>
 
 </div>
 
@@ -758,95 +570,92 @@ font-bold">
 <!-- ================= REGISTER ================= -->
 
 <div
-id="register-modal"
-class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
+  id="register-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
-<div
-class="modal-box
-w-full max-w-md
-rounded-3xl
-p-6">
+  <div
+    class="modal-box
+    w-full max-w-md
+    rounded-3xl
+    p-6">
 
+    <div class="flex justify-between mb-6">
 
-<div class="flex justify-between mb-6">
+      <div>
 
-<div>
+        <div class="text-xs text-indigo-600 font-bold">
+          Emad Net
+        </div>
 
-<div class="text-xs text-indigo-600 font-bold">
-Emad Net
-</div>
+        <h3 class="text-xl font-black mt-1">
+          ساخت حساب
+        </h3>
 
-<h3 class="text-xl font-black mt-1">
-ساخت حساب
-</h3>
+      </div>
 
-</div>
+      <button
+        onclick="closeRegister()"
+        class="text-2xl text-slate-400">
+        ×
+      </button>
 
-<button
-onclick="closeRegister()"
-class="text-2xl text-slate-400">
-
-×
-
-</button>
-
-</div>
+    </div>
 
 
-<input
-id="register-username"
-placeholder="نام کاربری"
-class="form-input mb-3">
+    <input
+      id="register-username"
+      placeholder="نام کاربری"
+      class="form-input mb-3">
 
 
-<input
-id="register-password"
-type="password"
-placeholder="رمز عبور"
-class="form-input mb-3">
+    <input
+      id="register-password"
+      type="password"
+      placeholder="رمز عبور"
+      class="form-input mb-3">
 
 
-<input
-id="register-password2"
-type="password"
-placeholder="تکرار رمز عبور"
-class="form-input mb-4">
+    <input
+      id="register-password2"
+      type="password"
+      placeholder="تکرار رمز عبور"
+      class="form-input mb-4">
 
 
-<button
-onclick="registerUser()"
-class="w-full
-bg-indigo-600
-hover:bg-indigo-700
-text-white
-rounded-xl
-p-3
-font-bold">
+    <button
+      onclick="registerUser()"
+      class="w-full
+      bg-indigo-600
+      hover:bg-indigo-700
+      text-white
+      rounded-xl
+      p-3
+      font-bold">
 
-ثبت‌نام
+      ثبت‌نام
 
-</button>
+    </button>
 
 
-<div
-class="text-center
-text-xs
-text-slate-400
-mt-4">
+    <div
+      class="text-center
+      text-xs
+      text-slate-400
+      mt-4">
 
-قبلاً حساب ساخته‌اید؟
+      قبلاً حساب ساخته‌اید؟
 
-<button
-onclick="openLoginFromRegister()"
-class="text-indigo-600 font-bold">
+      <button
+        onclick="openLoginFromRegister()"
+        class="text-indigo-600 font-bold">
 
-ورود
+        ورود
 
-</button>
+      </button>
 
-</div>
+    </div>
 
-</div>
+  </div>
 
 </div>
 
@@ -854,69 +663,66 @@ class="text-indigo-600 font-bold">
 <!-- ================= FORGOT PASSWORD ================= -->
 
 <div
-id="forgot-modal"
-class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
+  id="forgot-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
-<div
-class="modal-box
-w-full max-w-md
-rounded-3xl
-p-6">
+  <div
+    class="modal-box
+    w-full max-w-md
+    rounded-3xl
+    p-6">
 
+    <div class="flex justify-between mb-6">
 
-<div class="flex justify-between mb-6">
+      <div>
 
-<div>
+        <div class="text-xs text-indigo-600 font-bold">
+          Emad Net
+        </div>
 
-<div class="text-xs text-indigo-600 font-bold">
-Emad Net
-</div>
+        <h3 class="text-xl font-black mt-1">
+          بازیابی رمز عبور
+        </h3>
 
-<h3 class="text-xl font-black mt-1">
-بازیابی رمز عبور
-</h3>
+      </div>
 
-</div>
+      <button
+        onclick="closeForgotPassword()"
+        class="text-2xl text-slate-400">
+        ×
+      </button>
 
-<button
-onclick="closeForgotPassword()"
-class="text-2xl text-slate-400">
-
-×
-
-</button>
-
-</div>
+    </div>
 
 
-<p class="text-sm text-slate-500 leading-7 mb-5">
+    <p class="text-sm text-slate-500 leading-7 mb-5">
 
-نام کاربری یا ایمیل حساب خود را وارد کنید تا
-در صورت فعال بودن سرویس بازیابی، مراحل بعدی برای شما ارسال شود.
+      نام کاربری یا ایمیل حساب خود را وارد کنید تا
+      در صورت فعال بودن سرویس بازیابی، مراحل بعدی برای شما ارسال شود.
 
-</p>
-
-
-<input
-id="forgot-username"
-placeholder="نام کاربری یا ایمیل"
-class="form-input mb-4">
+    </p>
 
 
-<button
-onclick="forgotPassword()"
-class="w-full
-bg-indigo-600
-text-white
-rounded-xl
-p-3
-font-bold">
+    <input
+      id="forgot-username"
+      placeholder="نام کاربری یا ایمیل"
+      class="form-input mb-4">
 
-ارسال درخواست بازیابی
 
-</button>
+    <button
+      onclick="forgotPassword()"
+      class="w-full
+      bg-indigo-600
+      text-white
+      rounded-xl
+      p-3
+      font-bold">
 
-</div>
+      ارسال درخواست بازیابی
+
+    </button>
+
+  </div>
 
 </div>
 
@@ -924,108 +730,84 @@ font-bold">
 <!-- ================= SUPPORT ================= -->
 
 <div
-id="support-modal"
-class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
+  id="support-modal"
+  class="modal fixed inset-0 hidden items-center justify-center p-4 z-[100]">
 
-<div
-class="modal-box
-w-full max-w-md
-rounded-3xl
-p-6">
+  <div
+    class="modal-box
+    w-full max-w-md
+    rounded-3xl
+    p-6">
 
+    <div class="flex justify-between mb-6">
 
-<div class="flex justify-between mb-6">
+      <div>
 
-<div>
+        <div class="text-xs text-indigo-600 font-bold">
+          Emad Net
+        </div>
 
-<div class="text-xs text-indigo-600 font-bold">
-Emad Net
-</div>
+        <h3 class="text-xl font-black">
+          پشتیبانی
+        </h3>
 
-<h3 class="text-xl font-black">
-پشتیبانی
-</h3>
+      </div>
 
-</div>
+      <button
+        onclick="closeSupport()"
+        class="text-2xl text-slate-400">
+        ×
+      </button>
 
-<button
-onclick="closeSupport()"
-class="text-2xl text-slate-400">
-
-×
-
-</button>
-
-</div>
+    </div>
 
 
-<div class="space-y-3">
+    <div class="space-y-3">
+
+      <a
+        href="#"
+        onclick="supportAction(event)"
+        class="block
+        bg-slate-50
+        border border-slate-200
+        rounded-2xl
+        p-4
+        hover:border-indigo-300">
+
+        <div class="font-bold">
+          💬 پشتیبانی آنلاین
+        </div>
+
+        <div class="text-xs text-slate-400 mt-1">
+          ارتباط با پشتیبانی Emad Net
+        </div>
+
+      </a>
 
 
-<a
-href="#"
-onclick="supportAction(event)"
-class="block
-bg-slate-50
-border border-slate-200
-rounded-2xl
-p-4
-hover:border-indigo-300">
+      <a
+        href="#"
+        onclick="supportAction(event)"
+        class="block
+        bg-slate-50
+        border border-slate-200
+        rounded-2xl
+        p-4
+        hover:border-indigo-300">
 
-<div class="font-bold">
-💬 پشتیبانی آنلاین
-</div>
+        <div class="font-bold">
+          📨 ارسال درخواست
+        </div>
 
-<div class="text-xs text-slate-400 mt-1">
-ارتباط با پشتیبانی Emad Net
-</div>
+        <div class="text-xs text-slate-400 mt-1">
+          ثبت درخواست پشتیبانی
+        </div>
 
-</a>
+      </a>
 
+    </div>
 
-<a
-href="#"
-onclick="supportAction(event)"
-class="block
-bg-slate-50
-border border-slate-200
-rounded-2xl
-p-4
-hover:border-indigo-300">
-
-<div class="font-bold">
-📨 ارسال درخواست
-</div>
-
-<div class="text-xs text-slate-400 mt-1">
-ثبت درخواست پشتیبانی
-</div>
-
-</a>
-
-
-<div
-class="bg-indigo-50
-border border-indigo-100
-rounded-2xl
-p-4">
-
-<div class="font-bold text-indigo-700">
-راهنمای خرید
-</div>
-
-<div class="text-xs text-indigo-600 mt-1 leading-6">
-
-ابتدا حساب خود را ایجاد کنید،
-سپس محصول موردنظر را انتخاب کرده و سفارش را ثبت کنید.
-
-</div>
-
-</div>
-
-</div>
-
-</div>
+  </div>
 
 </div>
 
@@ -1046,37 +828,37 @@ let currentUser = null;
 
 async function api(url, options = {}){
 
-const response = await fetch(API + url,{
+  const response = await fetch(API + url,{
 
-credentials:"include",
+    credentials:"include",
 
-...options,
+    ...options,
 
-headers:{
-"Content-Type":"application/json",
-...(options.headers || {})
-}
+    headers:{
+      "Content-Type":"application/json",
+      ...(options.headers || {})
+    }
 
-});
-
-
-let data = {};
-
-try{
-data = await response.json();
-}catch{}
+  });
 
 
-if(!response.ok){
+  let data = {};
 
-throw new Error(
-data.error ||
-`خطای سرور (${response.status})`
-);
+  try{
+    data = await response.json();
+  }catch{}
 
-}
 
-return data;
+  if(!response.ok){
+
+    throw new Error(
+      data.error ||
+      `خطای سرور (${response.status})`
+    );
+
+  }
+
+  return data;
 
 }
 
@@ -1085,12 +867,12 @@ return data;
 
 function escapeHtml(value){
 
-return String(value ?? "")
-.replace(/&/g,"&amp;")
-.replace(/</g,"&lt;")
-.replace(/>/g,"&gt;")
-.replace(/"/g,"&quot;")
-.replace(/'/g,"&#039;");
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 
 }
 
@@ -1099,92 +881,89 @@ return String(value ?? "")
 
 function openModal(id){
 
-const e = document.getElementById(id);
+  const e = document.getElementById(id);
 
-if(!e)return;
+  if(!e)return;
 
-e.classList.remove("hidden");
-e.classList.add("flex");
+  e.classList.remove("hidden");
+  e.classList.add("flex");
 
 }
 
 
 function closeModal(id){
 
-const e = document.getElementById(id);
+  const e = document.getElementById(id);
 
-if(!e)return;
+  if(!e)return;
 
-e.classList.add("hidden");
-e.classList.remove("flex");
+  e.classList.add("hidden");
+  e.classList.remove("flex");
 
 }
 
 
 function openLogin(){
-openModal("login-modal");
+  openModal("login-modal");
 }
 
 
 function closeLogin(){
-closeModal("login-modal");
+  closeModal("login-modal");
 }
 
 
 function openRegister(){
 
-closeLogin();
-
-openModal("register-modal");
+  closeLogin();
+  openModal("register-modal");
 
 }
 
 
 function closeRegister(){
-closeModal("register-modal");
+  closeModal("register-modal");
 }
 
 
 function openLoginFromRegister(){
 
-closeRegister();
-
-openLogin();
+  closeRegister();
+  openLogin();
 
 }
 
 
 function openForgotPassword(){
 
-closeLogin();
-
-openModal("forgot-modal");
+  closeLogin();
+  openModal("forgot-modal");
 
 }
 
 
 function closeForgotPassword(){
-closeModal("forgot-modal");
+  closeModal("forgot-modal");
 }
 
 
 function openSupport(){
-openModal("support-modal");
+  openModal("support-modal");
 }
 
 
 function closeSupport(){
-closeModal("support-modal");
+  closeModal("support-modal");
 }
 
 
 function supportAction(event){
 
-event.preventDefault();
+  event.preventDefault();
 
-alert(
-"راه ارتباط با پشتیبانی را می‌توانید در server.js تنظیم کنید."
-);
+  alert(
+    "راه ارتباط با پشتیبانی را می‌توانید در server.js تنظیم کنید."
+  );
 
 }
 
@@ -1193,59 +972,42 @@ alert(
 
 function hidePages(){
 
-[
-"home-page",
-"user-page"
-].forEach(id=>{
+  [
+    "home-page",
+    "user-page"
+  ].forEach(id=>{
 
-document
-.getElementById(id)
-.classList.add("hidden-page");
+    const element = document.getElementById(id);
 
-});
+    if(element){
+      element.classList.add("hidden-page");
+    }
+
+  });
 
 }
 
 
 function showHome(){
 
-hidePages();
+  hidePages();
 
-document
-.getElementById("home-page")
-.classList.remove("hidden-page");
-
-loadPlans();
+  document
+    .getElementById("home-page")
+    .classList.remove("hidden-page");
 
 }
 
 
 function showUserPanel(){
 
-hidePages();
+  hidePages();
 
-document
-.getElementById("user-page")
-.classList.remove("hidden-page");
+  document
+    .getElementById("user-page")
+    .classList.remove("hidden-page");
 
-loadUserData();
-
-}
-
-
-function scrollToProducts(){
-
-showHome();
-
-setTimeout(()=>{
-
-document
-.getElementById("products-section")
-.scrollIntoView({
-behavior:"smooth"
-});
-
-},100);
+  loadUserData();
 
 }
 
@@ -1254,281 +1016,79 @@ behavior:"smooth"
 
 function updateHeader(){
 
-const desktop =
-document.getElementById("header-user");
+  const desktop =
+    document.getElementById("header-user");
 
-const mobile =
-document.getElementById("mobile-header-user");
+  const mobile =
+    document.getElementById("mobile-header-user");
 
 
-if(!currentUser){
+  if(!desktop || !mobile)return;
 
-desktop.innerHTML=`
 
-<button
-onclick="openLogin()"
-class="bg-indigo-600
-text-white
-px-5 py-2.5
-rounded-xl
-text-xs
-font-bold">
+  if(!currentUser){
 
-ورود / ثبت‌نام
+    desktop.innerHTML=`
 
-</button>
+      <button
+        onclick="openLogin()"
+        class="bg-indigo-600
+        text-white
+        px-5 py-2.5
+        rounded-xl
+        text-xs
+        font-bold">
 
-`;
+        ورود / ثبت‌نام
 
-mobile.innerHTML=`
+      </button>
 
-<button
-onclick="openLogin()"
-class="bg-indigo-600
-text-white
-px-3 py-2
-rounded-xl
-text-xs
-font-bold">
+    `;
 
-ورود
 
-</button>
+    mobile.innerHTML=`
 
-`;
+      <button
+        onclick="openLogin()"
+        class="bg-indigo-600
+        text-white
+        px-3 py-2
+        rounded-xl
+        text-xs
+        font-bold">
 
-return;
+        ورود
 
-}
+      </button>
 
+    `;
 
-const html=`
+    return;
 
-<button
-onclick="showUserPanel()"
-class="bg-indigo-50
-border border-indigo-100
-text-indigo-600
-px-4 py-2
-rounded-xl
-text-xs
-font-bold">
+  }
 
-👤 ${escapeHtml(currentUser.username)}
 
-</button>
+  const html=`
 
-`;
+    <button
+      onclick="showUserPanel()"
+      class="bg-indigo-50
+      border border-indigo-100
+      text-indigo-600
+      px-4 py-2
+      rounded-xl
+      text-xs
+      font-bold">
 
-desktop.innerHTML=html;
+      👤 ${escapeHtml(currentUser.username)}
 
-mobile.innerHTML=html;
+    </button>
 
-}
+  `;
 
 
-/* ================= PLANS ================= */
-
-async function loadPlans(){
-
-const box =
-document.getElementById("plans-container");
-
-
-try{
-
-const plans = await api("/api/plans");
-
-
-if(!plans.length){
-
-box.innerHTML=`
-
-<div
-class="col-span-full
-bg-slate-50
-border border-slate-200
-rounded-3xl
-p-10
-text-center
-text-slate-400">
-
-هنوز محصولی برای فروش قرار نگرفته است.
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-box.innerHTML = plans.map(p=>`
-
-<div class="product-card rounded-3xl p-6">
-
-
-<div class="flex justify-between items-start">
-
-<div>
-
-<div class="text-xs text-indigo-600 font-bold">
-Emad Net
-</div>
-
-<h3 class="text-xl font-black mt-1">
-${escapeHtml(p.name)}
-</h3>
-
-</div>
-
-
-<div
-class="bg-indigo-50
-text-indigo-600
-px-3 py-1.5
-rounded-xl
-text-sm
-font-bold">
-
-${Number(p.gb)} GB
-
-</div>
-
-</div>
-
-
-<div class="grid grid-cols-2 gap-3 mt-6">
-
-
-<div
-class="bg-slate-50
-rounded-xl
-p-3">
-
-<div class="text-xs text-slate-400">
-مدت سرویس
-</div>
-
-<div class="font-bold mt-1">
-${Number(p.days)} روز
-</div>
-
-</div>
-
-
-<div
-class="bg-slate-50
-rounded-xl
-p-3">
-
-<div class="text-xs text-slate-400">
-قیمت
-</div>
-
-<div class="font-bold mt-1 text-emerald-600">
-
-${Number(p.price).toLocaleString()}
-تومان
-
-</div>
-
-</div>
-
-</div>
-
-
-<button
-onclick="buyPlan(${Number(p.id)})"
-class="w-full
-mt-5
-bg-indigo-600
-hover:bg-indigo-700
-text-white
-rounded-xl
-py-3
-font-bold">
-
-خرید اشتراک
-
-</button>
-
-</div>
-
-`).join("");
-
-
-}catch(e){
-
-box.innerHTML=`
-
-<div
-class="col-span-full
-bg-rose-50
-border border-rose-100
-rounded-3xl
-p-8
-text-center
-text-rose-500">
-
-${escapeHtml(e.message)}
-
-</div>
-
-`;
-
-}
-
-}
-
-
-/* ================= BUY ================= */
-
-async function buyPlan(planId){
-
-if(!currentUser){
-
-openLogin();
-
-return;
-
-}
-
-
-try{
-
-const coupon =
-prompt(
-"کد تخفیف را وارد کنید. اگر ندارید خالی بگذارید:"
-) || "";
-
-
-await api("/api/orders",{
-
-method:"POST",
-
-body:JSON.stringify({
-planId,
-coupon
-})
-
-});
-
-
-alert(
-"سفارش شما با موفقیت ثبت شد.\n\nوضعیت: در انتظار تأیید"
-);
-
-
-showUserPanel();
-
-
-}catch(e){
-
-alert(e.message);
-
-}
+  desktop.innerHTML=html;
+  mobile.innerHTML=html;
 
 }
 
@@ -1537,59 +1097,59 @@ alert(e.message);
 
 async function loginUser(){
 
-const username =
-document
-.getElementById("login-username")
-.value
-.trim();
+  const username =
+    document
+      .getElementById("login-username")
+      .value
+      .trim();
 
 
-const password =
-document
-.getElementById("login-password")
-.value;
+  const password =
+    document
+      .getElementById("login-password")
+      .value;
 
 
-if(!username || !password){
+  if(!username || !password){
 
-alert(
-"نام کاربری و رمز عبور را وارد کنید."
-);
+    alert(
+      "نام کاربری و رمز عبور را وارد کنید."
+    );
 
-return;
+    return;
 
-}
-
-
-try{
-
-const data =
-await api("/api/login",{
-
-method:"POST",
-
-body:JSON.stringify({
-username,
-password
-})
-
-});
+  }
 
 
-currentUser = data.user;
+  try{
 
-closeLogin();
+    const data =
+      await api("/api/login",{
 
-updateHeader();
+        method:"POST",
 
-showUserPanel();
+        body:JSON.stringify({
+          username,
+          password
+        })
+
+      });
 
 
-}catch(e){
+    currentUser = data.user;
 
-alert(e.message);
+    closeLogin();
 
-}
+    updateHeader();
+
+    showUserPanel();
+
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
 
 }
 
@@ -1598,85 +1158,85 @@ alert(e.message);
 
 async function registerUser(){
 
-const username =
-document
-.getElementById("register-username")
-.value
-.trim();
+  const username =
+    document
+      .getElementById("register-username")
+      .value
+      .trim();
 
 
-const password =
-document
-.getElementById("register-password")
-.value;
+  const password =
+    document
+      .getElementById("register-password")
+      .value;
 
 
-const password2 =
-document
-.getElementById("register-password2")
-.value;
+  const password2 =
+    document
+      .getElementById("register-password2")
+      .value;
 
 
-if(!username || !password){
+  if(!username || !password){
 
-alert("اطلاعات را کامل کنید.");
+    alert("اطلاعات را کامل کنید.");
 
-return;
+    return;
 
-}
-
-
-if(password.length < 6){
-
-alert(
-"رمز عبور باید حداقل ۶ کاراکتر باشد."
-);
-
-return;
-
-}
+  }
 
 
-if(password !== password2){
+  if(password.length < 6){
 
-alert(
-"تکرار رمز عبور صحیح نیست."
-);
+    alert(
+      "رمز عبور باید حداقل ۶ کاراکتر باشد."
+    );
 
-return;
+    return;
 
-}
-
-
-try{
-
-const data =
-await api("/api/register",{
-
-method:"POST",
-
-body:JSON.stringify({
-username,
-password
-})
-
-});
+  }
 
 
-currentUser = data.user;
+  if(password !== password2){
 
-closeRegister();
+    alert(
+      "تکرار رمز عبور صحیح نیست."
+    );
 
-updateHeader();
+    return;
 
-showUserPanel();
+  }
 
 
-}catch(e){
+  try{
 
-alert(e.message);
+    const data =
+      await api("/api/register",{
 
-}
+        method:"POST",
+
+        body:JSON.stringify({
+          username,
+          password
+        })
+
+      });
+
+
+    currentUser = data.user;
+
+    closeRegister();
+
+    updateHeader();
+
+    showUserPanel();
+
+
+  }catch(e){
+
+    alert(e.message);
+
+  }
 
 }
 
@@ -1685,57 +1245,52 @@ alert(e.message);
 
 async function forgotPassword(){
 
-const username =
-document
-.getElementById("forgot-username")
-.value
-.trim();
+  const username =
+    document
+      .getElementById("forgot-username")
+      .value
+      .trim();
 
 
-if(!username){
+  if(!username){
 
-alert(
-"نام کاربری یا ایمیل را وارد کنید."
-);
+    alert(
+      "نام کاربری یا ایمیل را وارد کنید."
+    );
 
-return;
+    return;
 
-}
-
-
-/*
-اگر API بازیابی رمز در server.js داری،
-این قسمت را به همان endpoint متصل کن.
-*/
-
-try{
-
-const data =
-await api("/api/forgot-password",{
-
-method:"POST",
-
-body:JSON.stringify({
-username
-})
-
-});
+  }
 
 
-alert(
-data.message ||
-"درخواست بازیابی رمز ارسال شد."
-);
+  try{
+
+    const data =
+      await api("/api/forgot-password",{
+
+        method:"POST",
+
+        body:JSON.stringify({
+          username
+        })
+
+      });
 
 
-closeForgotPassword();
+    alert(
+      data.message ||
+      "درخواست بازیابی رمز ارسال شد."
+    );
 
 
-}catch(e){
+    closeForgotPassword();
 
-alert(e.message);
 
-}
+  }catch(e){
+
+    alert(e.message);
+
+  }
 
 }
 
@@ -1744,49 +1299,47 @@ alert(e.message);
 
 async function loadUserData(){
 
-try{
+  try{
 
-const data =
-await api("/api/me");
-
-
-if(!data.loggedIn){
-
-throw new Error(
-"وارد حساب نشده‌اید."
-);
-
-}
+    const data =
+      await api("/api/me");
 
 
-currentUser = data.user;
+    if(!data.loggedIn){
+
+      throw new Error(
+        "وارد حساب نشده‌اید."
+      );
+
+    }
 
 
-document
-.getElementById("user-name")
-.textContent =
-currentUser.username;
+    currentUser = data.user;
 
 
-updateHeader();
+    document
+      .getElementById("user-name")
+      .textContent =
+      currentUser.username;
 
 
-await loadSubscriptions();
+    updateHeader();
 
-await loadOrders();
+    await loadSubscriptions();
+    await loadOrders();
 
 
-}catch(e){
+  }catch(e){
 
-currentUser = null;
+    currentUser = null;
 
-updateHeader();
+    updateHeader();
 
-showHome();
+    showHome();
 
-alert(e.message);
+    alert(e.message);
 
-}
+  }
 
 }
 
@@ -1795,150 +1348,149 @@ alert(e.message);
 
 async function loadSubscriptions(){
 
-const box =
-document
-.getElementById("subscriptions-list");
+  const box =
+    document
+      .getElementById("subscriptions-list");
 
 
-try{
+  try{
 
-const data =
-await api("/api/my/subscriptions");
-
-
-const list =
-data.subscriptions || [];
+    const data =
+      await api("/api/my/subscriptions");
 
 
-document
-.getElementById("user-sub-count")
-.textContent =
-list.length;
+    const list =
+      data.subscriptions || [];
 
 
-if(!list.length){
-
-box.innerHTML=`
-
-<div
-class="text-center
-text-slate-400
-py-8">
-
-اشتراک فعالی ندارید.
-
-</div>
-
-`;
-
-return;
-
-}
+    document
+      .getElementById("user-sub-count")
+      .textContent =
+      list.length;
 
 
-let totalGB = 0;
+    if(!list.length){
+
+      box.innerHTML=`
+
+        <div
+          class="text-center
+          text-slate-400
+          py-8">
+
+          اشتراک فعالی ندارید.
+
+        </div>
+
+      `;
+
+      return;
+
+    }
 
 
-list.forEach(s=>{
-
-totalGB += Number(s.gb) || 0;
-
-});
+    let totalGB = 0;
 
 
-document
-.getElementById("user-volume")
-.textContent =
-totalGB + " GB";
+    list.forEach(s=>{
+
+      totalGB += Number(s.gb) || 0;
+
+    });
 
 
-box.innerHTML =
-list.map(s=>`
-
-<div
-class="bg-slate-50
-border border-slate-200
-rounded-2xl
-p-4
-mb-3">
+    document
+      .getElementById("user-volume")
+      .textContent =
+      totalGB + " GB";
 
 
-<div class="flex justify-between">
+    box.innerHTML =
+      list.map(s=>`
 
-<div>
+        <div
+          class="bg-slate-50
+          border border-slate-200
+          rounded-2xl
+          p-4
+          mb-3">
 
-<div class="font-bold">
-${escapeHtml(s.planName)}
-</div>
+          <div class="flex justify-between">
 
-<div class="text-xs text-slate-400 mt-1">
+            <div>
 
-${Number(s.gb)} GB
-/
-${Number(s.days)} روز
+              <div class="font-bold">
+                ${escapeHtml(s.planName)}
+              </div>
 
-</div>
+              <div class="text-xs text-slate-400 mt-1">
 
-</div>
+                ${Number(s.gb)} GB
+                /
+                ${Number(s.days)} روز
 
+              </div>
 
-<div
-class="text-emerald-600
-text-xs
-font-bold">
-
-فعال
-
-</div>
-
-</div>
+            </div>
 
 
-<div class="mt-4">
+            <div
+              class="text-emerald-600
+              text-xs
+              font-bold">
 
-<div
-class="text-xs
-text-slate-400
-mb-2">
+              فعال
 
-🔗 لینک سابسکرایب
+            </div>
 
-</div>
-
-
-<div
-class="bg-slate-900
-text-emerald-400
-rounded-xl
-p-3
-text-xs
-break-all
-select-all">
-
-${escapeHtml(s.subscriptionUrl)}
-
-</div>
-
-</div>
-
-</div>
-
-`).join("");
+          </div>
 
 
-}catch(e){
+          <div class="mt-4">
 
-box.innerHTML=`
+            <div
+              class="text-xs
+              text-slate-400
+              mb-2">
 
-<div class="text-rose-500 text-sm">
+              🔗 لینک سابسکرایب
 
-${escapeHtml(e.message)}
+            </div>
 
-</div>
 
-`;
+            <div
+              class="bg-slate-900
+              text-emerald-400
+              rounded-xl
+              p-3
+              text-xs
+              break-all
+              select-all">
 
-}
+              ${escapeHtml(s.subscriptionUrl)}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `).join("");
+
+
+  }catch(e){
+
+    box.innerHTML=`
+
+      <div class="text-rose-500 text-sm">
+
+        ${escapeHtml(e.message)}
+
+      </div>
+
+    `;
+
+  }
 
 }
 
@@ -1947,171 +1499,168 @@ ${escapeHtml(e.message)}
 
 async function loadOrders(){
 
-const box =
-document
-.getElementById("user-orders-list");
+  const box =
+    document
+      .getElementById("user-orders-list");
 
 
-try{
+  try{
 
-const data =
-await api("/api/my/orders");
+    const data =
+      await api("/api/my/orders");
 
 
-const orders =
-data.orders || [];
+    const orders =
+      data.orders || [];
 
 
-document
-.getElementById("user-order-count")
-.textContent =
-orders.length;
+    document
+      .getElementById("user-order-count")
+      .textContent =
+      orders.length;
 
 
-if(!orders.length){
+    if(!orders.length){
 
-box.innerHTML=`
+      box.innerHTML=`
 
-<div
-class="text-center
-text-slate-400
-py-8">
+        <div
+          class="text-center
+          text-slate-400
+          py-8">
 
-سفارشی ثبت نشده است.
+          سفارشی ثبت نشده است.
 
-</div>
+        </div>
 
-`;
+      `;
 
-return;
+      return;
 
-}
+    }
 
 
-box.innerHTML =
-orders.map(o=>{
+    box.innerHTML =
+      orders.map(o=>{
 
-let text =
-"در انتظار تأیید";
+        let text =
+          "در انتظار تأیید";
 
-let cls =
-"text-amber-500";
+        let cls =
+          "text-amber-500";
 
 
-if(o.status === "approved"){
+        if(o.status === "approved"){
 
-text = "تأیید شده";
+          text = "تأیید شده";
+          cls = "text-emerald-600";
 
-cls = "text-emerald-600";
+        }
 
-}
 
+        if(o.status === "rejected"){
 
-if(o.status === "rejected"){
+          text = "رد شده";
+          cls = "text-rose-600";
 
-text = "رد شده";
+        }
 
-cls = "text-rose-600";
 
-}
+        return `
 
+          <div
+            class="bg-slate-50
+            border border-slate-200
+            rounded-2xl
+            p-4
+            mb-3">
 
-return `
+            <div class="flex justify-between">
 
-<div
-class="bg-slate-50
-border border-slate-200
-rounded-2xl
-p-4
-mb-3">
+              <div>
 
+                <div class="font-bold">
 
-<div class="flex justify-between">
+                  ${escapeHtml(o.planName)}
 
-<div>
+                </div>
 
-<div class="font-bold">
 
-${escapeHtml(o.planName)}
+                <div
+                  class="text-xs
+                  text-slate-400
+                  mt-1">
 
-</div>
+                  ${Number(o.finalPrice).toLocaleString()}
+                  تومان
 
+                </div>
 
-<div
-class="text-xs
-text-slate-400
-mt-1">
+              </div>
 
-${Number(o.finalPrice).toLocaleString()}
-تومان
 
-</div>
+              <div
+                class="${cls}
+                text-xs
+                font-bold">
 
-</div>
+                ${text}
 
+              </div>
 
-<div
-class="${cls}
-text-xs
-font-bold">
+            </div>
 
-${text}
 
-</div>
+            ${
+              o.subscriptionUrl &&
+              o.status === "approved"
 
-</div>
+              ?
 
+              `
 
-${
-o.subscriptionUrl &&
-o.status === "approved"
+              <div
+                class="mt-4
+                bg-slate-900
+                rounded-xl
+                p-3
+                text-xs
+                text-emerald-400
+                break-all
+                select-all">
 
-?
+                ${escapeHtml(o.subscriptionUrl)}
 
-`
+              </div>
 
-<div
-class="mt-4
-bg-slate-900
-rounded-xl
-p-3
-text-xs
-text-emerald-400
-break-all
-select-all">
+              `
 
-${escapeHtml(o.subscriptionUrl)}
+              :
 
-</div>
+              ""
 
-`
+            }
 
-:
+          </div>
 
-""
+        `;
 
-}
+      }).join("");
 
-</div>
 
-`;
+  }catch(e){
 
-}).join("");
+    box.innerHTML = `
 
+      <div class="text-rose-500">
 
-}catch(e){
+        ${escapeHtml(e.message)}
 
-box.innerHTML = `
+      </div>
 
-<div class="text-rose-500">
+    `;
 
-${escapeHtml(e.message)}
-
-</div>
-
-`;
-
-}
+  }
 
 }
 
@@ -2120,20 +1669,20 @@ ${escapeHtml(e.message)}
 
 async function logoutUser(){
 
-try{
+  try{
 
-await api("/api/logout",{
-method:"POST"
-});
+    await api("/api/logout",{
+      method:"POST"
+    });
 
-}catch{}
+  }catch{}
 
 
-currentUser = null;
+  currentUser = null;
 
-updateHeader();
+  updateHeader();
 
-showHome();
+  showHome();
 
 }
 
@@ -2142,32 +1691,31 @@ showHome();
 
 async function checkSession(){
 
-try{
+  try{
 
-const user =
-await api("/api/me");
-
-
-if(user.loggedIn){
-
-currentUser =
-user.user;
-
-}else{
-
-currentUser = null;
-
-}
+    const user =
+      await api("/api/me");
 
 
-}catch{
+    if(user.loggedIn){
 
-currentUser = null;
+      currentUser =
+        user.user;
 
-}
+    }else{
+
+      currentUser = null;
+
+    }
+
+  }catch{
+
+    currentUser = null;
+
+  }
 
 
-updateHeader();
+  updateHeader();
 
 }
 
@@ -2175,14 +1723,14 @@ updateHeader();
 /* ================= INIT ================= */
 
 document.addEventListener(
-"DOMContentLoaded",
-async()=>{
+  "DOMContentLoaded",
+  async()=>{
 
-await checkSession();
+    await checkSession();
 
-showHome();
+    showHome();
 
-}
+  }
 );
 
 </script>
