@@ -1,10 +1,15 @@
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
+const fs = require("fs");
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const PORT = Number(process.env.PORT) || 3000;
 
 const ADMIN_USERNAME =
   process.env.ADMIN_USERNAME || "admin";
@@ -16,26 +21,145 @@ const SESSION_SECRET =
   process.env.SESSION_SECRET ||
   crypto.randomBytes(32).toString("hex");
 
+
+/* =====================================================
+   APP
+===================================================== */
+
+app.disable("x-powered-by");
+
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+
+/* =====================================================
+   DATABASE FILE
+===================================================== */
+
+const DATA_DIR = path.join(__dirname, "data");
+const DATA_FILE = path.join(DATA_DIR, "database.json");
+
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
 
 /* =====================================================
    DATABASE
 ===================================================== */
 
-let users = [];
-let plans = [];
-let orders = [];
-let coupons = [];
-let subscriptions = [];
+let database = {
+  users: [],
+  plans: [],
+  orders: [],
+  coupons: [],
+  subscriptions: []
+};
+
+
+function loadDatabase() {
+
+  try {
+
+    if (!fs.existsSync(DATA_FILE)) {
+      saveDatabase();
+      return;
+    }
+
+    const raw =
+      fs.readFileSync(DATA_FILE, "utf8");
+
+    const parsed =
+      JSON.parse(raw);
+
+    database = {
+      users: Array.isArray(parsed.users)
+        ? parsed.users
+        : [],
+
+      plans: Array.isArray(parsed.plans)
+        ? parsed.plans
+        : [],
+
+      orders: Array.isArray(parsed.orders)
+        ? parsed.orders
+        : [],
+
+      coupons: Array.isArray(parsed.coupons)
+        ? parsed.coupons
+        : [],
+
+      subscriptions:
+        Array.isArray(parsed.subscriptions)
+          ? parsed.subscriptions
+          : []
+    };
+
+  } catch (error) {
+
+    console.error(
+      "Database load error:",
+      error
+    );
+
+  }
+
+}
+
+
+function saveDatabase() {
+
+  try {
+
+    fs.writeFileSync(
+      DATA_FILE,
+      JSON.stringify(database, null, 2),
+      "utf8"
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Database save error:",
+      error
+    );
+
+  }
+
+}
+
+
+loadDatabase();
 
 
 /* =====================================================
-   SIMPLE ID
+   SHORTCUTS
 ===================================================== */
 
-function id() {
+const users =
+  database.users;
+
+const plans =
+  database.plans;
+
+const orders =
+  database.orders;
+
+const coupons =
+  database.coupons;
+
+const subscriptions =
+  database.subscriptions;
+
+
+/* =====================================================
+   ID
+===================================================== */
+
+function createId() {
+
   return crypto.randomUUID();
+
 }
 
 
@@ -47,7 +171,10 @@ function hashPassword(password) {
 
   return crypto
     .createHash("sha256")
-    .update(password + SESSION_SECRET)
+    .update(
+      String(password) +
+      SESSION_SECRET
+    )
     .digest("hex");
 
 }
@@ -62,7 +189,8 @@ const sessions = new Map();
 
 function createSession(type, userId) {
 
-  const token = crypto.randomBytes(32).toString("hex");
+  const token =
+    crypto.randomBytes(32).toString("hex");
 
   sessions.set(token, {
     type,
@@ -71,21 +199,30 @@ function createSession(type, userId) {
   });
 
   return token;
+
 }
 
 
 function getSession(req) {
 
-  const cookie = req.headers.cookie || "";
+  const cookie =
+    req.headers.cookie || "";
 
-  const match = cookie
-    .split(";")
-    .map(x => x.trim())
-    .find(x => x.startsWith("session="));
+  const match =
+    cookie
+      .split(";")
+      .map(x => x.trim())
+      .find(
+        x =>
+          x.startsWith("session=")
+      );
 
-  if (!match) return null;
+  if (!match) {
+    return null;
+  }
 
-  const token = match.substring("session=".length);
+  const token =
+    match.substring("session=".length);
 
   return sessions.get(token) || null;
 
@@ -96,7 +233,13 @@ function setSession(res, token) {
 
   res.setHeader(
     "Set-Cookie",
-    `session=${token}; Path=/; HttpOnly; SameSite=Lax`
+    [
+      `session=${token}`,
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+      "Max-Age=604800"
+    ].join("; ")
   );
 
 }
@@ -106,19 +249,26 @@ function clearSession(res) {
 
   res.setHeader(
     "Set-Cookie",
-    "session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0"
+    [
+      "session=",
+      "Path=/",
+      "HttpOnly",
+      "SameSite=Lax",
+      "Max-Age=0"
+    ].join("; ")
   );
 
 }
 
 
 /* =====================================================
-   AUTH MIDDLEWARE
+   AUTH
 ===================================================== */
 
 function requireUser(req, res, next) {
 
-  const session = getSession(req);
+  const session =
+    getSession(req);
 
   if (
     !session ||
@@ -126,12 +276,14 @@ function requireUser(req, res, next) {
   ) {
 
     return res.status(401).json({
-      error: "ابتدا وارد حساب کاربری شوید."
+      error:
+        "ابتدا وارد حساب کاربری شوید."
     });
 
   }
 
-  req.userId = session.userId;
+  req.userId =
+    session.userId;
 
   next();
 
@@ -140,7 +292,8 @@ function requireUser(req, res, next) {
 
 function requireAdmin(req, res, next) {
 
-  const session = getSession(req);
+  const session =
+    getSession(req);
 
   if (
     !session ||
@@ -148,7 +301,8 @@ function requireAdmin(req, res, next) {
   ) {
 
     return res.status(401).json({
-      error: "دسترسی مدیریت نیازمند ورود ادمین است."
+      error:
+        "دسترسی مدیریت نیازمند ورود ادمین است."
     });
 
   }
@@ -156,6 +310,20 @@ function requireAdmin(req, res, next) {
   next();
 
 }
+
+
+/* =====================================================
+   HEALTH CHECK
+===================================================== */
+
+app.get("/health", (req, res) => {
+
+  res.status(200).json({
+    status: "ok",
+    service: "Emad Net"
+  });
+
+});
 
 
 /* =====================================================
@@ -165,7 +333,10 @@ function requireAdmin(req, res, next) {
 app.get("/api/plans", (req, res) => {
 
   res.json(
-    plans.filter(p => p.active !== false)
+    plans.filter(
+      plan =>
+        plan.active !== false
+    )
   );
 
 });
@@ -178,17 +349,21 @@ app.get("/api/plans", (req, res) => {
 app.post("/api/register", (req, res) => {
 
   const username =
-    String(req.body.username || "")
-      .trim();
+    String(
+      req.body.username || ""
+    ).trim();
 
   const password =
-    String(req.body.password || "");
+    String(
+      req.body.password || ""
+    );
 
 
   if (!username || !password) {
 
     return res.status(400).json({
-      error: "نام کاربری و رمز عبور الزامی است."
+      error:
+        "نام کاربری و رمز عبور الزامی است."
     });
 
   }
@@ -197,7 +372,8 @@ app.post("/api/register", (req, res) => {
   if (username.length < 3) {
 
     return res.status(400).json({
-      error: "نام کاربری حداقل ۳ کاراکتر باشد."
+      error:
+        "نام کاربری حداقل ۳ کاراکتر باشد."
     });
 
   }
@@ -206,7 +382,8 @@ app.post("/api/register", (req, res) => {
   if (password.length < 6) {
 
     return res.status(400).json({
-      error: "رمز عبور حداقل ۶ کاراکتر باشد."
+      error:
+        "رمز عبور حداقل ۶ کاراکتر باشد."
     });
 
   }
@@ -214,8 +391,8 @@ app.post("/api/register", (req, res) => {
 
   const exists =
     users.some(
-      u =>
-        u.username.toLowerCase() ===
+      user =>
+        user.username.toLowerCase() ===
         username.toLowerCase()
     );
 
@@ -223,7 +400,8 @@ app.post("/api/register", (req, res) => {
   if (exists) {
 
     return res.status(409).json({
-      error: "این نام کاربری قبلاً ثبت شده است."
+      error:
+        "این نام کاربری قبلاً ثبت شده است."
     });
 
   }
@@ -231,7 +409,7 @@ app.post("/api/register", (req, res) => {
 
   const user = {
 
-    id: id(),
+    id: createId(),
 
     username,
 
@@ -246,12 +424,20 @@ app.post("/api/register", (req, res) => {
 
   users.push(user);
 
+  saveDatabase();
+
 
   const token =
-    createSession("user", user.id);
+    createSession(
+      "user",
+      user.id
+    );
 
 
-  setSession(res, token);
+  setSession(
+    res,
+    token
+  );
 
 
   res.json({
@@ -273,17 +459,20 @@ app.post("/api/register", (req, res) => {
 app.post("/api/login", (req, res) => {
 
   const username =
-    String(req.body.username || "")
-      .trim();
+    String(
+      req.body.username || ""
+    ).trim();
 
   const password =
-    String(req.body.password || "");
+    String(
+      req.body.password || ""
+    );
 
 
   const user =
     users.find(
-      u =>
-        u.username.toLowerCase() ===
+      item =>
+        item.username.toLowerCase() ===
         username.toLowerCase()
     );
 
@@ -291,21 +480,28 @@ app.post("/api/login", (req, res) => {
   if (
     !user ||
     user.passwordHash !==
-    hashPassword(password)
+      hashPassword(password)
   ) {
 
     return res.status(401).json({
-      error: "نام کاربری یا رمز عبور اشتباه است."
+      error:
+        "نام کاربری یا رمز عبور اشتباه است."
     });
 
   }
 
 
   const token =
-    createSession("user", user.id);
+    createSession(
+      "user",
+      user.id
+    );
 
 
-  setSession(res, token);
+  setSession(
+    res,
+    token
+  );
 
 
   res.json({
@@ -326,7 +522,8 @@ app.post("/api/login", (req, res) => {
 
 app.get("/api/me", (req, res) => {
 
-  const session = getSession(req);
+  const session =
+    getSession(req);
 
 
   if (
@@ -343,7 +540,9 @@ app.get("/api/me", (req, res) => {
 
   const user =
     users.find(
-      u => u.id === session.userId
+      item =>
+        item.id ===
+        session.userId
     );
 
 
@@ -376,20 +575,35 @@ app.get("/api/me", (req, res) => {
 
 app.post("/api/logout", (req, res) => {
 
-  const cookie = req.headers.cookie || "";
-
-  const match = cookie
-    .split(";")
-    .map(x => x.trim())
-    .find(x => x.startsWith("session="));
+  const session =
+    getSession(req);
 
 
-  if (match) {
+  if (session) {
 
-    const token =
-      match.substring("session=".length);
+    const cookie =
+      req.headers.cookie || "";
 
-    sessions.delete(token);
+    const match =
+      cookie
+        .split(";")
+        .map(x => x.trim())
+        .find(
+          x =>
+            x.startsWith("session=")
+        );
+
+
+    if (match) {
+
+      const token =
+        match.substring(
+          "session=".length
+        );
+
+      sessions.delete(token);
+
+    }
 
   }
 
@@ -413,8 +627,9 @@ app.post(
   (req, res) => {
 
     const username =
-      String(req.body.username || "")
-        .trim();
+      String(
+        req.body.username || ""
+      ).trim();
 
 
     if (!username) {
@@ -428,8 +643,8 @@ app.post(
 
 
     /*
-      برای امنیت، وجود یا عدم وجود
-      حساب را اعلام نمی‌کنیم.
+      فعلاً اطلاعات وجود حساب
+      به کاربر نمایش داده نمی‌شود.
     */
 
     res.json({
@@ -438,126 +653,6 @@ app.post(
 
       message:
         "اگر حسابی با این مشخصات وجود داشته باشد، درخواست بازیابی ثبت شد."
-
-    });
-
-  }
-);
-
-
-/* =====================================================
-   CREATE ORDER
-===================================================== */
-
-app.post(
-  "/api/orders",
-  requireUser,
-  (req, res) => {
-
-    const planId =
-      Number(req.body.planId);
-
-    const couponCode =
-      String(req.body.coupon || "")
-        .trim()
-        .toUpperCase();
-
-
-    const plan =
-      plans.find(
-        p =>
-          Number(p.id) === planId &&
-          p.active !== false
-      );
-
-
-    if (!plan) {
-
-      return res.status(404).json({
-        error: "پلن پیدا نشد."
-      });
-
-    }
-
-
-    let finalPrice =
-      Number(plan.price);
-
-
-    let discount = 0;
-
-
-    if (couponCode) {
-
-      const coupon =
-        coupons.find(
-          c =>
-            c.code === couponCode &&
-            c.active !== false
-        );
-
-
-      if (!coupon) {
-
-        return res.status(400).json({
-          error: "کد تخفیف معتبر نیست."
-        });
-
-      }
-
-
-      discount =
-        Math.floor(
-          finalPrice *
-          Number(coupon.percent) /
-          100
-        );
-
-
-      finalPrice =
-        Math.max(
-          0,
-          finalPrice - discount
-        );
-
-    }
-
-
-    const order = {
-
-      id: id(),
-
-      userId: req.userId,
-
-      planId: plan.id,
-
-      planName: plan.name,
-
-      price: Number(plan.price),
-
-      discount,
-
-      finalPrice,
-
-      coupon:
-        couponCode || null,
-
-      status: "pending",
-
-      createdAt:
-        new Date().toISOString()
-
-    };
-
-
-    orders.unshift(order);
-
-
-    res.json({
-
-      success: true,
-
-      order
 
     });
 
@@ -577,15 +672,17 @@ app.get(
     const result =
       orders
         .filter(
-          o =>
-            o.userId === req.userId
+          order =>
+            order.userId ===
+            req.userId
         )
         .map(order => {
 
           const subscription =
             subscriptions.find(
-              s =>
-                s.orderId === order.id
+              sub =>
+                sub.orderId ===
+                order.id
             );
 
 
@@ -623,38 +720,39 @@ app.get(
     const result =
       subscriptions
         .filter(
-          s =>
-            s.userId === req.userId &&
-            s.active !== false
+          subscription =>
+            subscription.userId ===
+              req.userId &&
+            subscription.active !== false
         )
-        .map(s => {
+        .map(subscription => {
 
           const plan =
             plans.find(
-              p =>
-                Number(p.id) ===
-                Number(s.planId)
+              item =>
+                Number(item.id) ===
+                Number(subscription.planId)
             );
 
 
           return {
 
-            ...s,
+            ...subscription,
 
             planName:
               plan
                 ? plan.name
-                : s.planName,
+                : subscription.planName,
 
             gb:
               plan
                 ? plan.gb
-                : s.gb,
+                : subscription.gb,
 
             days:
               plan
                 ? plan.days
-                : s.days
+                : subscription.days
 
           };
 
@@ -670,6 +768,138 @@ app.get(
 
 
 /* =====================================================
+   CREATE ORDER
+===================================================== */
+
+app.post(
+  "/api/orders",
+  requireUser,
+  (req, res) => {
+
+    const planId =
+      Number(req.body.planId);
+
+    const couponCode =
+      String(
+        req.body.coupon || ""
+      )
+        .trim()
+        .toUpperCase();
+
+
+    const plan =
+      plans.find(
+        item =>
+          Number(item.id) ===
+            planId &&
+          item.active !== false
+      );
+
+
+    if (!plan) {
+
+      return res.status(404).json({
+        error:
+          "پلن پیدا نشد."
+      });
+
+    }
+
+
+    let finalPrice =
+      Number(plan.price);
+
+    let discount = 0;
+
+
+    if (couponCode) {
+
+      const coupon =
+        coupons.find(
+          item =>
+            item.code ===
+              couponCode &&
+            item.active !== false
+        );
+
+
+      if (!coupon) {
+
+        return res.status(400).json({
+          error:
+            "کد تخفیف معتبر نیست."
+        });
+
+      }
+
+
+      discount =
+        Math.floor(
+          finalPrice *
+          Number(coupon.percent) /
+          100
+        );
+
+
+      finalPrice =
+        Math.max(
+          0,
+          finalPrice - discount
+        );
+
+    }
+
+
+    const order = {
+
+      id: createId(),
+
+      userId:
+        req.userId,
+
+      planId:
+        plan.id,
+
+      planName:
+        plan.name,
+
+      price:
+        Number(plan.price),
+
+      discount,
+
+      finalPrice,
+
+      coupon:
+        couponCode || null,
+
+      status:
+        "pending",
+
+      createdAt:
+        new Date().toISOString()
+
+    };
+
+
+    orders.unshift(order);
+
+    saveDatabase();
+
+
+    res.json({
+
+      success: true,
+
+      order
+
+    });
+
+  }
+);
+
+
+/* =====================================================
    ADMIN LOGIN
 ===================================================== */
 
@@ -678,16 +908,21 @@ app.post(
   (req, res) => {
 
     const username =
-      String(req.body.username || "")
-        .trim();
+      String(
+        req.body.username || ""
+      ).trim();
 
     const password =
-      String(req.body.password || "");
+      String(
+        req.body.password || ""
+      );
 
 
     if (
-      username !== ADMIN_USERNAME ||
-      password !== ADMIN_PASSWORD
+      username !==
+        ADMIN_USERNAME ||
+      password !==
+        ADMIN_PASSWORD
     ) {
 
       return res.status(401).json({
@@ -705,7 +940,10 @@ app.post(
       );
 
 
-    setSession(res, token);
+    setSession(
+      res,
+      token
+    );
 
 
     res.json({
@@ -733,7 +971,8 @@ app.get(
       authenticated:
         !!(
           session &&
-          session.type === "admin"
+          session.type ===
+            "admin"
         )
 
     });
@@ -750,9 +989,12 @@ app.post(
   "/api/admin/logout",
   (req, res) => {
 
+    const session =
+      getSession(req);
+
+
     const cookie =
       req.headers.cookie || "";
-
 
     const match =
       cookie
@@ -799,12 +1041,16 @@ app.get(
     const income =
       orders
         .filter(
-          o =>
-            o.status === "approved"
+          order =>
+            order.status ===
+            "approved"
         )
         .reduce(
-          (sum, o) =>
-            sum + Number(o.finalPrice || 0),
+          (sum, order) =>
+            sum +
+            Number(
+              order.finalPrice || 0
+            ),
           0
         );
 
@@ -846,7 +1092,7 @@ app.get(
 
 
 /* =====================================================
-   CREATE PLAN
+   ADMIN CREATE PLAN
 ===================================================== */
 
 app.post(
@@ -855,8 +1101,9 @@ app.post(
   (req, res) => {
 
     const name =
-      String(req.body.name || "")
-        .trim();
+      String(
+        req.body.name || ""
+      ).trim();
 
     const gb =
       Number(req.body.gb);
@@ -888,8 +1135,7 @@ app.post(
 
     const plan = {
 
-      id:
-        Date.now(),
+      id: Date.now(),
 
       name,
 
@@ -909,10 +1155,15 @@ app.post(
 
     plans.push(plan);
 
+    saveDatabase();
+
 
     res.json({
+
       success: true,
+
       plan
+
     });
 
   }
@@ -920,7 +1171,7 @@ app.post(
 
 
 /* =====================================================
-   DELETE PLAN
+   ADMIN DELETE PLAN
 ===================================================== */
 
 app.delete(
@@ -934,21 +1185,28 @@ app.delete(
 
     const index =
       plans.findIndex(
-        p =>
-          Number(p.id) === planId
+        plan =>
+          Number(plan.id) ===
+          planId
       );
 
 
     if (index === -1) {
 
       return res.status(404).json({
-        error: "پلن پیدا نشد."
+        error:
+          "پلن پیدا نشد."
       });
 
     }
 
 
-    plans.splice(index, 1);
+    plans.splice(
+      index,
+      1
+    );
+
+    saveDatabase();
 
 
     res.json({
@@ -972,10 +1230,17 @@ app.get(
 
       users:
         users.map(
-          u => ({
-            id: u.id,
-            username: u.username,
-            createdAt: u.createdAt
+          user => ({
+
+            id:
+              user.id,
+
+            username:
+              user.username,
+
+            createdAt:
+              user.createdAt
+
           })
         )
 
@@ -999,15 +1264,17 @@ app.get(
 
         const user =
           users.find(
-            u =>
-              u.id === order.userId
+            item =>
+              item.id ===
+              order.userId
           );
 
 
         const subscription =
           subscriptions.find(
-            s =>
-              s.orderId === order.id
+            item =>
+              item.orderId ===
+              order.id
           );
 
 
@@ -1039,7 +1306,7 @@ app.get(
 
 
 /* =====================================================
-   APPROVE / REJECT ORDER
+   ADMIN APPROVE / REJECT
 ===================================================== */
 
 app.patch(
@@ -1049,8 +1316,8 @@ app.patch(
 
     const order =
       orders.find(
-        o =>
-          String(o.id) ===
+        item =>
+          String(item.id) ===
           String(req.params.id)
       );
 
@@ -1058,14 +1325,17 @@ app.patch(
     if (!order) {
 
       return res.status(404).json({
-        error: "سفارش پیدا نشد."
+        error:
+          "سفارش پیدا نشد."
       });
 
     }
 
 
     const status =
-      String(req.body.status || "");
+      String(
+        req.body.status || ""
+      );
 
 
     if (
@@ -1074,45 +1344,45 @@ app.patch(
     ) {
 
       return res.status(400).json({
-        error: "وضعیت سفارش نامعتبر است."
+        error:
+          "وضعیت سفارش نامعتبر است."
       });
 
     }
 
 
-    order.status = status;
+    order.status =
+      status;
 
     order.updatedAt =
       new Date().toISOString();
 
 
-    /*
-      در صورت تأیید سفارش،
-      یک Subscription ایجاد می‌کنیم.
-    */
+    if (
+      status === "approved"
+    ) {
 
-    if (status === "approved") {
-
-      const old =
+      const exists =
         subscriptions.find(
-          s =>
-            s.orderId === order.id
+          item =>
+            item.orderId ===
+            order.id
         );
 
 
-      if (!old) {
+      if (!exists) {
 
         const plan =
           plans.find(
-            p =>
-              Number(p.id) ===
+            item =>
+              Number(item.id) ===
               Number(order.planId)
           );
 
 
         if (plan) {
 
-          const subscriptionToken =
+          const token =
             crypto
               .randomBytes(24)
               .toString("hex");
@@ -1120,7 +1390,8 @@ app.patch(
 
           subscriptions.push({
 
-            id: id(),
+            id:
+              createId(),
 
             orderId:
               order.id,
@@ -1140,10 +1411,11 @@ app.patch(
             days:
               plan.days,
 
-            active: true,
+            active:
+              true,
 
             subscriptionUrl:
-              `/subscription/${subscriptionToken}`,
+              `/subscription/${token}`,
 
             createdAt:
               new Date().toISOString()
@@ -1157,15 +1429,21 @@ app.patch(
     }
 
 
-    if (status === "rejected") {
+    if (
+      status === "rejected"
+    ) {
 
-      subscriptions =
-        subscriptions.filter(
-          s =>
-            s.orderId !== order.id
+      database.subscriptions =
+        database.subscriptions.filter(
+          subscription =>
+            subscription.orderId !==
+            order.id
         );
 
     }
+
+
+    saveDatabase();
 
 
     res.json({
@@ -1207,13 +1485,16 @@ app.post(
   (req, res) => {
 
     const code =
-      String(req.body.code || "")
+      String(
+        req.body.code || ""
+      )
         .trim()
         .toUpperCase();
 
-
     const percent =
-      Number(req.body.percent);
+      Number(
+        req.body.percent
+      );
 
 
     if (
@@ -1233,8 +1514,9 @@ app.post(
 
     const exists =
       coupons.some(
-        c =>
-          c.code === code
+        coupon =>
+          coupon.code ===
+          code
       );
 
 
@@ -1250,13 +1532,15 @@ app.post(
 
     const coupon = {
 
-      id: id(),
+      id:
+        createId(),
 
       code,
 
       percent,
 
-      active: true,
+      active:
+        true,
 
       createdAt:
         new Date().toISOString()
@@ -1265,6 +1549,8 @@ app.post(
 
 
     coupons.push(coupon);
+
+    saveDatabase();
 
 
     res.json({
@@ -1280,7 +1566,7 @@ app.post(
 
 
 /* =====================================================
-   SUBSCRIPTION DEMO ENDPOINT
+   SUBSCRIPTION
 ===================================================== */
 
 app.get(
@@ -1289,8 +1575,8 @@ app.get(
 
     const subscription =
       subscriptions.find(
-        s =>
-          s.subscriptionUrl ===
+        item =>
+          item.subscriptionUrl ===
           `/subscription/${req.params.token}`
       );
 
@@ -1305,10 +1591,15 @@ app.get(
 
 
     res.type("text/plain").send(
+
       `Emad Net Subscription\n\n` +
+
       `Plan: ${subscription.planName}\n` +
+
       `Volume: ${subscription.gb} GB\n` +
+
       `Duration: ${subscription.days} days\n`
+
     );
 
   }
@@ -1316,45 +1607,54 @@ app.get(
 
 
 /* =====================================================
-   HEALTH CHECK
+   STATIC FILES
 ===================================================== */
 
-app.get("/health", (req, res) => {
+const publicPath =
+  path.join(
+    __dirname,
+    "public"
+  );
 
-  res.json({
-    status: "ok",
-    service: "Emad Net"
-  });
-
-});
-
-
-/* =====================================================
-   STATIC WEBSITE
-===================================================== */
 
 app.use(
   express.static(
-    path.join(__dirname, "public")
+    publicPath
   )
 );
 
 
 /* =====================================================
    SPA FALLBACK
+   IMPORTANT:
+   Express 5 does not use app.get("*")
 ===================================================== */
 
-app.get("*", (req, res) => {
+app.get(
+  /.*/,
+  (req, res) => {
 
-  res.sendFile(
-    path.join(
-      __dirname,
-      "public",
-      "index.html"
-    )
-  );
+    if (
+      req.path.startsWith("/api/")
+    ) {
 
-});
+      return res.status(404).json({
+        error:
+          "API endpoint not found."
+      });
+
+    }
+
+
+    res.sendFile(
+      path.join(
+        publicPath,
+        "index.html"
+      )
+    );
+
+  }
+);
 
 
 /* =====================================================
@@ -1362,9 +1662,27 @@ app.get("*", (req, res) => {
 ===================================================== */
 
 app.use(
-  (err, req, res, next) => {
+  (
+    error,
+    req,
+    res,
+    next
+  ) => {
 
-    console.error(err);
+    console.error(
+      "SERVER ERROR:",
+      error
+    );
+
+
+    if (
+      res.headersSent
+    ) {
+
+      return next(error);
+
+    }
+
 
     res.status(500).json({
 
@@ -1378,7 +1696,7 @@ app.use(
 
 
 /* =====================================================
-   START
+   START SERVER
 ===================================================== */
 
 app.listen(
